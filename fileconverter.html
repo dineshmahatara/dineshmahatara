@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Universal Converter Tool</title>
+
+<!-- LIBRARIES -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.4.26/mammoth.browser.min.js"></script>
+
+<style>
+body{
+    margin:0;
+    font-family:Segoe UI;
+    background:linear-gradient(135deg,#1e3c72,#2a5298);
+}
+
+/* NAVBAR */
+.navbar{
+    background:#0f172a;
+    color:white;
+    display:flex;
+    justify-content:space-between;
+    padding:15px 30px;
+    align-items:center;
+}
+
+.menu{
+    position:relative;
+}
+
+.menu button{
+    background:#2563eb;
+    color:white;
+    border:none;
+    padding:10px 18px;
+    border-radius:6px;
+    cursor:pointer;
+}
+
+/* SUBMENU FIXED */
+.submenu{
+    position:absolute;
+    top:45px;
+    right:0;
+    background:#2563eb;
+    min-width:220px;
+    border-radius:8px;
+    display:none;
+    flex-direction:column;
+    z-index:9999;
+    box-shadow:0 10px 25px rgba(0,0,0,0.3);
+}
+
+.submenu div{
+    padding:12px;
+    color:white;
+    cursor:pointer;
+    border-bottom:1px solid rgba(255,255,255,0.2);
+}
+
+.submenu div:hover{
+    background:#1d4ed8;
+}
+
+.submenu.show{display:flex;}
+
+/* MAIN */
+.container{
+    text-align:center;
+    padding:40px 20px;
+}
+
+.card{
+    background:white;
+    max-width:900px;
+    margin:auto;
+    padding:30px;
+    border-radius:12px;
+    box-shadow:0 8px 25px rgba(0,0,0,0.2);
+}
+
+#dropZone{
+    border:2px dashed #2563eb;
+    padding:30px;
+    margin-top:20px;
+    border-radius:10px;
+    cursor:pointer;
+    display:none;
+}
+
+#preview{
+    display:flex;
+    flex-wrap:wrap;
+    gap:10px;
+    justify-content:center;
+    margin-top:20px;
+}
+
+#preview img{
+    width:120px;
+    border-radius:8px;
+}
+
+button.convert-btn{
+    margin-top:20px;
+    padding:10px 25px;
+    background:#16a34a;
+    color:white;
+    border:none;
+    border-radius:6px;
+    cursor:pointer;
+    display:none;
+}
+
+footer{
+    background:#111;
+    color:#aaa;
+    text-align:center;
+    padding:15px;
+    margin-top:40px;
+}
+</style>
+</head>
+
+<body>
+
+<!-- NAVBAR -->
+<div class="navbar">
+    <h1>Universal Converter</h1>
+
+    <div class="menu">
+        <button onclick="toggleMenu()">Conversion ▾</button>
+
+        <div class="submenu" id="submenu">
+            <div onclick="openPDF()">📄 PDF → JPG</div>
+            <div onclick="openImages()">🖼 Images → PDF</div>
+            <div onclick="openDocx()">📝 DOCX → PDF</div>
+            <div onclick="openWebPDF()">🌐 Webpage → PDF</div>
+            <div onclick="openWebImage()">📸 Webpage → Image</div>
+        </div>
+    </div>
+</div>
+
+<!-- MAIN -->
+<div class="container">
+<div class="card">
+
+<h2>Universal File Converter</h2>
+
+<input type="file" id="pdfInput" accept="application/pdf" hidden>
+<input type="file" id="imageInput" accept="image/*" multiple hidden>
+<input type="file" id="docxInput" accept=".docx" hidden>
+
+<div id="dropZone">Drag & Drop Images Here</div>
+
+<div id="preview"></div>
+
+<button class="convert-btn" id="convertBtn">Convert</button>
+
+</div>
+</div>
+
+<footer>
+© 2026 Universal Converter Tool
+</footer>
+
+<script>
+
+const pdfInput=document.getElementById("pdfInput");
+const imageInput=document.getElementById("imageInput");
+const docxInput=document.getElementById("docxInput");
+const preview=document.getElementById("preview");
+const convertBtn=document.getElementById("convertBtn");
+
+/* MENU */
+function toggleMenu(){
+    document.getElementById("submenu").classList.toggle("show");
+}
+
+window.addEventListener("click",e=>{
+    if(!e.target.closest(".menu")){
+        document.getElementById("submenu").classList.remove("show");
+    }
+});
+
+/* OPEN */
+function openPDF(){ pdfInput.click(); }
+
+function openImages(){
+    imageInput.click();
+    document.getElementById("dropZone").style.display="block";
+    convertBtn.style.display="inline-block";
+}
+
+function openDocx(){ docxInput.click(); }
+
+/* =========================
+   PDF → JPG (ZIP)
+========================= */
+pdfInput.addEventListener("change",async function(){
+    const file=this.files[0];
+    const reader=new FileReader();
+
+    reader.onload=async function(){
+        const pdf=await pdfjsLib.getDocument({data:reader.result}).promise;
+        const zip=new JSZip();
+
+        for(let i=1;i<=pdf.numPages;i++){
+            const page=await pdf.getPage(i);
+            const viewport=page.getViewport({scale:2});
+
+            const canvas=document.createElement("canvas");
+            canvas.width=viewport.width;
+            canvas.height=viewport.height;
+
+            await page.render({canvasContext:canvas.getContext("2d"),viewport}).promise;
+
+            const img=canvas.toDataURL("image/jpeg",1).split(",")[1];
+            zip.file(`page-${i}.jpg`,img,{base64:true});
+        }
+
+        const blob=await zip.generateAsync({type:"blob"});
+        saveAs(blob,"pdf-images.zip");
+    };
+
+    reader.readAsArrayBuffer(file);
+});
+
+/* =========================
+   IMAGES → PDF
+========================= */
+new Sortable(preview,{animation:150});
+
+imageInput.addEventListener("change",e=>{
+    preview.innerHTML="";
+    Array.from(e.target.files).forEach(f=>{
+        const r=new FileReader();
+        r.onload=ev=>{
+            const img=document.createElement("img");
+            img.src=ev.target.result;
+            preview.appendChild(img);
+        };
+        r.readAsDataURL(f);
+    });
+});
+
+convertBtn.onclick=async function(){
+    const {jsPDF}=window.jspdf;
+    const pdf=new jsPDF();
+
+    const imgs=preview.querySelectorAll("img");
+
+    for(let i=0;i<imgs.length;i++){
+        const img=new Image();
+        img.src=imgs[i].src;
+
+        await new Promise(res=>{
+            img.onload=function(){
+                const w=pdf.internal.pageSize.getWidth();
+                const h=(img.height*w)/img.width;
+
+                if(i!==0) pdf.addPage();
+
+                pdf.addImage(img,"JPEG",0,0,w,h);
+                res();
+            };
+        });
+    }
+
+    pdf.save("images.pdf");
+};
+
+/* =========================
+   DOCX → PDF (STABLE)
+========================= */
+docxInput.addEventListener("change",async function(){
+    const file=this.files[0];
+    const data=await file.arrayBuffer();
+
+    const result=await mammoth.extractRawText({arrayBuffer:data});
+    const text=result.value;
+
+    const {jsPDF}=window.jspdf;
+    const pdf=new jsPDF();
+
+    const lines=pdf.splitTextToSize(text,180);
+
+    let y=15;
+
+    for(let l of lines){
+        if(y>280){
+            pdf.addPage();
+            y=15;
+        }
+        pdf.text(l,10,y);
+        y+=7;
+    }
+
+    pdf.save("docx.pdf");
+});
+
+/* =========================
+   WEBPAGE → PDF (REALISTIC)
+========================= */
+function openWebPDF(){
+    let url=prompt("Enter website URL (https://...)");
+    if(!url) return;
+
+    let win=window.open(url,"_blank");
+
+    alert("Website opened.\nNow press CTRL + P → Save as PDF");
+}
+
+/* =========================
+   WEBPAGE → IMAGE (REALISTIC)
+========================= */
+function openWebImage(){
+    alert(
+        "Webpage → Image:\n\n" +
+        "Browser security does NOT allow automatic full-page capture.\n\n" +
+        "Use:\n" +
+        "1. Press PrtSc (Screenshot)\n" +
+        "OR\n" +
+        "2. Use browser extension (Full Page Screenshot)"
+    );
+}
+
+</script>
+
+</body>
+</html>
