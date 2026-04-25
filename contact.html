@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Google Sheet Contact Manager</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+body { font-family: Arial; padding: 20px; background: #f4f6f8; }
+h2 { text-align: center; }
+
+.controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 15px;
+}
+
+input, select, button { padding: 8px; }
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  background: white;
+}
+
+th, td {
+  border: 1px solid #ddd;
+  padding: 10px;
+}
+
+th {
+  background: #007bff;
+  color: white;
+}
+
+button {
+  background: #28a745;
+  color: white;
+  border: none;
+  cursor: pointer;
+}
+
+button:hover { background: #218838; }
+</style>
+</head>
+
+<body>
+
+<h2>Google Sheet Contact Manager</h2>
+
+<div class="controls">
+  <input type="text" id="search" placeholder="Search name or phone">
+  
+  <select id="groupFilter">
+    <option value="">All Groups</option>
+  </select>
+
+  <button onclick="selectAll()">Select All</button>
+  <button onclick="clearAll()">Clear</button>
+  <button onclick="exportSelected()">Export Selected</button>
+</div>
+
+<table>
+<thead>
+<tr>
+  <th>Select</th>
+  <th>Name</th>
+  <th>Phones</th>
+  <th>Email</th>
+<th> Post</th>
+  <th>Groups</th>
+</tr>
+</thead>
+<tbody id="tableBody"></tbody>
+</table>
+
+<script>
+
+// 🔴 Replace with your sheet URL
+const SHEET_URL = "https://opensheet.elk.sh/1HAaZ_Vc71R4ewjH_YLOrAtI_O0EjPXeSFuXAopuC9nM/Sheet1";
+
+let contacts = [];
+
+const tableBody = document.getElementById("tableBody");
+const groupFilter = document.getElementById("groupFilter");
+
+// ✅ Parse phone string
+function parsePhones(phoneStr) {
+  if (!phoneStr) return [];
+  return phoneStr.split(";").map(p => {
+    const [label, number] = p.split(":");
+    return {
+      label: (label || "CELL").trim(),
+      number: (number || "").trim()
+    };
+  });
+}
+
+// ✅ Parse groups
+function parseGroups(groupStr) {
+  if (!groupStr) return [];
+  return groupStr.split(",").map(g => g.trim());
+}
+
+// ✅ Load from Google Sheet
+async function loadData() {
+  const res = await fetch(SHEET_URL);
+  const data = await res.json();
+
+  contacts = data.map(row => ({
+    name: row.Name,
+    email: row.Email,
+    post: row.Post,
+    phones: parsePhones(row.Phones),
+    groups: parseGroups(row.Groups)
+  }));
+
+  loadGroups();
+  renderTable();
+}
+
+// ✅ Load groups
+function loadGroups() {
+  const groups = [...new Set(contacts.flatMap(c => c.groups))];
+  groupFilter.innerHTML = `<option value="">All Groups</option>`;
+  groups.forEach(g => {
+    const opt = document.createElement("option");
+    opt.value = g;
+    opt.textContent = g;
+    groupFilter.appendChild(opt);
+  });
+}
+
+// ✅ Render table
+function renderTable() {
+  const search = document.getElementById("search").value.toLowerCase();
+  const group = groupFilter.value;
+
+  tableBody.innerHTML = "";
+
+  contacts
+    .filter(c => {
+      const matchName = c.name.toLowerCase().includes(search);
+      const matchPhone = c.phones.some(p => p.number.includes(search));
+      const matchGroup = group === "" || c.groups.includes(group);
+      return (matchName || matchPhone) && matchGroup;
+    })
+    .forEach((c, index) => {
+      const phones = c.phones.map(p => `${p.label}: ${p.number}`).join("<br>");
+      const groups = c.groups.join(", ");
+
+      tableBody.innerHTML += `
+        <tr>
+          <td><input type="checkbox" class="selectBox" data-index="${index}"></td>
+          <td>${c.name}</td>
+          <td>${phones}</td>
+          <td>${c.email}</td>
+          <td>${c.post}</td>
+          <td>${groups}</td>
+        </tr>
+      `;
+    });
+}
+
+// ✅ Select all
+function selectAll() {
+  document.querySelectorAll(".selectBox").forEach(cb => cb.checked = true);
+}
+
+// ✅ Clear
+function clearAll() {
+  document.querySelectorAll(".selectBox").forEach(cb => cb.checked = false);
+}
+
+// ✅ Export vCard
+function exportSelected() {
+  const selected = document.querySelectorAll(".selectBox:checked");
+
+  if (selected.length === 0) {
+    alert("No contacts selected!");
+    return;
+  }
+
+  let vcf = "";
+
+  selected.forEach(cb => {
+    const c = contacts[cb.dataset.index];
+
+    let phoneBlock = "";
+    c.phones.forEach(p => {
+      phoneBlock += `TEL;TYPE=${p.label}:${p.number}\n`;
+    });
+
+    vcf += `BEGIN:VCARD
+VERSION:3.0
+FN:${c.name}
+${phoneBlock}EMAIL:${c.email}
+CATEGORIES:${c.groups.join(",")}
+END:VCARD
+`;
+  });
+
+  const blob = new Blob([vcf], { type: "text/vcard" });
+  const url = URL.createObjectURL(blob);
+
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "contacts.vcf";
+  a.click();
+}
+
+// Events
+document.getElementById("search").addEventListener("input", renderTable);
+groupFilter.addEventListener("change", renderTable);
+
+// Init
+loadData();
+
+</script>
+
+</body>
+</html>
