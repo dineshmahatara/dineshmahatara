@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Google Sheet Contact Manager</title>
+<title>Advanced Contact Manager</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <style>
@@ -42,18 +42,33 @@ button {
 }
 
 button:hover { background: #218838; }
+
+.pagination {
+  margin-top: 15px;
+  text-align: center;
+}
 </style>
 </head>
 
 <body>
 
-<h2>Google Sheet Contact Manager</h2>
+<h2>Contact Manager</h2>
 
 <div class="controls">
   <input type="text" id="search" placeholder="Search name or phone">
-  
-  <select id="groupFilter">
-    <option value="">All Groups</option>
+
+  <div id="groupFilterContainer"></div>
+
+  <select id="postFilter">
+    <option value="">All Posts</option>
+  </select>
+
+  <select id="sortBy">
+    <option value="">Sort By</option>
+    <option value="name_asc">Name A-Z</option>
+    <option value="name_desc">Name Z-A</option>
+    <option value="post_asc">Post A-Z</option>
+    <option value="post_desc">Post Z-A</option>
   </select>
 
   <button onclick="selectAll()">Select All</button>
@@ -68,151 +83,225 @@ button:hover { background: #218838; }
   <th>Name</th>
   <th>Phones</th>
   <th>Email</th>
-<th> Post</th>
+  <th>Post</th>
   <th>Groups</th>
 </tr>
 </thead>
 <tbody id="tableBody"></tbody>
 </table>
 
+<div class="pagination">
+  <button onclick="prevPage()">Prev</button>
+  <span id="pageInfo"></span>
+  <button onclick="nextPage()">Next</button>
+</div>
+
 <script>
 
-// 🔴 Replace with your sheet URL
 const SHEET_URL = "https://opensheet.elk.sh/1HAaZ_Vc71R4ewjH_YLOrAtI_O0EjPXeSFuXAopuC9nM/Sheet1";
 
 let contacts = [];
+let filteredData = [];
+
+let currentPage = 1;
+const perPage = 30;
 
 const tableBody = document.getElementById("tableBody");
-const groupFilter = document.getElementById("groupFilter");
+const groupContainer = document.getElementById("groupFilterContainer");
+const postFilter = document.getElementById("postFilter");
+const sortBy = document.getElementById("sortBy");
 
-// ✅ Parse phone string
-function parsePhones(phoneStr) {
-  if (!phoneStr) return [];
-  return phoneStr.split(";").map(p => {
+// 🔍 Smart search (mobile-like)
+function matchSearch(text, search) {
+  text = text.toLowerCase();
+  search = search.toLowerCase();
+
+  // direct match
+  if (text.includes(search)) return true;
+
+  // fuzzy match (characters in order)
+  let i = 0;
+  for (let char of text) {
+    if (char === search[i]) i++;
+  }
+  return i === search.length;
+}
+
+// Parse phones
+function parsePhones(str) {
+  if (!str) return [];
+  return str.split(";").map(p => {
     const [label, number] = p.split(":");
-    return {
-      label: (label || "CELL").trim(),
-      number: (number || "").trim()
-    };
+    return { label: label?.trim() || "CELL", number: number?.trim() || "" };
   });
 }
 
-// ✅ Parse groups
-function parseGroups(groupStr) {
-  if (!groupStr) return [];
-  return groupStr.split(",").map(g => g.trim());
+// Parse groups
+function parseGroups(str) {
+  if (!str) return [];
+  return str.split(",").map(g => g.trim());
 }
 
-// ✅ Load from Google Sheet
+// Load data
 async function loadData() {
   const res = await fetch(SHEET_URL);
   const data = await res.json();
 
   contacts = data.map(row => ({
-    name: row.Name,
-    email: row.Email,
-    post: row.Post,
+    name: row.Name || "",
+    email: row.Email || "",
+    post: row.Post || "",
     phones: parsePhones(row.Phones),
     groups: parseGroups(row.Groups)
   }));
 
   loadGroups();
-  renderTable();
+  loadPosts();
+  applyFilters();
 }
 
-// ✅ Load groups
+// Groups UI
 function loadGroups() {
   const groups = [...new Set(contacts.flatMap(c => c.groups))];
-  groupFilter.innerHTML = `<option value="">All Groups</option>`;
+
+  groupContainer.innerHTML = "";
   groups.forEach(g => {
+    const label = document.createElement("label");
+    label.innerHTML = `<input type="checkbox" value="${g}" class="groupCheck"> ${g}`;
+    groupContainer.appendChild(label);
+  });
+
+  document.querySelectorAll(".groupCheck").forEach(cb =>
+    cb.addEventListener("change", applyFilters)
+  );
+}
+
+// Posts UI
+function loadPosts() {
+  const posts = [...new Set(contacts.map(c => c.post))];
+
+  postFilter.innerHTML = `<option value="">All Posts</option>`;
+  posts.forEach(p => {
     const opt = document.createElement("option");
-    opt.value = g;
-    opt.textContent = g;
-    groupFilter.appendChild(opt);
+    opt.value = p;
+    opt.textContent = p;
+    postFilter.appendChild(opt);
   });
 }
 
-// ✅ Render table
-function renderTable() {
-  const search = document.getElementById("search").value.toLowerCase();
-  const group = groupFilter.value;
+// Apply filters + search + sort
+function applyFilters() {
+  const search = document.getElementById("search").value;
 
-  tableBody.innerHTML = "";
+  const selectedGroups = [...document.querySelectorAll(".groupCheck:checked")].map(cb => cb.value);
+  const selectedPost = postFilter.value;
+  const sort = sortBy.value;
 
-  contacts
-    .filter(c => {
-      const matchName = c.name.toLowerCase().includes(search);
-      const matchPhone = c.phones.some(p => p.number.includes(search));
-      const matchGroup = group === "" || c.groups.includes(group);
-      return (matchName || matchPhone) && matchGroup;
-    })
-    .forEach((c, index) => {
-      const phones = c.phones.map(p => `${p.label}: ${p.number}`).join("<br>");
-      const groups = c.groups.join(", ");
+  filteredData = contacts.filter(c => {
+    const matchName = matchSearch(c.name, search);
+    const matchPhone = c.phones.some(p => matchSearch(p.number, search));
 
-      tableBody.innerHTML += `
-        <tr>
-          <td><input type="checkbox" class="selectBox" data-index="${index}"></td>
-          <td>${c.name}</td>
-          <td>${phones}</td>
-          <td>${c.email}</td>
-          <td>${c.post}</td>
-          <td>${groups}</td>
-        </tr>
-      `;
-    });
+    const matchGroup = selectedGroups.length === 0 || c.groups.some(g => selectedGroups.includes(g));
+    const matchPost = selectedPost === "" || c.post === selectedPost;
+
+    return (matchName || matchPhone) && matchGroup && matchPost;
+  });
+
+  // Sorting
+  if (sort === "name_asc") filteredData.sort((a,b)=>a.name.localeCompare(b.name));
+  if (sort === "name_desc") filteredData.sort((a,b)=>b.name.localeCompare(a.name));
+  if (sort === "post_asc") filteredData.sort((a,b)=>a.post.localeCompare(b.post));
+  if (sort === "post_desc") filteredData.sort((a,b)=>b.post.localeCompare(a.post));
+
+  currentPage = 1;
+  renderTable();
 }
 
-// ✅ Select all
+// Render with pagination
+function renderTable() {
+  tableBody.innerHTML = "";
+
+  const start = (currentPage - 1) * perPage;
+  const pageData = filteredData.slice(start, start + perPage);
+
+  pageData.forEach(c => {
+    const phones = c.phones.map(p => `${p.label}: ${p.number}`).join("<br>");
+    const groups = c.groups.join(", ");
+
+    tableBody.innerHTML += `
+      <tr>
+        <td><input type="checkbox" class="selectBox" data-id="${contacts.indexOf(c)}"></td>
+        <td>${c.name}</td>
+        <td>${phones}</td>
+        <td>${c.email}</td>
+        <td>${c.post}</td>
+        <td>${groups}</td>
+      </tr>
+    `;
+  });
+
+  document.getElementById("pageInfo").innerText =
+    `Page ${currentPage} / ${Math.ceil(filteredData.length / perPage)}`;
+}
+
+// Pagination
+function nextPage() {
+  if (currentPage < Math.ceil(filteredData.length / perPage)) {
+    currentPage++;
+    renderTable();
+  }
+}
+
+function prevPage() {
+  if (currentPage > 1) {
+    currentPage--;
+    renderTable();
+  }
+}
+
+// Selection
 function selectAll() {
   document.querySelectorAll(".selectBox").forEach(cb => cb.checked = true);
 }
 
-// ✅ Clear
 function clearAll() {
   document.querySelectorAll(".selectBox").forEach(cb => cb.checked = false);
 }
 
-// ✅ Export vCard
+// Export
 function exportSelected() {
   const selected = document.querySelectorAll(".selectBox:checked");
-
-  if (selected.length === 0) {
-    alert("No contacts selected!");
-    return;
-  }
 
   let vcf = "";
 
   selected.forEach(cb => {
-    const c = contacts[cb.dataset.index];
+    const c = contacts[cb.dataset.id];
 
-    let phoneBlock = "";
+    let phones = "";
     c.phones.forEach(p => {
-      phoneBlock += `TEL;TYPE=${p.label}:${p.number}\n`;
+      phones += `TEL;TYPE=${p.label}:${p.number}\n`;
     });
 
     vcf += `BEGIN:VCARD
 VERSION:3.0
 FN:${c.name}
-${phoneBlock}EMAIL:${c.email}
+${phones}EMAIL:${c.email}
 CATEGORIES:${c.groups.join(",")}
 END:VCARD
 `;
   });
 
   const blob = new Blob([vcf], { type: "text/vcard" });
-  const url = URL.createObjectURL(blob);
-
   const a = document.createElement("a");
-  a.href = url;
+  a.href = URL.createObjectURL(blob);
   a.download = "contacts.vcf";
   a.click();
 }
 
 // Events
-document.getElementById("search").addEventListener("input", renderTable);
-groupFilter.addEventListener("change", renderTable);
+document.getElementById("search").addEventListener("input", applyFilters);
+postFilter.addEventListener("change", applyFilters);
+sortBy.addEventListener("change", applyFilters);
 
 // Init
 loadData();
