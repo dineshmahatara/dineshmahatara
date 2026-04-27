@@ -102,6 +102,7 @@ const SHEET_URL = "https://opensheet.elk.sh/1HAaZ_Vc71R4ewjH_YLOrAtI_O0EjPXeSFuX
 
 let contacts = [];
 let filteredData = [];
+let selectedIds = new Set();
 
 let currentPage = 1;
 const perPage = 30;
@@ -111,15 +112,13 @@ const groupContainer = document.getElementById("groupFilterContainer");
 const postFilter = document.getElementById("postFilter");
 const sortBy = document.getElementById("sortBy");
 
-// 🔍 Smart search (mobile-like)
+// 🔍 Smart search
 function matchSearch(text, search) {
   text = text.toLowerCase();
   search = search.toLowerCase();
 
-  // direct match
   if (text.includes(search)) return true;
 
-  // fuzzy match (characters in order)
   let i = 0;
   for (let char of text) {
     if (char === search[i]) i++;
@@ -189,7 +188,7 @@ function loadPosts() {
   });
 }
 
-// Apply filters + search + sort
+// Apply filters
 function applyFilters() {
   const search = document.getElementById("search").value;
 
@@ -207,7 +206,6 @@ function applyFilters() {
     return (matchName || matchPhone) && matchGroup && matchPost;
   });
 
-  // Sorting
   if (sort === "name_asc") filteredData.sort((a,b)=>a.name.localeCompare(b.name));
   if (sort === "name_desc") filteredData.sort((a,b)=>b.name.localeCompare(a.name));
   if (sort === "post_asc") filteredData.sort((a,b)=>a.post.localeCompare(b.post));
@@ -217,20 +215,26 @@ function applyFilters() {
   renderTable();
 }
 
-// Render with pagination
+// Render table
 function renderTable() {
   tableBody.innerHTML = "";
 
   const start = (currentPage - 1) * perPage;
   const pageData = filteredData.slice(start, start + perPage);
 
-  pageData.forEach(c => {
+  pageData.forEach((c, index) => {
+    const globalIndex = start + index;
+
     const phones = c.phones.map(p => `${p.label}: ${p.number}`).join("<br>");
     const groups = c.groups.join(", ");
 
     tableBody.innerHTML += `
       <tr>
-        <td><input type="checkbox" class="selectBox" data-id="${contacts.indexOf(c)}"></td>
+        <td>
+          <input type="checkbox" class="selectBox"
+            data-id="${globalIndex}"
+            ${selectedIds.has(globalIndex) ? "checked" : ""}>
+        </td>
         <td>${c.name}</td>
         <td>${phones}</td>
         <td>${c.email}</td>
@@ -238,6 +242,15 @@ function renderTable() {
         <td>${groups}</td>
       </tr>
     `;
+  });
+
+  // Track checkbox change
+  document.querySelectorAll(".selectBox").forEach(cb => {
+    cb.addEventListener("change", function () {
+      const id = parseInt(this.dataset.id);
+      if (this.checked) selectedIds.add(id);
+      else selectedIds.delete(id);
+    });
   });
 
   document.getElementById("pageInfo").innerText =
@@ -261,21 +274,34 @@ function prevPage() {
 
 // Selection
 function selectAll() {
-  document.querySelectorAll(".selectBox").forEach(cb => cb.checked = true);
+  const start = (currentPage - 1) * perPage;
+  const pageData = filteredData.slice(start, start + perPage);
+
+  pageData.forEach((_, index) => {
+    selectedIds.add(start + index);
+  });
+
+  renderTable();
 }
 
 function clearAll() {
-  document.querySelectorAll(".selectBox").forEach(cb => cb.checked = false);
+  const start = (currentPage - 1) * perPage;
+  const pageData = filteredData.slice(start, start + perPage);
+
+  pageData.forEach((_, index) => {
+    selectedIds.delete(start + index);
+  });
+
+  renderTable();
 }
 
 // Export
 function exportSelected() {
-  const selected = document.querySelectorAll(".selectBox:checked");
-
   let vcf = "";
 
-  selected.forEach(cb => {
-    const c = contacts[cb.dataset.id];
+  selectedIds.forEach(id => {
+    const c = filteredData[id];
+    if (!c) return;
 
     let phones = "";
     c.phones.forEach(p => {
@@ -290,6 +316,11 @@ CATEGORIES:${c.groups.join(",")}
 END:VCARD
 `;
   });
+
+  if (!vcf) {
+    alert("No contacts selected!");
+    return;
+  }
 
   const blob = new Blob([vcf], { type: "text/vcard" });
   const a = document.createElement("a");
