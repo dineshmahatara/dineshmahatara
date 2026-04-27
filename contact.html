@@ -7,64 +7,72 @@
 
 <style>
 body { font-family: Arial; padding: 10px; background: #f4f6f8; }
-h2 { text-align: center; }
+h2 { text-align:center; }
 
 .controls {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin-bottom: 10px;
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px;
+  margin-bottom:10px;
 }
 
-.dropdown {
-  position: relative;
+input, button {
+  padding:8px;
 }
 
-.dropdown-btn {
-  padding: 8px;
-  background: #007bff;
-  color: white;
-  cursor: pointer;
+.dropdown { position:relative; }
+
+.dropdown button {
+  background:#007bff;
+  color:white;
+  border:none;
+  cursor:pointer;
 }
 
 .dropdown-content {
-  display: none;
-  position: absolute;
-  background: white;
-  border: 1px solid #ccc;
-  max-height: 200px;
-  overflow-y: auto;
-  z-index: 1;
+  display:none;
+  position:absolute;
+  background:white;
+  border:1px solid #ccc;
+  max-height:250px;
+  overflow:auto;
+  z-index:1000;
+  padding:8px;
+  min-width:180px;
 }
 
 .dropdown-content label {
-  display: block;
-  padding: 5px;
-}
-
-.dropdown:hover .dropdown-content {
-  display: block;
+  display:block;
+  padding:4px;
 }
 
 table {
-  width: 100%;
-  border-collapse: collapse;
-  background: white;
+  width:100%;
+  border-collapse:collapse;
+  background:white;
 }
 
 th, td {
-  border: 1px solid #ddd;
-  padding: 8px;
-  font-size: 14px;
+  border:1px solid #ddd;
+  padding:8px;
+  font-size:14px;
 }
 
 th {
-  background: #007bff;
-  color: white;
-  cursor: pointer;
+  background:#007bff;
+  color:white;
+  cursor:pointer;
 }
 
 .pagination { text-align:center; margin-top:10px; }
+
+/* Mobile */
+@media(max-width:768px){
+  table, thead, tbody, th, td, tr { display:block; }
+  th { display:none; }
+  tr { margin-bottom:10px; border:1px solid #ccc; padding:8px; }
+  td { display:flex; justify-content:space-between; }
+}
 </style>
 </head>
 
@@ -76,17 +84,17 @@ th {
   <input type="text" id="search" placeholder="Search...">
 
   <div class="dropdown">
-    <div class="dropdown-btn">Groups</div>
+    <button onclick="toggleDropdown('groupFilter')">Groups ▼</button>
     <div id="groupFilter" class="dropdown-content"></div>
   </div>
 
   <div class="dropdown">
-    <div class="dropdown-btn">Posts</div>
+    <button onclick="toggleDropdown('postFilter')">Posts ▼</button>
     <div id="postFilter" class="dropdown-content"></div>
   </div>
 
   <div class="dropdown">
-    <div class="dropdown-btn">Status</div>
+    <button onclick="toggleDropdown('statusFilter')">Status ▼</button>
     <div id="statusFilter" class="dropdown-content"></div>
   </div>
 
@@ -126,7 +134,16 @@ let filteredData = [];
 let selectedIds = new Set();
 let currentPage = 1;
 const perPage = 20;
-let currentSort = { key:null, asc:true };
+let currentSort = {key:null, asc:true};
+
+// Toggle dropdown
+function toggleDropdown(id){
+  document.querySelectorAll(".dropdown-content").forEach(d=>{
+    if(d.id !== id) d.style.display="none";
+  });
+  const el=document.getElementById(id);
+  el.style.display = el.style.display==="block"?"none":"block";
+}
 
 // Parse
 function parsePhones(str){
@@ -141,7 +158,7 @@ function parseGroups(str){
   return str.split(",").map(g=>g.trim());
 }
 
-// Load
+// Load data
 async function loadData(){
   const res = await fetch(SHEET_URL);
   const data = await res.json();
@@ -160,29 +177,48 @@ async function loadData(){
   applyFilters();
 }
 
-// Build multi filters
+// Build filters
 function buildFilters(){
-  buildCheckbox("groupFilter", [...new Set(contacts.flatMap(c=>c.groups))]);
-  buildCheckbox("postFilter", [...new Set(contacts.map(c=>c.post))]);
-  buildCheckbox("statusFilter", [...new Set(contacts.map(c=>c.status))]);
+  buildCheckbox("groupFilter",[...new Set(contacts.flatMap(c=>c.groups))]);
+  buildCheckbox("postFilter",[...new Set(contacts.map(c=>c.post))]);
+  buildCheckbox("statusFilter",[...new Set(contacts.map(c=>c.status))]);
 }
 
-function buildCheckbox(id, list){
+function buildCheckbox(id,list){
   const div=document.getElementById(id);
-  div.innerHTML="";
+
+  div.innerHTML=`
+    <button onclick="applyFilters()">Apply</button>
+    <button onclick="clearFilter('${id}')">Clear</button>
+    <hr>
+  `;
+
   list.forEach(val=>{
-    div.innerHTML+=`<label><input type="checkbox" value="${val}" onchange="applyFilters()"> ${val}</label>`;
+    const clean=val.trim();
+    div.innerHTML+=`
+      <label>
+        <input type="checkbox" value="${clean}">
+        ${clean}
+      </label>`;
   });
 }
 
-// Get selected values
+// Get selected
 function getSelected(id){
-  return [...document.querySelectorAll(`#${id} input:checked`)].map(cb=>cb.value);
+  return [...document.querySelectorAll(`#${id} input:checked`)]
+    .map(cb=>cb.value.toLowerCase());
 }
 
-// Filter
+// Clear filter
+function clearFilter(id){
+  document.querySelectorAll(`#${id} input`).forEach(cb=>cb.checked=false);
+  applyFilters();
+}
+
+// Apply filters
 function applyFilters(){
   const search=document.getElementById("search").value.toLowerCase();
+
   const groups=getSelected("groupFilter");
   const posts=getSelected("postFilter");
   const status=getSelected("statusFilter");
@@ -192,13 +228,19 @@ function applyFilters(){
       c.name.toLowerCase().includes(search) ||
       c.phones.some(p=>p.number.includes(search));
 
-    const matchGroup = groups.length===0 || c.groups.some(g=>groups.includes(g));
-    const matchPost = posts.length===0 || posts.includes(c.post);
-    const matchStatus = status.length===0 || status.includes(c.status);
+    const matchGroup =
+      groups.length===0 || c.groups.some(g=>groups.includes(g.toLowerCase()));
+
+    const matchPost =
+      posts.length===0 || posts.includes(c.post.toLowerCase());
+
+    const matchStatus =
+      status.length===0 || status.includes(c.status.toLowerCase());
 
     return matchSearch && matchGroup && matchPost && matchStatus;
   });
 
+  currentPage=1;
   renderTable();
 }
 
@@ -237,7 +279,7 @@ function renderTable(){
 <td>${phones}</td>
 <td>${c.email}</td>
 <td>${c.post}</td>
-<td>${c.groups.join(",")}</td>
+<td>${c.groups.join(", ")}</td>
 <td>${c.status}</td>
 <td>
 <a href="tel:${c.phones[0]?.number}">📞</a>
@@ -258,20 +300,40 @@ function renderTable(){
 }
 
 // Pagination
-function nextPage(){ currentPage++; renderTable(); }
-function prevPage(){ currentPage--; renderTable(); }
+function nextPage(){
+  if(currentPage < Math.ceil(filteredData.length/perPage)){
+    currentPage++;
+    renderTable();
+  }
+}
+function prevPage(){
+  if(currentPage>1){
+    currentPage--;
+    renderTable();
+  }
+}
 
 // Select
-function selectAll(){ filteredData.forEach(c=>selectedIds.add(c.id)); renderTable();}
-function clearAll(){ selectedIds.clear(); renderTable(); }
+function selectAll(){
+  filteredData.forEach(c=>selectedIds.add(c.id));
+  renderTable();
+}
+function clearAll(){
+  selectedIds.clear();
+  renderTable();
+}
 
 // Export
 function exportSelected(){
   let vcf="";
   contacts.forEach(c=>{
     if(!selectedIds.has(c.id)) return;
+
     let phones="";
-    c.phones.forEach(p=>phones+=`TEL:${p.number}\n`);
+    c.phones.forEach(p=>{
+      phones+=`TEL:${p.number}\n`;
+    });
+
     vcf+=`BEGIN:VCARD
 VERSION:3.0
 FN:${c.name}
@@ -292,6 +354,7 @@ END:VCARD
 // Events
 document.getElementById("search").oninput=applyFilters;
 
+// Init
 loadData();
 
 </script>
