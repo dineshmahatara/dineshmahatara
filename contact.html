@@ -6,27 +6,32 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <style>
-body { font-family: Arial; padding: 20px; background: #f4f6f8; }
+body { font-family: Arial; padding: 10px; background: #f4f6f8; }
 h2 { text-align: center; }
 
 .controls {
   display: flex;
   flex-wrap: wrap;
-  gap: 10px;
-  margin-bottom: 15px;
+  gap: 8px;
+  margin-bottom: 10px;
 }
 
-input, select, button { padding: 8px; }
+input, select, button {
+  padding: 8px;
+  font-size: 14px;
+}
 
 table {
   width: 100%;
   border-collapse: collapse;
   background: white;
+  overflow-x: auto;
 }
 
 th, td {
   border: 1px solid #ddd;
-  padding: 10px;
+  padding: 8px;
+  font-size: 14px;
 }
 
 th {
@@ -44,8 +49,31 @@ button {
 button:hover { background: #218838; }
 
 .pagination {
-  margin-top: 15px;
+  margin-top: 10px;
   text-align: center;
+}
+
+/* 📱 Mobile Responsive */
+@media(max-width:768px){
+  .controls { flex-direction: column; }
+  table, thead, tbody, th, td, tr { display: block; }
+  th { display:none; }
+
+  tr {
+    margin-bottom: 10px;
+    border: 1px solid #ccc;
+    padding: 8px;
+  }
+
+  td {
+    border: none;
+    display: flex;
+    justify-content: space-between;
+  }
+
+  td::before {
+    font-weight: bold;
+  }
 }
 </style>
 </head>
@@ -57,7 +85,15 @@ button:hover { background: #218838; }
 <div class="controls">
   <input type="text" id="search" placeholder="Search name or phone">
 
-  <div id="groupFilterContainer"></div>
+  <select id="groupFilter">
+    <option value="">All Groups</option>
+  </select>
+
+  <select id="oldNewFilter">
+    <option value="">All</option>
+    <option value="old">Old</option>
+    <option value="new">New</option>
+  </select>
 
   <select id="postFilter">
     <option value="">All Posts</option>
@@ -67,15 +103,14 @@ button:hover { background: #218838; }
     <option value="">Sort By</option>
     <option value="name_asc">Name A-Z</option>
     <option value="name_desc">Name Z-A</option>
-    <option value="post_asc">Post A-Z</option>
-    <option value="post_desc">Post Z-A</option>
   </select>
 
   <button onclick="selectAll()">Select All</button>
   <button onclick="clearAll()">Clear</button>
-  <button onclick="exportSelected()">Export Selected</button>
+  <button onclick="exportSelected()">Export</button>
 </div>
 
+<div style="overflow-x:auto;">
 <table>
 <thead>
 <tr>
@@ -85,10 +120,12 @@ button:hover { background: #218838; }
   <th>Email</th>
   <th>Post</th>
   <th>Groups</th>
+  <th>Action</th>
 </tr>
 </thead>
 <tbody id="tableBody"></tbody>
 </table>
+</div>
 
 <div class="pagination">
   <button onclick="prevPage()">Prev</button>
@@ -105,37 +142,26 @@ let filteredData = [];
 let selectedIds = new Set();
 
 let currentPage = 1;
-const perPage = 30;
+const perPage = 20;
 
 const tableBody = document.getElementById("tableBody");
-const groupContainer = document.getElementById("groupFilterContainer");
-const postFilter = document.getElementById("postFilter");
-const sortBy = document.getElementById("sortBy");
 
-// 🔍 Smart search
+// Search
 function matchSearch(text, search) {
   text = text.toLowerCase();
   search = search.toLowerCase();
-
-  if (text.includes(search)) return true;
-
-  let i = 0;
-  for (let char of text) {
-    if (char === search[i]) i++;
-  }
-  return i === search.length;
+  return text.includes(search);
 }
 
-// Parse phones
+// Parse
 function parsePhones(str) {
   if (!str) return [];
   return str.split(";").map(p => {
     const [label, number] = p.split(":");
-    return { label: label?.trim() || "CELL", number: number?.trim() || "" };
+    return { label: label || "CELL", number: number || "" };
   });
 }
 
-// Parse groups
 function parseGroups(str) {
   if (!str) return [];
   return str.split(",").map(g => g.trim());
@@ -146,44 +172,36 @@ async function loadData() {
   const res = await fetch(SHEET_URL);
   const data = await res.json();
 
-  contacts = data.map(row => ({
+  contacts = data.map((row, i) => ({
+    id: i,
     name: row.Name || "",
     email: row.Email || "",
     post: row.Post || "",
     phones: parsePhones(row.Phones),
-    groups: parseGroups(row.Groups)
+    groups: parseGroups(row.Groups),
+    type: i < data.length/2 ? "old" : "new"
   }));
 
-  loadGroups();
-  loadPosts();
+  loadFilters();
   applyFilters();
 }
 
-// Groups UI
-function loadGroups() {
+// Load filters
+function loadFilters() {
   const groups = [...new Set(contacts.flatMap(c => c.groups))];
-
-  groupContainer.innerHTML = "";
-  groups.forEach(g => {
-    const label = document.createElement("label");
-    label.innerHTML = `<input type="checkbox" value="${g}" class="groupCheck"> ${g}`;
-    groupContainer.appendChild(label);
-  });
-
-  document.querySelectorAll(".groupCheck").forEach(cb =>
-    cb.addEventListener("change", applyFilters)
-  );
-}
-
-// Posts UI
-function loadPosts() {
   const posts = [...new Set(contacts.map(c => c.post))];
 
-  postFilter.innerHTML = `<option value="">All Posts</option>`;
-  posts.forEach(p => {
-    const opt = document.createElement("option");
-    opt.value = p;
-    opt.textContent = p;
+  const groupFilter = document.getElementById("groupFilter");
+  groups.forEach(g=>{
+    let opt=document.createElement("option");
+    opt.value=g; opt.textContent=g;
+    groupFilter.appendChild(opt);
+  });
+
+  const postFilter = document.getElementById("postFilter");
+  posts.forEach(p=>{
+    let opt=document.createElement("option");
+    opt.value=p; opt.textContent=p;
     postFilter.appendChild(opt);
   });
 }
@@ -191,31 +209,31 @@ function loadPosts() {
 // Apply filters
 function applyFilters() {
   const search = document.getElementById("search").value;
-
-  const selectedGroups = [...document.querySelectorAll(".groupCheck:checked")].map(cb => cb.value);
-  const selectedPost = postFilter.value;
-  const sort = sortBy.value;
+  const group = document.getElementById("groupFilter").value;
+  const post = document.getElementById("postFilter").value;
+  const oldNew = document.getElementById("oldNewFilter").value;
+  const sort = document.getElementById("sortBy").value;
 
   filteredData = contacts.filter(c => {
-    const matchName = matchSearch(c.name, search);
-    const matchPhone = c.phones.some(p => matchSearch(p.number, search));
+    const matchSearchText =
+      matchSearch(c.name, search) ||
+      c.phones.some(p => matchSearch(p.number, search));
 
-    const matchGroup = selectedGroups.length === 0 || c.groups.some(g => selectedGroups.includes(g));
-    const matchPost = selectedPost === "" || c.post === selectedPost;
+    const matchGroup = !group || c.groups.includes(group);
+    const matchPost = !post || c.post === post;
+    const matchType = !oldNew || c.type === oldNew;
 
-    return (matchName || matchPhone) && matchGroup && matchPost;
+    return matchSearchText && matchGroup && matchPost && matchType;
   });
 
   if (sort === "name_asc") filteredData.sort((a,b)=>a.name.localeCompare(b.name));
   if (sort === "name_desc") filteredData.sort((a,b)=>b.name.localeCompare(a.name));
-  if (sort === "post_asc") filteredData.sort((a,b)=>a.post.localeCompare(b.post));
-  if (sort === "post_desc") filteredData.sort((a,b)=>b.post.localeCompare(a.post));
 
   currentPage = 1;
   renderTable();
 }
 
-// Render table
+// Render
 function renderTable() {
   tableBody.innerHTML = "";
 
@@ -223,34 +241,29 @@ function renderTable() {
   const pageData = filteredData.slice(start, start + perPage);
 
   pageData.forEach((c, index) => {
-    const globalIndex = start + index;
-
-    const phones = c.phones.map(p => `${p.label}: ${p.number}`).join("<br>");
-    const groups = c.groups.join(", ");
+    const phones = c.phones.map(p => p.number).join("<br>");
 
     tableBody.innerHTML += `
       <tr>
-        <td>
-          <input type="checkbox" class="selectBox"
-            data-id="${globalIndex}"
-            ${selectedIds.has(globalIndex) ? "checked" : ""}>
-        </td>
+        <td><input type="checkbox" data-id="${c.id}" ${selectedIds.has(c.id)?"checked":""}></td>
         <td>${c.name}</td>
         <td>${phones}</td>
         <td>${c.email}</td>
         <td>${c.post}</td>
-        <td>${groups}</td>
+        <td>${c.groups.join(", ")}</td>
+        <td>
+          <a href="tel:${c.phones[0]?.number}">📞</a>
+          <a href="mailto:${c.email}">✉</a>
+        </td>
       </tr>
     `;
   });
 
-  // Track checkbox change
-  document.querySelectorAll(".selectBox").forEach(cb => {
-    cb.addEventListener("change", function () {
-      const id = parseInt(this.dataset.id);
-      if (this.checked) selectedIds.add(id);
-      else selectedIds.delete(id);
-    });
+  document.querySelectorAll("input[type=checkbox]").forEach(cb=>{
+    cb.onchange = () => {
+      const id = parseInt(cb.dataset.id);
+      cb.checked ? selectedIds.add(id) : selectedIds.delete(id);
+    };
   });
 
   document.getElementById("pageInfo").innerText =
@@ -258,40 +271,16 @@ function renderTable() {
 }
 
 // Pagination
-function nextPage() {
-  if (currentPage < Math.ceil(filteredData.length / perPage)) {
-    currentPage++;
-    renderTable();
-  }
-}
+function nextPage(){ currentPage++; renderTable(); }
+function prevPage(){ currentPage--; renderTable(); }
 
-function prevPage() {
-  if (currentPage > 1) {
-    currentPage--;
-    renderTable();
-  }
-}
-
-// Selection
+// Select
 function selectAll() {
-  const start = (currentPage - 1) * perPage;
-  const pageData = filteredData.slice(start, start + perPage);
-
-  pageData.forEach((_, index) => {
-    selectedIds.add(start + index);
-  });
-
+  filteredData.forEach(c => selectedIds.add(c.id));
   renderTable();
 }
-
 function clearAll() {
-  const start = (currentPage - 1) * perPage;
-  const pageData = filteredData.slice(start, start + perPage);
-
-  pageData.forEach((_, index) => {
-    selectedIds.delete(start + index);
-  });
-
+  selectedIds.clear();
   renderTable();
 }
 
@@ -299,28 +288,23 @@ function clearAll() {
 function exportSelected() {
   let vcf = "";
 
-  selectedIds.forEach(id => {
-    const c = filteredData[id];
-    if (!c) return;
+  contacts.forEach(c => {
+    if (!selectedIds.has(c.id)) return;
 
     let phones = "";
-    c.phones.forEach(p => {
-      phones += `TEL;TYPE=${p.label}:${p.number}\n`;
+    c.phones.forEach(p=>{
+      phones += `TEL:${p.number}\n`;
     });
 
     vcf += `BEGIN:VCARD
 VERSION:3.0
 FN:${c.name}
 ${phones}EMAIL:${c.email}
-CATEGORIES:${c.groups.join(",")}
 END:VCARD
 `;
   });
 
-  if (!vcf) {
-    alert("No contacts selected!");
-    return;
-  }
+  if (!vcf) return alert("No contacts selected");
 
   const blob = new Blob([vcf], { type: "text/vcard" });
   const a = document.createElement("a");
@@ -330,11 +314,12 @@ END:VCARD
 }
 
 // Events
-document.getElementById("search").addEventListener("input", applyFilters);
-postFilter.addEventListener("change", applyFilters);
-sortBy.addEventListener("change", applyFilters);
+document.getElementById("search").oninput = applyFilters;
+document.getElementById("groupFilter").onchange = applyFilters;
+document.getElementById("postFilter").onchange = applyFilters;
+document.getElementById("oldNewFilter").onchange = applyFilters;
+document.getElementById("sortBy").onchange = applyFilters;
 
-// Init
 loadData();
 
 </script>
