@@ -16,16 +16,40 @@ h2 { text-align: center; }
   margin-bottom: 10px;
 }
 
-input, select, button {
+.dropdown {
+  position: relative;
+}
+
+.dropdown-btn {
   padding: 8px;
-  font-size: 14px;
+  background: #007bff;
+  color: white;
+  cursor: pointer;
+}
+
+.dropdown-content {
+  display: none;
+  position: absolute;
+  background: white;
+  border: 1px solid #ccc;
+  max-height: 200px;
+  overflow-y: auto;
+  z-index: 1;
+}
+
+.dropdown-content label {
+  display: block;
+  padding: 5px;
+}
+
+.dropdown:hover .dropdown-content {
+  display: block;
 }
 
 table {
   width: 100%;
   border-collapse: collapse;
   background: white;
-  overflow-x: auto;
 }
 
 th, td {
@@ -37,44 +61,10 @@ th, td {
 th {
   background: #007bff;
   color: white;
-}
-
-button {
-  background: #28a745;
-  color: white;
-  border: none;
   cursor: pointer;
 }
 
-button:hover { background: #218838; }
-
-.pagination {
-  margin-top: 10px;
-  text-align: center;
-}
-
-/* 📱 Mobile Responsive */
-@media(max-width:768px){
-  .controls { flex-direction: column; }
-  table, thead, tbody, th, td, tr { display: block; }
-  th { display:none; }
-
-  tr {
-    margin-bottom: 10px;
-    border: 1px solid #ccc;
-    padding: 8px;
-  }
-
-  td {
-    border: none;
-    display: flex;
-    justify-content: space-between;
-  }
-
-  td::before {
-    font-weight: bold;
-  }
-}
+.pagination { text-align:center; margin-top:10px; }
 </style>
 </head>
 
@@ -83,54 +73,48 @@ button:hover { background: #218838; }
 <h2>Contact Manager</h2>
 
 <div class="controls">
-  <input type="text" id="search" placeholder="Search name or phone">
+  <input type="text" id="search" placeholder="Search...">
 
-  <select id="groupFilter">
-    <option value="">All Groups</option>
-  </select>
+  <div class="dropdown">
+    <div class="dropdown-btn">Groups</div>
+    <div id="groupFilter" class="dropdown-content"></div>
+  </div>
 
-  <select id="oldNewFilter">
-    <option value="">All</option>
-    <option value="old">Old</option>
-    <option value="new">New</option>
-  </select>
+  <div class="dropdown">
+    <div class="dropdown-btn">Posts</div>
+    <div id="postFilter" class="dropdown-content"></div>
+  </div>
 
-  <select id="postFilter">
-    <option value="">All Posts</option>
-  </select>
-
-  <select id="sortBy">
-    <option value="">Sort By</option>
-    <option value="name_asc">Name A-Z</option>
-    <option value="name_desc">Name Z-A</option>
-  </select>
+  <div class="dropdown">
+    <div class="dropdown-btn">Status</div>
+    <div id="statusFilter" class="dropdown-content"></div>
+  </div>
 
   <button onclick="selectAll()">Select All</button>
   <button onclick="clearAll()">Clear</button>
   <button onclick="exportSelected()">Export</button>
 </div>
 
-<div style="overflow-x:auto;">
 <table>
 <thead>
 <tr>
-  <th>Select</th>
-  <th>Name</th>
-  <th>Phones</th>
-  <th>Email</th>
-  <th>Post</th>
-  <th>Groups</th>
-  <th>Action</th>
+<th></th>
+<th onclick="sortTable('name')">Name</th>
+<th onclick="sortTable('phones')">Phones</th>
+<th onclick="sortTable('email')">Email</th>
+<th onclick="sortTable('post')">Post</th>
+<th onclick="sortTable('groups')">Groups</th>
+<th onclick="sortTable('status')">Status</th>
+<th>Action</th>
 </tr>
 </thead>
 <tbody id="tableBody"></tbody>
 </table>
-</div>
 
 <div class="pagination">
-  <button onclick="prevPage()">Prev</button>
-  <span id="pageInfo"></span>
-  <button onclick="nextPage()">Next</button>
+<button onclick="prevPage()">Prev</button>
+<span id="pageInfo"></span>
+<button onclick="nextPage()">Next</button>
 </div>
 
 <script>
@@ -140,134 +124,137 @@ const SHEET_URL = "https://opensheet.elk.sh/1HAaZ_Vc71R4ewjH_YLOrAtI_O0EjPXeSFuX
 let contacts = [];
 let filteredData = [];
 let selectedIds = new Set();
-
 let currentPage = 1;
 const perPage = 20;
-
-const tableBody = document.getElementById("tableBody");
-
-// Search
-function matchSearch(text, search) {
-  text = text.toLowerCase();
-  search = search.toLowerCase();
-  return text.includes(search);
-}
+let currentSort = { key:null, asc:true };
 
 // Parse
-function parsePhones(str) {
-  if (!str) return [];
-  return str.split(";").map(p => {
-    const [label, number] = p.split(":");
-    return { label: label || "CELL", number: number || "" };
+function parsePhones(str){
+  if(!str) return [];
+  return str.split(";").map(p=>{
+    const [l,n]=p.split(":");
+    return {label:l||"CELL",number:n||""};
   });
 }
-
-function parseGroups(str) {
-  if (!str) return [];
-  return str.split(",").map(g => g.trim());
+function parseGroups(str){
+  if(!str) return [];
+  return str.split(",").map(g=>g.trim());
 }
 
-// Load data
-async function loadData() {
+// Load
+async function loadData(){
   const res = await fetch(SHEET_URL);
   const data = await res.json();
 
-  contacts = data.map((row, i) => ({
-    id: i,
-    name: row.Name || "",
-    email: row.Email || "",
-    post: row.Post || "",
-    phones: parsePhones(row.Phones),
-    groups: parseGroups(row.Groups),
-    type: i < data.length/2 ? "old" : "new"
+  contacts = data.map((r,i)=>({
+    id:i,
+    name:r.Name||"",
+    email:r.Email||"",
+    post:r.Post||"",
+    phones:parsePhones(r.Phones),
+    groups:parseGroups(r.Groups),
+    status:(r.Status||"").toLowerCase()
   }));
 
-  loadFilters();
+  buildFilters();
   applyFilters();
 }
 
-// Load filters
-function loadFilters() {
-  const groups = [...new Set(contacts.flatMap(c => c.groups))];
-  const posts = [...new Set(contacts.map(c => c.post))];
+// Build multi filters
+function buildFilters(){
+  buildCheckbox("groupFilter", [...new Set(contacts.flatMap(c=>c.groups))]);
+  buildCheckbox("postFilter", [...new Set(contacts.map(c=>c.post))]);
+  buildCheckbox("statusFilter", [...new Set(contacts.map(c=>c.status))]);
+}
 
-  const groupFilter = document.getElementById("groupFilter");
-  groups.forEach(g=>{
-    let opt=document.createElement("option");
-    opt.value=g; opt.textContent=g;
-    groupFilter.appendChild(opt);
-  });
-
-  const postFilter = document.getElementById("postFilter");
-  posts.forEach(p=>{
-    let opt=document.createElement("option");
-    opt.value=p; opt.textContent=p;
-    postFilter.appendChild(opt);
+function buildCheckbox(id, list){
+  const div=document.getElementById(id);
+  div.innerHTML="";
+  list.forEach(val=>{
+    div.innerHTML+=`<label><input type="checkbox" value="${val}" onchange="applyFilters()"> ${val}</label>`;
   });
 }
 
-// Apply filters
-function applyFilters() {
-  const search = document.getElementById("search").value;
-  const group = document.getElementById("groupFilter").value;
-  const post = document.getElementById("postFilter").value;
-  const oldNew = document.getElementById("oldNewFilter").value;
-  const sort = document.getElementById("sortBy").value;
+// Get selected values
+function getSelected(id){
+  return [...document.querySelectorAll(`#${id} input:checked`)].map(cb=>cb.value);
+}
 
-  filteredData = contacts.filter(c => {
-    const matchSearchText =
-      matchSearch(c.name, search) ||
-      c.phones.some(p => matchSearch(p.number, search));
+// Filter
+function applyFilters(){
+  const search=document.getElementById("search").value.toLowerCase();
+  const groups=getSelected("groupFilter");
+  const posts=getSelected("postFilter");
+  const status=getSelected("statusFilter");
 
-    const matchGroup = !group || c.groups.includes(group);
-    const matchPost = !post || c.post === post;
-    const matchType = !oldNew || c.type === oldNew;
+  filteredData = contacts.filter(c=>{
+    const matchSearch =
+      c.name.toLowerCase().includes(search) ||
+      c.phones.some(p=>p.number.includes(search));
 
-    return matchSearchText && matchGroup && matchPost && matchType;
+    const matchGroup = groups.length===0 || c.groups.some(g=>groups.includes(g));
+    const matchPost = posts.length===0 || posts.includes(c.post);
+    const matchStatus = status.length===0 || status.includes(c.status);
+
+    return matchSearch && matchGroup && matchPost && matchStatus;
   });
 
-  if (sort === "name_asc") filteredData.sort((a,b)=>a.name.localeCompare(b.name));
-  if (sort === "name_desc") filteredData.sort((a,b)=>b.name.localeCompare(a.name));
+  renderTable();
+}
 
-  currentPage = 1;
+// Sort
+function sortTable(key){
+  currentSort.asc = currentSort.key===key ? !currentSort.asc : true;
+  currentSort.key = key;
+
+  filteredData.sort((a,b)=>{
+    let A=a[key], B=b[key];
+    if(Array.isArray(A)) A=A.join(",");
+    if(Array.isArray(B)) B=B.join(",");
+    return currentSort.asc
+      ? String(A).localeCompare(String(B))
+      : String(B).localeCompare(String(A));
+  });
+
   renderTable();
 }
 
 // Render
-function renderTable() {
-  tableBody.innerHTML = "";
+function renderTable(){
+  const tbody=document.getElementById("tableBody");
+  tbody.innerHTML="";
 
-  const start = (currentPage - 1) * perPage;
-  const pageData = filteredData.slice(start, start + perPage);
+  const start=(currentPage-1)*perPage;
+  const page=filteredData.slice(start,start+perPage);
 
-  pageData.forEach((c, index) => {
-    const phones = c.phones.map(p => p.number).join("<br>");
+  page.forEach(c=>{
+    const phones=c.phones.map(p=>p.number).join("<br>");
 
-    tableBody.innerHTML += `
-      <tr>
-        <td><input type="checkbox" data-id="${c.id}" ${selectedIds.has(c.id)?"checked":""}></td>
-        <td>${c.name}</td>
-        <td>${phones}</td>
-        <td>${c.email}</td>
-        <td>${c.post}</td>
-        <td>${c.groups.join(", ")}</td>
-        <td>
-          <a href="tel:${c.phones[0]?.number}">📞</a>
-          <a href="mailto:${c.email}">✉</a>
-        </td>
-      </tr>
-    `;
+    tbody.innerHTML+=`
+<tr>
+<td><input type="checkbox" data-id="${c.id}" ${selectedIds.has(c.id)?"checked":""}></td>
+<td>${c.name}</td>
+<td>${phones}</td>
+<td>${c.email}</td>
+<td>${c.post}</td>
+<td>${c.groups.join(",")}</td>
+<td>${c.status}</td>
+<td>
+<a href="tel:${c.phones[0]?.number}">📞</a>
+<a href="mailto:${c.email}">✉</a>
+</td>
+</tr>`;
   });
 
   document.querySelectorAll("input[type=checkbox]").forEach(cb=>{
-    cb.onchange = () => {
-      const id = parseInt(cb.dataset.id);
-      cb.checked ? selectedIds.add(id) : selectedIds.delete(id);
+    cb.onchange=()=>{
+      const id=parseInt(cb.dataset.id);
+      cb.checked?selectedIds.add(id):selectedIds.delete(id);
     };
   });
 
-  document.getElementById("pageInfo").innerText =
-    `Page ${currentPage} / ${Math.ceil(filteredData.length / perPage)}`;
+  document.getElementById("pageInfo").innerText=
+    `Page ${currentPage}/${Math.ceil(filteredData.length/perPage)}`;
 }
 
 // Pagination
@@ -275,28 +262,17 @@ function nextPage(){ currentPage++; renderTable(); }
 function prevPage(){ currentPage--; renderTable(); }
 
 // Select
-function selectAll() {
-  filteredData.forEach(c => selectedIds.add(c.id));
-  renderTable();
-}
-function clearAll() {
-  selectedIds.clear();
-  renderTable();
-}
+function selectAll(){ filteredData.forEach(c=>selectedIds.add(c.id)); renderTable();}
+function clearAll(){ selectedIds.clear(); renderTable(); }
 
 // Export
-function exportSelected() {
-  let vcf = "";
-
-  contacts.forEach(c => {
-    if (!selectedIds.has(c.id)) return;
-
-    let phones = "";
-    c.phones.forEach(p=>{
-      phones += `TEL:${p.number}\n`;
-    });
-
-    vcf += `BEGIN:VCARD
+function exportSelected(){
+  let vcf="";
+  contacts.forEach(c=>{
+    if(!selectedIds.has(c.id)) return;
+    let phones="";
+    c.phones.forEach(p=>phones+=`TEL:${p.number}\n`);
+    vcf+=`BEGIN:VCARD
 VERSION:3.0
 FN:${c.name}
 ${phones}EMAIL:${c.email}
@@ -304,21 +280,17 @@ END:VCARD
 `;
   });
 
-  if (!vcf) return alert("No contacts selected");
+  if(!vcf) return alert("No contacts selected");
 
-  const blob = new Blob([vcf], { type: "text/vcard" });
-  const a = document.createElement("a");
-  a.href = URL.createObjectURL(blob);
-  a.download = "contacts.vcf";
+  const blob=new Blob([vcf],{type:"text/vcard"});
+  const a=document.createElement("a");
+  a.href=URL.createObjectURL(blob);
+  a.download="contacts.vcf";
   a.click();
 }
 
 // Events
-document.getElementById("search").oninput = applyFilters;
-document.getElementById("groupFilter").onchange = applyFilters;
-document.getElementById("postFilter").onchange = applyFilters;
-document.getElementById("oldNewFilter").onchange = applyFilters;
-document.getElementById("sortBy").onchange = applyFilters;
+document.getElementById("search").oninput=applyFilters;
 
 loadData();
 
