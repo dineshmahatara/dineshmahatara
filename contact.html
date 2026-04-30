@@ -6,66 +6,10 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <style>
-body { font-family: Arial; padding: 10px; background:#f4f6f8; }
+body { font-family: Arial; padding:10px; background:#f4f6f8; }
 h2 { text-align:center; }
 
-.controls {
-  display:flex;
-  flex-wrap:wrap;
-  gap:8px;
-  margin-bottom:10px;
-}
-
-input, button { padding:8px; }
-
-.dropdown { position:relative; }
-
-.dropdown button {
-  background:#007bff;
-  color:white;
-  border:none;
-  cursor:pointer;
-}
-
-.dropdown-content {
-  display:none;
-  position:absolute;
-  background:white;
-  border:1px solid #ccc;
-  max-height:250px;
-  overflow:auto;
-  z-index:1000;
-  padding:8px;
-  min-width:180px;
-}
-
-.dropdown-content label {
-  display:block;
-  padding:4px;
-}
-
-/* Phone */
-.phone-row {
-  display:flex;
-  justify-content:space-between;
-  margin-bottom:3px;
-}
-
-.phone {
-  transition:0.2s;
-}
-
-.phone:hover {
-  font-size:18px;
-  font-weight:bold;
-  color:#d11a2a;
-  background:#fff3f3;
-  padding:2px 4px;
-  border-radius:4px;
-}
-
-/* Row hover */
-tbody tr:hover { background:#fff3cd; }
+input { padding:8px; width:100%; max-width:300px; margin-bottom:10px; }
 
 table {
   width:100%;
@@ -85,17 +29,36 @@ th {
   cursor:pointer;
 }
 
-/* Mobile */
+/* row hover */
+tbody tr:hover {
+  background:#fff3cd;
+}
+
+/* phone */
+.phone {
+  transition:0.2s;
+}
+
+.phone:hover {
+  font-size:18px;
+  font-weight:bold;
+  color:#d11a2a;
+  background:#fff3f3;
+  padding:2px 4px;
+  border-radius:4px;
+}
+
+/* mobile */
 @media(max-width:768px){
   table, thead, tbody, th, td, tr { display:block; }
+
   thead { display:none; }
 
   tr {
     margin-bottom:10px;
+    background:white;
     border:1px solid #ccc;
     padding:10px;
-    background:white;
-    border-radius:6px;
   }
 
   td {
@@ -103,15 +66,11 @@ th {
     justify-content:space-between;
     border:none;
     border-bottom:1px solid #eee;
-    padding:6px 0;
   }
-
-  td:last-child { border-bottom:none; }
 
   td::before {
     content: attr(data-label);
     font-weight:bold;
-    color:#555;
   }
 }
 </style>
@@ -121,40 +80,18 @@ th {
 
 <h2>Contact Manager</h2>
 
-<div class="controls">
-  <input type="text" id="search" placeholder="Search English or Nepali Name">
-
-  <div class="dropdown">
-    <button onclick="toggleDropdown('groupFilter')">Groups ▼</button>
-    <div id="groupFilter" class="dropdown-content"></div>
-  </div>
-
-  <div class="dropdown">
-    <button onclick="toggleDropdown('postFilter')">Posts ▼</button>
-    <div id="postFilter" class="dropdown-content"></div>
-  </div>
-
-  <div class="dropdown">
-    <button onclick="toggleDropdown('statusFilter')">Status ▼</button>
-    <div id="statusFilter" class="dropdown-content"></div>
-  </div>
-
-  <button onclick="selectAll()">Select All</button>
-  <button onclick="clearAll()">Clear</button>
-</div>
+<input id="search" placeholder="Search Name / Nepali Name / Phone">
 
 <table>
 <thead>
 <tr>
-<th></th>
-<th onclick="sortTable('name')">Name</th>
-<th onclick="sortTable('nepaliName')">Nepali Name</th>
+<th>Name</th>
+<th>Nepali Name</th>
+<th>Email</th>
 <th>Phones</th>
-<th onclick="sortTable('email')">Email</th>
-<th onclick="sortTable('post')">Post</th>
-<th onclick="sortTable('groups')">Groups</th>
-<th onclick="sortTable('status')">Status</th>
-<th>Action</th>
+<th>Post</th>
+<th>Groups</th>
+<th>Status</th>
 </tr>
 </thead>
 
@@ -166,139 +103,91 @@ th {
 const SHEET_URL = "https://opensheet.elk.sh/1HAaZ_Vc71R4ewjH_YLOrAtI_O0EjPXeSFuXAopuC9nM/Sheet1";
 
 let contacts = [];
-let filteredData = [];
-let currentSort = {key:null, asc:true};
-let selectedIds = new Set();
+let filtered = [];
 
-// dropdown
-function toggleDropdown(id){
-  document.querySelectorAll(".dropdown-content").forEach(d=>{
-    if(d.id !== id) d.style.display="none";
-  });
-  const el=document.getElementById(id);
-  el.style.display = el.style.display==="block"?"none":"block";
-}
-
-// parse phones
+// 🔥 Safe phone parser
 function parsePhones(str){
   if(!str) return [];
   return str.split(";").map(p=>{
-    const [l,n]=p.split(":");
-    return {label:l||"CELL",number:n||""};
+    const [label, number] = p.split(":");
+    return {
+      label: label || "CELL",
+      number: number || ""
+    };
   });
 }
 
-// load data
+// 🔥 Load data safely
 async function loadData(){
   const res = await fetch(SHEET_URL);
-  const data = await res.json();
+  const raw = await res.json();
 
-  contacts = data.map((r,i)=>({
-    id:i,
-    name:r.Name||"",
-    nepaliName:r.NepaliName||"",   // ✅ NEW FIELD
-    email:r.Email||"",
-    post:r.Post||"",
-    phones:parsePhones(r.Phones),
-    groups:(r.Groups||"").split(",").map(g=>g.trim()),
-    status:(r.Status||"").toLowerCase()
+  console.log("DEBUG HEADERS:", Object.keys(raw[0])); // helpful debug
+
+  contacts = raw.map(r => ({
+
+    name: r.Name || "",
+
+    // ✅ SAFE Nepali name handling (fixes your issue)
+    nepaliName:
+      r.nepaliName ||
+      r.NepaliName ||
+      r["Nepali Name"] ||
+      "",
+
+    email: r.Email || "",
+    phones: parsePhones(r.Phones),
+    post: r.Post || "",
+    groups: r.Groups || "",
+    status: r.Status || ""
   }));
 
-  filteredData = contacts;
-  renderTable();
+  filtered = contacts;
+  render();
 }
 
-// FILTER + SEARCH (FIXED)
-function applyFilters(){
-  const search = document.getElementById("search").value.toLowerCase();
+// 🔍 SEARCH (includes Nepali Name)
+document.getElementById("search").addEventListener("input", function(){
+  const s = this.value.toLowerCase();
 
-  filteredData = contacts.filter(c=>{
+  filtered = contacts.filter(c =>
+    c.name.toLowerCase().includes(s) ||
+    c.nepaliName.toLowerCase().includes(s) ||
+    c.email.toLowerCase().includes(s) ||
+    c.phones.some(p => p.number.includes(s))
+  );
 
-    const matchSearch =
-      c.name.toLowerCase().includes(search) ||
-      c.nepaliName.toLowerCase().includes(search) ||   // ✅ Nepali search
-      c.phones.some(p=>p.number.includes(search));
+  render();
+});
 
-    return matchSearch;
-  });
+// 🧾 Render table
+function render(){
+  const tbody = document.getElementById("tableBody");
+  tbody.innerHTML = "";
 
-  renderTable();
-}
+  filtered.forEach(c => {
 
-// SORT (FIXED)
-function sortTable(key){
-  currentSort.asc = currentSort.key===key ? !currentSort.asc : true;
-  currentSort.key = key;
-
-  filteredData.sort((a,b)=>{
-    let A=a[key]||"", B=b[key]||"";
-
-    if(Array.isArray(A)) A=A.join(",");
-    if(Array.isArray(B)) B=B.join(",");
-
-    return currentSort.asc
-      ? String(A).localeCompare(String(B))
-      : String(B).localeCompare(String(A));
-  });
-
-  renderTable();
-}
-
-// render
-function renderTable(){
-  const tbody=document.getElementById("tableBody");
-  tbody.innerHTML="";
-
-  filteredData.forEach(c=>{
-
-    const phonesHTML = c.phones.map(p=>`
-      <div class="phone-row">
+    const phonesHTML = c.phones.map(p => `
+      <div>
         <span class="phone">${p.number}</span>
         <a href="tel:${p.number}">📞</a>
       </div>
     `).join("");
 
-    tbody.innerHTML+=`
+    tbody.innerHTML += `
 <tr>
-<td data-label="Select"><input type="checkbox"></td>
-
 <td data-label="Name">${c.name}</td>
-
 <td data-label="Nepali Name">${c.nepaliName}</td>
-
-<td data-label="Phones">${phonesHTML}</td>
-
 <td data-label="Email">${c.email}</td>
-
+<td data-label="Phones">${phonesHTML}</td>
 <td data-label="Post">${c.post}</td>
-
-<td data-label="Groups">${c.groups.join(", ")}</td>
-
+<td data-label="Groups">${c.groups}</td>
 <td data-label="Status">${c.status}</td>
-
-<td data-label="Action">
-<a href="mailto:${c.email}">✉</a>
-</td>
 </tr>`;
   });
 }
 
-// select all
-function selectAll(){
-  document.querySelectorAll("tbody input[type=checkbox]")
-    .forEach(cb=>cb.checked=true);
-}
-
-// clear all
-function clearAll(){
-  document.querySelectorAll("tbody input[type=checkbox]")
-    .forEach(cb=>cb.checked=false);
-}
-
-// search event
-document.getElementById("search").addEventListener("input", applyFilters);
-
-// init
+// 🚀 INIT
 loadData();
 
 </script>
