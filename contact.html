@@ -46,6 +46,30 @@ input, button {
   padding:4px;
 }
 
+/* ✅ Phone hover effect */
+.phone {
+  transition: all 0.2s ease;
+  display:inline-block;
+}
+
+.phone:hover {
+  font-size:18px;
+  font-weight:bold;
+  color:#d11a2a;
+  background:#fff3f3;
+  padding:2px 4px;
+  border-radius:4px;
+}
+
+/* ✅ Row hover highlight */
+tbody tr {
+  transition: background 0.2s ease;
+}
+
+tbody tr:hover {
+  background:#fff3cd;
+}
+
 table {
   width:100%;
   border-collapse:collapse;
@@ -66,12 +90,48 @@ th {
 
 .pagination { text-align:center; margin-top:10px; }
 
-/* Mobile */
+/* ✅ Mobile improved layout */
 @media(max-width:768px){
-  table, thead, tbody, th, td, tr { display:block; }
-  th { display:none; }
-  tr { margin-bottom:10px; border:1px solid #ccc; padding:8px; }
-  td { display:flex; justify-content:space-between; }
+
+  table, thead, tbody, th, td, tr {
+    display:block;
+  }
+
+  thead {
+    display:none;
+  }
+
+  tr {
+    margin-bottom:10px;
+    border:1px solid #ccc;
+    padding:10px;
+    border-radius:6px;
+    background:white;
+  }
+
+  td {
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    padding:6px 0;
+    font-size:14px;
+    border:none;
+    border-bottom:1px solid #eee;
+  }
+
+  td:last-child {
+    border-bottom:none;
+  }
+
+  td::before {
+    content: attr(data-label);
+    font-weight:bold;
+    color:#555;
+  }
+
+  td:first-child {
+    justify-content:flex-start;
+  }
 }
 </style>
 </head>
@@ -184,22 +244,25 @@ function buildFilters(){
   buildCheckbox("statusFilter",[...new Set(contacts.map(c=>c.status))]);
 }
 
+// Instant filter checkboxes
 function buildCheckbox(id,list){
   const div=document.getElementById(id);
-
-  div.innerHTML=`
-    <button onclick="applyFilters()">Apply</button>
-    <button onclick="clearFilter('${id}')">Clear</button>
-    <hr>
-  `;
+  div.innerHTML="";
 
   list.forEach(val=>{
     const clean=val.trim();
-    div.innerHTML+=`
-      <label>
-        <input type="checkbox" value="${clean}">
-        ${clean}
-      </label>`;
+
+    const label=document.createElement("label");
+    label.innerHTML=`
+      <input type="checkbox" value="${clean}">
+      ${clean}
+    `;
+
+    label.querySelector("input").addEventListener("change", ()=>{
+      applyFilters();
+    });
+
+    div.appendChild(label);
   });
 }
 
@@ -207,12 +270,6 @@ function buildCheckbox(id,list){
 function getSelected(id){
   return [...document.querySelectorAll(`#${id} input:checked`)]
     .map(cb=>cb.value.toLowerCase());
-}
-
-// Clear filter
-function clearFilter(id){
-  document.querySelectorAll(`#${id} input`).forEach(cb=>cb.checked=false);
-  applyFilters();
 }
 
 // Apply filters
@@ -270,20 +327,31 @@ function renderTable(){
   const page=filteredData.slice(start,start+perPage);
 
   page.forEach(c=>{
-    const phones=c.phones.map(p=>p.number).join("<br>");
+    const phones = c.phones.map(p =>
+      `<span class="phone">${p.number}</span>`
+    ).join("<br>");
 
     tbody.innerHTML+=`
 <tr>
-<td><input type="checkbox" data-id="${c.id}" ${selectedIds.has(c.id)?"checked":""}></td>
-<td>${c.name}</td>
-<td>${phones}</td>
-<td>${c.email}</td>
-<td>${c.post}</td>
-<td>${c.groups.join(", ")}</td>
-<td>${c.status}</td>
-<td>
-<a href="tel:${c.phones[0]?.number}">📞</a>
-<a href="mailto:${c.email}">✉</a>
+<td data-label="Select">
+  <input type="checkbox" data-id="${c.id}" ${selectedIds.has(c.id)?"checked":""}>
+</td>
+
+<td data-label="Name">${c.name}</td>
+
+<td data-label="Phones">${phones}</td>
+
+<td data-label="Email">${c.email}</td>
+
+<td data-label="Post">${c.post}</td>
+
+<td data-label="Groups">${c.groups.join(", ")}</td>
+
+<td data-label="Status">${c.status}</td>
+
+<td data-label="Action">
+  <a href="tel:${c.phones[0]?.number}">📞</a>
+  <a href="mailto:${c.email}">✉</a>
 </td>
 </tr>`;
   });
