@@ -2,14 +2,24 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Contact Manager</title>
+<title>Contact Manager Pro</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <style>
 body { font-family: Arial; padding:10px; background:#f4f6f8; }
 h2 { text-align:center; }
 
-input { padding:8px; width:100%; max-width:300px; margin-bottom:10px; }
+.controls{
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px;
+  margin-bottom:10px;
+}
+
+input, select {
+  padding:8px;
+  min-width:180px;
+}
 
 table {
   width:100%;
@@ -21,11 +31,22 @@ th, td {
   border:1px solid #ddd;
   padding:8px;
   font-size:14px;
+  vertical-align:top;
 }
 
 th {
   background:#007bff;
   color:white;
+  position:relative;
+  user-select:none;
+}
+
+th button {
+  position:absolute;
+  right:5px;
+  top:5px;
+  font-size:12px;
+  padding:2px 6px;
   cursor:pointer;
 }
 
@@ -36,6 +57,7 @@ tbody tr:hover {
 
 /* phone */
 .phone {
+  display:inline-block;
   transition:0.2s;
 }
 
@@ -48,7 +70,7 @@ tbody tr:hover {
   border-radius:4px;
 }
 
-/* mobile */
+/* responsive */
 @media(max-width:768px){
   table, thead, tbody, th, td, tr { display:block; }
 
@@ -78,20 +100,34 @@ tbody tr:hover {
 
 <body>
 
-<h2>Contact Manager</h2>
+<h2>Contact Manager Pro</h2>
 
-<input id="search" placeholder="Search Name / Nepali Name / Phone">
+<div class="controls">
+  <input id="search" placeholder="Search Name / Nepali / Phone">
+
+  <select id="filterPost">
+    <option value="">All Post</option>
+  </select>
+
+  <select id="filterStatus">
+    <option value="">All Status</option>
+  </select>
+
+  <select id="filterGroup">
+    <option value="">All Groups</option>
+  </select>
+</div>
 
 <table>
 <thead>
 <tr>
-<th>Name</th>
-<th>Nepali Name</th>
-<th>Email</th>
+<th>Name <button onclick="sort('name')">⇅</button></th>
+<th>Nepali Name <button onclick="sort('nepaliName')">⇅</button></th>
+<th>Email <button onclick="sort('email')">⇅</button></th>
 <th>Phones</th>
-<th>Post</th>
-<th>Groups</th>
-<th>Status</th>
+<th>Post <button onclick="sort('post')">⇅</button></th>
+<th>Groups <button onclick="sort('groups')">⇅</button></th>
+<th>Status <button onclick="sort('status')">⇅</button></th>
 </tr>
 </thead>
 
@@ -102,39 +138,28 @@ tbody tr:hover {
 
 const SHEET_URL = "https://opensheet.elk.sh/1HAaZ_Vc71R4ewjH_YLOrAtI_O0EjPXeSFuXAopuC9nM/Sheet1";
 
-let contacts = [];
+let data = [];
 let filtered = [];
+let sortKey = "";
+let sortAsc = true;
 
-// 🔥 Safe phone parser
+// parse phones
 function parsePhones(str){
   if(!str) return [];
   return str.split(";").map(p=>{
-    const [label, number] = p.split(":");
-    return {
-      label: label || "CELL",
-      number: number || ""
-    };
+    const [l,n]=p.split(":");
+    return {label:l||"",number:n||""};
   });
 }
 
-// 🔥 Load data safely
-async function loadData(){
+// load
+async function load(){
   const res = await fetch(SHEET_URL);
   const raw = await res.json();
 
-  console.log("DEBUG HEADERS:", Object.keys(raw[0])); // helpful debug
-
-  contacts = raw.map(r => ({
-
+  data = raw.map(r=>({
     name: r.Name || "",
-
-    // ✅ SAFE Nepali name handling (fixes your issue)
-    nepaliName:
-      r.nepaliName ||
-      r.NepaliName ||
-      r["Nepali Name"] ||
-      "",
-
+    nepaliName: r.nepaliName || r.NepaliName || r["Nepali Name"] || "",
     email: r.Email || "",
     phones: parsePhones(r.Phones),
     post: r.Post || "",
@@ -142,44 +167,92 @@ async function loadData(){
     status: r.Status || ""
   }));
 
-  filtered = contacts;
+  filtered = data;
+
+  buildFilters();
   render();
 }
 
-// 🔍 SEARCH (includes Nepali Name)
-document.getElementById("search").addEventListener("input", function(){
-  const s = this.value.toLowerCase();
+// build dropdown filters
+function buildFilters(){
+  fillSelect("filterPost", [...new Set(data.map(d=>d.post))]);
+  fillSelect("filterStatus", [...new Set(data.map(d=>d.status))]);
+  fillSelect("filterGroup", [...new Set(data.map(d=>d.groups))]);
+}
 
-  filtered = contacts.filter(c =>
-    c.name.toLowerCase().includes(s) ||
-    c.nepaliName.toLowerCase().includes(s) ||
-    c.email.toLowerCase().includes(s) ||
-    c.phones.some(p => p.number.includes(s))
-  );
+function fillSelect(id, arr){
+  const el=document.getElementById(id);
+  arr.forEach(v=>{
+    if(v){
+      const opt=document.createElement("option");
+      opt.value=v;
+      opt.textContent=v;
+      el.appendChild(opt);
+    }
+  });
+}
+
+// filter system
+function applyFilters(){
+  const s = document.getElementById("search").value.toLowerCase();
+  const post = document.getElementById("filterPost").value;
+  const status = document.getElementById("filterStatus").value;
+  const group = document.getElementById("filterGroup").value;
+
+  filtered = data.filter(c=>{
+
+    const matchSearch =
+      c.name.toLowerCase().includes(s) ||
+      c.nepaliName.toLowerCase().includes(s) ||
+      c.phones.some(p=>p.number.includes(s));
+
+    const matchPost = !post || c.post===post;
+    const matchStatus = !status || c.status===status;
+    const matchGroup = !group || c.groups===group;
+
+    return matchSearch && matchPost && matchStatus && matchGroup;
+  });
 
   render();
-});
+}
 
-// 🧾 Render table
+// sort
+function sort(key){
+  sortAsc = sortKey===key ? !sortAsc : true;
+  sortKey = key;
+
+  filtered.sort((a,b)=>{
+    let A=a[key]||"", B=b[key]||"";
+    if(Array.isArray(A)) A=A.join(",");
+    if(Array.isArray(B)) B=B.join(",");
+    return sortAsc
+      ? String(A).localeCompare(String(B))
+      : String(B).localeCompare(String(A));
+  });
+
+  render();
+}
+
+// render
 function render(){
-  const tbody = document.getElementById("tableBody");
-  tbody.innerHTML = "";
+  const tbody=document.getElementById("tableBody");
+  tbody.innerHTML="";
 
-  filtered.forEach(c => {
+  filtered.forEach(c=>{
 
-    const phonesHTML = c.phones.map(p => `
+    const phones = c.phones.map(p=>`
       <div>
         <span class="phone">${p.number}</span>
         <a href="tel:${p.number}">📞</a>
       </div>
     `).join("");
 
-    tbody.innerHTML += `
+    tbody.innerHTML+=`
 <tr>
 <td data-label="Name">${c.name}</td>
 <td data-label="Nepali Name">${c.nepaliName}</td>
 <td data-label="Email">${c.email}</td>
-<td data-label="Phones">${phonesHTML}</td>
+<td data-label="Phones">${phones}</td>
 <td data-label="Post">${c.post}</td>
 <td data-label="Groups">${c.groups}</td>
 <td data-label="Status">${c.status}</td>
@@ -187,8 +260,13 @@ function render(){
   });
 }
 
-// 🚀 INIT
-loadData();
+// events
+document.getElementById("search").addEventListener("input", applyFilters);
+document.getElementById("filterPost").addEventListener("change", applyFilters);
+document.getElementById("filterStatus").addEventListener("change", applyFilters);
+document.getElementById("filterGroup").addEventListener("change", applyFilters);
+
+load();
 
 </script>
 
