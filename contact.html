@@ -38,18 +38,17 @@ th {
   background:#007bff;
   color:white;
   cursor:pointer;
-  position:relative;
 }
 
-/* hover row */
+/* row hover */
 tbody tr:hover {
   background:#fff3cd;
 }
 
-/* phone */
+/* phone hover */
 .phone {
-  display:inline-block;
   transition:0.2s;
+  display:inline-block;
 }
 
 .phone:hover {
@@ -107,9 +106,17 @@ tbody tr:hover {
 <div class="controls">
   <input id="search" placeholder="Search Name / Nepali / Phone">
 
-  <select id="filterPost"><option value="">All Post</option></select>
-  <select id="filterStatus"><option value="">All Status</option></select>
-  <select id="filterGroup"><option value="">All Groups</option></select>
+  <select id="filterPost">
+    <option value="">All Post</option>
+  </select>
+
+  <select id="filterStatus">
+    <option value="">All Status</option>
+  </select>
+
+  <select id="filterGroup">
+    <option value="">All Groups</option>
+  </select>
 </div>
 
 <table>
@@ -128,7 +135,7 @@ tbody tr:hover {
 <tbody id="tableBody"></tbody>
 </table>
 
-<!-- PAGINATION -->
+<!-- Pagination -->
 <div class="pagination">
   <button onclick="prevPage()">Prev</button>
   <span id="pageInfo"></span>
@@ -143,7 +150,7 @@ let data = [];
 let filtered = [];
 
 let currentPage = 1;
-const perPage = 10;
+const perPage = 20;   // ✅ CHANGED TO 20
 
 let sortKey = "";
 let sortAsc = true;
@@ -157,7 +164,7 @@ function parsePhones(str){
   });
 }
 
-// load
+// load data
 async function load(){
   const res = await fetch(SHEET_URL);
   const raw = await res.json();
@@ -197,7 +204,7 @@ function fill(id, arr){
   });
 }
 
-// filter
+// filter logic
 function applyFilters(){
   const s=document.getElementById("search").value.toLowerCase();
   const post=document.getElementById("filterPost").value;
@@ -218,7 +225,7 @@ function applyFilters(){
     return matchSearch && matchPost && matchStatus && matchGroup;
   });
 
-  currentPage = 1; // reset page
+  currentPage = 1;
   render();
 }
 
@@ -270,7 +277,7 @@ function render(){
     `Page ${currentPage} / ${Math.ceil(filtered.length/perPage) || 1}`;
 }
 
-// pagination controls
+// pagination
 function nextPage(){
   if(currentPage < Math.ceil(filtered.length/perPage)){
     currentPage++;
