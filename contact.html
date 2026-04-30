@@ -1,145 +1,78 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ne">
 <head>
 <meta charset="UTF-8">
-<title>Contact Manager Pro</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>सम्पर्क व्यवस्थापन प्रणाली</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
 
-<style>
-body { font-family: Arial; padding:10px; background:#f4f6f8; }
-h2 { text-align:center; }
+<!-- Bootstrap -->
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 
-.controls{
-  display:flex;
-  flex-wrap:wrap;
-  gap:8px;
-  margin-bottom:10px;
-}
-
-input, select {
-  padding:8px;
-  min-width:180px;
-}
-
-/* table */
-table {
-  width:100%;
-  border-collapse:collapse;
-  background:white;
-}
-
-th, td {
-  border:1px solid #ddd;
-  padding:8px;
-  font-size:14px;
-}
-
-th {
-  background:#007bff;
-  color:white;
-  cursor:pointer;
-}
-
-/* row hover */
-tbody tr:hover {
-  background:#fff3cd;
-}
-
-/* phone hover */
-.phone {
-  transition:0.2s;
-  display:inline-block;
-}
-
-.phone:hover {
-  font-size:18px;
-  font-weight:bold;
-  color:#d11a2a;
-  background:#fff3f3;
-  padding:2px 4px;
-  border-radius:4px;
-}
-
-/* pagination */
-.pagination {
-  margin-top:10px;
-  text-align:center;
-}
-
-.pagination button {
-  padding:6px 10px;
-  margin:2px;
-  cursor:pointer;
-}
-
-/* responsive */
-@media(max-width:768px){
-  table, thead, tbody, th, td, tr { display:block; }
-  thead { display:none; }
-
-  tr {
-    margin-bottom:10px;
-    background:white;
-    border:1px solid #ccc;
-    padding:10px;
-  }
-
-  td {
-    display:flex;
-    justify-content:space-between;
-    border:none;
-    border-bottom:1px solid #eee;
-  }
-
-  td::before {
-    content: attr(data-label);
-    font-weight:bold;
-  }
-}
-</style>
 </head>
 
-<body>
+<body class="bg-light">
 
-<h2>Contact Manager Pro</h2>
+<div class="container-fluid py-3">
 
-<div class="controls">
-  <input id="search" placeholder="Search Name / Nepali / Phone">
+<h3 class="text-center mb-3">📒 सम्पर्क व्यवस्थापन प्रणाली</h3>
 
-  <select id="filterPost">
-    <option value="">All Post</option>
-  </select>
+<!-- Controls -->
+<div class="row g-2 mb-3">
 
-  <select id="filterStatus">
-    <option value="">All Status</option>
-  </select>
-
-  <select id="filterGroup">
-    <option value="">All Groups</option>
-  </select>
+<div class="col-md-3">
+<input id="search" class="form-control" placeholder="नाम / नेपाली / फोन खोज्नुहोस्">
 </div>
 
-<table>
-<thead>
+<div class="col-md-2">
+<select id="filterPost" class="form-select" multiple></select>
+</div>
+
+<div class="col-md-2">
+<select id="filterStatus" class="form-select" multiple></select>
+</div>
+
+<div class="col-md-2">
+<select id="filterGroup" class="form-select" multiple></select>
+</div>
+
+<div class="col-md-3 d-flex gap-2 flex-wrap">
+<button class="btn btn-primary" onclick="applyFilters()">फिल्टर</button>
+<button class="btn btn-secondary" onclick="clearFilters()">हटाउनुहोस्</button>
+<button class="btn btn-success" onclick="selectAll()">सबै छान्नुहोस्</button>
+<button class="btn btn-warning" onclick="clearAll()">खाली गर्नुहोस्</button>
+<button class="btn btn-danger" onclick="exportContacts()">निर्यात</button>
+</div>
+
+</div>
+
+<!-- Table -->
+<div class="table-responsive">
+<table class="table table-bordered table-hover align-middle">
+
+<thead class="table-primary">
 <tr>
-<th onclick="sort('name')">Name</th>
-<th onclick="sort('nepaliName')">Nepali Name</th>
-<th>Email</th>
-<th>Phones</th>
-<th onclick="sort('post')">Post</th>
-<th onclick="sort('groups')">Groups</th>
-<th onclick="sort('status')">Status</th>
+<th><input type="checkbox" onclick="toggleAll(this)"></th>
+<th onclick="sort('name')">नाम</th>
+<th onclick="sort('nepaliName')">नेपाली नाम</th>
+<th>इमेल</th>
+<th>फोन</th>
+<th onclick="sort('post')">पद</th>
+<th onclick="sort('groups')">समूह</th>
+<th onclick="sort('status')">स्थिति</th>
 </tr>
 </thead>
 
 <tbody id="tableBody"></tbody>
 </table>
+</div>
 
 <!-- Pagination -->
-<div class="pagination">
-  <button onclick="prevPage()">Prev</button>
-  <span id="pageInfo"></span>
-  <button onclick="nextPage()">Next</button>
+<div class="d-flex justify-content-center align-items-center gap-3">
+<button class="btn btn-outline-primary" onclick="prevPage()">अघिल्लो</button>
+<span id="pageInfo"></span>
+<button class="btn btn-outline-primary" onclick="nextPage()">अर्को</button>
+</div>
+
 </div>
 
 <script>
@@ -148,48 +81,49 @@ const SHEET_URL = "https://opensheet.elk.sh/1HAaZ_Vc71R4ewjH_YLOrAtI_O0EjPXeSFuX
 
 let data = [];
 let filtered = [];
+let selected = new Set();
 
 let currentPage = 1;
-const perPage = 20;   // ✅ CHANGED TO 20
+const perPage = 20;
 
-let sortKey = "";
-let sortAsc = true;
+let sortKey="";
+let sortAsc=true;
 
 // parse phones
 function parsePhones(str){
   if(!str) return [];
   return str.split(";").map(p=>{
     const [l,n]=p.split(":");
-    return {label:l||"",number:n||""};
+    return {label:l||"CELL",number:n||""};
   });
 }
 
-// load data
+// load
 async function load(){
   const res = await fetch(SHEET_URL);
   const raw = await res.json();
 
-  data = raw.map(r=>({
-    name: r.Name || "",
-    nepaliName: r.nepaliName || r.NepaliName || r["Nepali Name"] || "",
-    email: r.Email || "",
-    phones: parsePhones(r.Phones),
-    post: r.Post || "",
-    groups: r.Groups || "",
-    status: r.Status || ""
+  data = raw.map((r,i)=>({
+    id:i,
+    name:r.Name||"",
+    nepaliName:r.nepaliName||r["Nepali Name"]||"",
+    email:r.Email||"",
+    phones:parsePhones(r.Phones),
+    post:r.Post||"",
+    groups:r.Groups||"",
+    status:r.Status||""
   }));
 
-  filtered = data;
-
+  filtered=data;
   buildFilters();
   render();
 }
 
 // filters
 function buildFilters(){
-  fill("filterPost", [...new Set(data.map(d=>d.post))]);
-  fill("filterStatus", [...new Set(data.map(d=>d.status))]);
-  fill("filterGroup", [...new Set(data.map(d=>d.groups))]);
+  fill("filterPost",[...new Set(data.map(d=>d.post))]);
+  fill("filterStatus",[...new Set(data.map(d=>d.status))]);
+  fill("filterGroup",[...new Set(data.map(d=>d.groups))]);
 }
 
 function fill(id, arr){
@@ -204,77 +138,105 @@ function fill(id, arr){
   });
 }
 
-// filter logic
+function getMulti(id){
+  return Array.from(document.getElementById(id).selectedOptions).map(o=>o.value);
+}
+
+// apply filters
 function applyFilters(){
   const s=document.getElementById("search").value.toLowerCase();
-  const post=document.getElementById("filterPost").value;
-  const status=document.getElementById("filterStatus").value;
-  const group=document.getElementById("filterGroup").value;
+  const posts=getMulti("filterPost");
+  const status=getMulti("filterStatus");
+  const groups=getMulti("filterGroup");
 
-  filtered = data.filter(c=>{
-
-    const matchSearch =
-      c.name.toLowerCase().includes(s) ||
-      c.nepaliName.toLowerCase().includes(s) ||
-      c.phones.some(p=>p.number.includes(s));
-
-    const matchPost = !post || c.post===post;
-    const matchStatus = !status || c.status===status;
-    const matchGroup = !group || c.groups===group;
-
-    return matchSearch && matchPost && matchStatus && matchGroup;
+  filtered=data.filter(c=>{
+    return (
+      (c.name.toLowerCase().includes(s) ||
+       c.nepaliName.toLowerCase().includes(s) ||
+       c.phones.some(p=>p.number.includes(s)))
+      &&
+      (posts.length===0 || posts.includes(c.post))
+      &&
+      (status.length===0 || status.includes(c.status))
+      &&
+      (groups.length===0 || groups.includes(c.groups))
+    );
   });
 
-  currentPage = 1;
+  currentPage=1;
   render();
+}
+
+function clearFilters(){
+  document.querySelectorAll("select").forEach(s=>s.selectedIndex=-1);
+  applyFilters();
+}
+
+// selection
+function selectAll(){
+  filtered.forEach(c=>selected.add(c.id));
+  render();
+}
+
+function clearAll(){
+  selected.clear();
+  render();
+}
+
+function toggleAll(cb){
+  cb.checked ? selectAll() : clearAll();
 }
 
 // sort
 function sort(key){
   sortAsc = sortKey===key ? !sortAsc : true;
-  sortKey = key;
+  sortKey=key;
 
   filtered.sort((a,b)=>{
-    let A=a[key]||"", B=b[key]||"";
     return sortAsc
-      ? String(A).localeCompare(String(B))
-      : String(B).localeCompare(String(A));
+      ? String(a[key]).localeCompare(String(b[key]))
+      : String(b[key]).localeCompare(String(a[key]));
   });
 
   render();
 }
 
-// render with pagination
+// render
 function render(){
+
   const tbody=document.getElementById("tableBody");
   tbody.innerHTML="";
 
-  const start = (currentPage-1)*perPage;
-  const pageData = filtered.slice(start, start+perPage);
+  const start=(currentPage-1)*perPage;
+  const page=filtered.slice(start,start+perPage);
 
-  pageData.forEach(c=>{
+  page.forEach(c=>{
 
-    const phones = c.phones.map(p=>`
+    const phones=c.phones.map(p=>`
       <div>
-        <span class="phone">${p.number}</span>
-        <a href="tel:${p.number}">📞</a>
-      </div>
-    `).join("");
+        <span class="fw-bold">${p.number}</span>
+        <a href="tel:${p.number}" class="ms-1">📞</a>
+      </div>`).join("");
 
     tbody.innerHTML+=`
 <tr>
-<td data-label="Name">${c.name}</td>
-<td data-label="Nepali Name">${c.nepaliName}</td>
-<td data-label="Email">${c.email}</td>
-<td data-label="Phones">${phones}</td>
-<td data-label="Post">${c.post}</td>
-<td data-label="Groups">${c.groups}</td>
-<td data-label="Status">${c.status}</td>
+<td><input type="checkbox" ${selected.has(c.id)?"checked":""} onclick="toggleSel(${c.id})"></td>
+<td>${c.name}</td>
+<td>${c.nepaliName}</td>
+<td><a href="${emailLink(c.email,c.name)}">✉ इमेल</a></td>
+<td>${phones}</td>
+<td>${c.post}</td>
+<td>${c.groups}</td>
+<td>${c.status}</td>
 </tr>`;
   });
 
   document.getElementById("pageInfo").innerText =
-    `Page ${currentPage} / ${Math.ceil(filtered.length/perPage) || 1}`;
+    `पृष्ठ ${currentPage} / ${Math.ceil(filtered.length/perPage) || 1}`;
+}
+
+function toggleSel(id){
+  selected.has(id) ? selected.delete(id) : selected.add(id);
 }
 
 // pagination
@@ -286,17 +248,45 @@ function nextPage(){
 }
 
 function prevPage(){
-  if(currentPage > 1){
+  if(currentPage>1){
     currentPage--;
     render();
   }
 }
 
-// events
-document.getElementById("search").addEventListener("input", applyFilters);
-document.getElementById("filterPost").addEventListener("change", applyFilters);
-document.getElementById("filterStatus").addEventListener("change", applyFilters);
-document.getElementById("filterGroup").addEventListener("change", applyFilters);
+// email
+function emailLink(email,name){
+  const list=email.split(",").map(e=>e.trim()).join(",");
+  return `mailto:${list}?subject=सम्पर्क&body=${encodeURIComponent(name+" ज्यू,")}`;
+}
+
+// export
+function exportContacts(){
+
+  let vcf="";
+
+  data.filter(c=>selected.has(c.id)).forEach(c=>{
+
+    vcf+="BEGIN:VCARD\nVERSION:3.0\n";
+    vcf+=`FN:${c.name}\n`;
+
+    c.phones.forEach(p=>{
+      vcf+=`TEL;TYPE=CELL:${p.number}\n`;
+    });
+
+    if(c.email) vcf+=`EMAIL:${c.email}\n`;
+
+    vcf+="END:VCARD\n\n";
+  });
+
+  const blob=new Blob([vcf],{type:"text/vcard"});
+  const a=document.createElement("a");
+  a.href=URL.createObjectURL(blob);
+  a.download="contacts.vcf";
+  a.click();
+}
+
+document.getElementById("search").addEventListener("input",applyFilters);
 
 load();
 
