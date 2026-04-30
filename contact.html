@@ -21,6 +21,7 @@ input, select {
   min-width:180px;
 }
 
+/* table */
 table {
   width:100%;
   border-collapse:collapse;
@@ -31,26 +32,16 @@ th, td {
   border:1px solid #ddd;
   padding:8px;
   font-size:14px;
-  vertical-align:top;
 }
 
 th {
   background:#007bff;
   color:white;
-  position:relative;
-  user-select:none;
-}
-
-th button {
-  position:absolute;
-  right:5px;
-  top:5px;
-  font-size:12px;
-  padding:2px 6px;
   cursor:pointer;
+  position:relative;
 }
 
-/* row hover */
+/* hover row */
 tbody tr:hover {
   background:#fff3cd;
 }
@@ -70,10 +61,21 @@ tbody tr:hover {
   border-radius:4px;
 }
 
+/* pagination */
+.pagination {
+  margin-top:10px;
+  text-align:center;
+}
+
+.pagination button {
+  padding:6px 10px;
+  margin:2px;
+  cursor:pointer;
+}
+
 /* responsive */
 @media(max-width:768px){
   table, thead, tbody, th, td, tr { display:block; }
-
   thead { display:none; }
 
   tr {
@@ -105,34 +107,33 @@ tbody tr:hover {
 <div class="controls">
   <input id="search" placeholder="Search Name / Nepali / Phone">
 
-  <select id="filterPost">
-    <option value="">All Post</option>
-  </select>
-
-  <select id="filterStatus">
-    <option value="">All Status</option>
-  </select>
-
-  <select id="filterGroup">
-    <option value="">All Groups</option>
-  </select>
+  <select id="filterPost"><option value="">All Post</option></select>
+  <select id="filterStatus"><option value="">All Status</option></select>
+  <select id="filterGroup"><option value="">All Groups</option></select>
 </div>
 
 <table>
 <thead>
 <tr>
-<th>Name <button onclick="sort('name')">⇅</button></th>
-<th>Nepali Name <button onclick="sort('nepaliName')">⇅</button></th>
-<th>Email <button onclick="sort('email')">⇅</button></th>
+<th onclick="sort('name')">Name</th>
+<th onclick="sort('nepaliName')">Nepali Name</th>
+<th>Email</th>
 <th>Phones</th>
-<th>Post <button onclick="sort('post')">⇅</button></th>
-<th>Groups <button onclick="sort('groups')">⇅</button></th>
-<th>Status <button onclick="sort('status')">⇅</button></th>
+<th onclick="sort('post')">Post</th>
+<th onclick="sort('groups')">Groups</th>
+<th onclick="sort('status')">Status</th>
 </tr>
 </thead>
 
 <tbody id="tableBody"></tbody>
 </table>
+
+<!-- PAGINATION -->
+<div class="pagination">
+  <button onclick="prevPage()">Prev</button>
+  <span id="pageInfo"></span>
+  <button onclick="nextPage()">Next</button>
+</div>
 
 <script>
 
@@ -140,6 +141,10 @@ const SHEET_URL = "https://opensheet.elk.sh/1HAaZ_Vc71R4ewjH_YLOrAtI_O0EjPXeSFuX
 
 let data = [];
 let filtered = [];
+
+let currentPage = 1;
+const perPage = 10;
+
 let sortKey = "";
 let sortAsc = true;
 
@@ -173,31 +178,31 @@ async function load(){
   render();
 }
 
-// build dropdown filters
+// filters
 function buildFilters(){
-  fillSelect("filterPost", [...new Set(data.map(d=>d.post))]);
-  fillSelect("filterStatus", [...new Set(data.map(d=>d.status))]);
-  fillSelect("filterGroup", [...new Set(data.map(d=>d.groups))]);
+  fill("filterPost", [...new Set(data.map(d=>d.post))]);
+  fill("filterStatus", [...new Set(data.map(d=>d.status))]);
+  fill("filterGroup", [...new Set(data.map(d=>d.groups))]);
 }
 
-function fillSelect(id, arr){
+function fill(id, arr){
   const el=document.getElementById(id);
   arr.forEach(v=>{
     if(v){
-      const opt=document.createElement("option");
-      opt.value=v;
-      opt.textContent=v;
-      el.appendChild(opt);
+      const o=document.createElement("option");
+      o.value=v;
+      o.textContent=v;
+      el.appendChild(o);
     }
   });
 }
 
-// filter system
+// filter
 function applyFilters(){
-  const s = document.getElementById("search").value.toLowerCase();
-  const post = document.getElementById("filterPost").value;
-  const status = document.getElementById("filterStatus").value;
-  const group = document.getElementById("filterGroup").value;
+  const s=document.getElementById("search").value.toLowerCase();
+  const post=document.getElementById("filterPost").value;
+  const status=document.getElementById("filterStatus").value;
+  const group=document.getElementById("filterGroup").value;
 
   filtered = data.filter(c=>{
 
@@ -213,6 +218,7 @@ function applyFilters(){
     return matchSearch && matchPost && matchStatus && matchGroup;
   });
 
+  currentPage = 1; // reset page
   render();
 }
 
@@ -223,8 +229,6 @@ function sort(key){
 
   filtered.sort((a,b)=>{
     let A=a[key]||"", B=b[key]||"";
-    if(Array.isArray(A)) A=A.join(",");
-    if(Array.isArray(B)) B=B.join(",");
     return sortAsc
       ? String(A).localeCompare(String(B))
       : String(B).localeCompare(String(A));
@@ -233,12 +237,15 @@ function sort(key){
   render();
 }
 
-// render
+// render with pagination
 function render(){
   const tbody=document.getElementById("tableBody");
   tbody.innerHTML="";
 
-  filtered.forEach(c=>{
+  const start = (currentPage-1)*perPage;
+  const pageData = filtered.slice(start, start+perPage);
+
+  pageData.forEach(c=>{
 
     const phones = c.phones.map(p=>`
       <div>
@@ -258,6 +265,24 @@ function render(){
 <td data-label="Status">${c.status}</td>
 </tr>`;
   });
+
+  document.getElementById("pageInfo").innerText =
+    `Page ${currentPage} / ${Math.ceil(filtered.length/perPage) || 1}`;
+}
+
+// pagination controls
+function nextPage(){
+  if(currentPage < Math.ceil(filtered.length/perPage)){
+    currentPage++;
+    render();
+  }
+}
+
+function prevPage(){
+  if(currentPage > 1){
+    currentPage--;
+    render();
+  }
 }
 
 // events
