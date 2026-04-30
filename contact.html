@@ -2,11 +2,11 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Advanced Contact Manager</title>
+<title>Contact Manager</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <style>
-body { font-family: Arial; padding: 10px; background: #f4f6f8; }
+body { font-family: Arial; padding: 10px; background:#f4f6f8; }
 h2 { text-align:center; }
 
 .controls {
@@ -44,17 +44,15 @@ input, button { padding:8px; }
   padding:4px;
 }
 
-/* Phone display */
+/* Phone */
 .phone-row {
   display:flex;
-  align-items:center;
   justify-content:space-between;
-  gap:6px;
   margin-bottom:3px;
 }
 
 .phone {
-  transition: all 0.2s ease;
+  transition:0.2s;
 }
 
 .phone:hover {
@@ -66,15 +64,8 @@ input, button { padding:8px; }
   border-radius:4px;
 }
 
-.call-btn {
-  text-decoration:none;
-  font-size:16px;
-}
-
 /* Row hover */
-tbody tr:hover {
-  background:#fff3cd;
-}
+tbody tr:hover { background:#fff3cd; }
 
 table {
   width:100%;
@@ -94,8 +85,6 @@ th {
   cursor:pointer;
 }
 
-.pagination { text-align:center; margin-top:10px; }
-
 /* Mobile */
 @media(max-width:768px){
   table, thead, tbody, th, td, tr { display:block; }
@@ -105,16 +94,16 @@ th {
     margin-bottom:10px;
     border:1px solid #ccc;
     padding:10px;
-    border-radius:6px;
     background:white;
+    border-radius:6px;
   }
 
   td {
     display:flex;
     justify-content:space-between;
-    padding:6px 0;
     border:none;
     border-bottom:1px solid #eee;
+    padding:6px 0;
   }
 
   td:last-child { border-bottom:none; }
@@ -133,7 +122,7 @@ th {
 <h2>Contact Manager</h2>
 
 <div class="controls">
-  <input type="text" id="search" placeholder="Search...">
+  <input type="text" id="search" placeholder="Search English or Nepali Name">
 
   <div class="dropdown">
     <button onclick="toggleDropdown('groupFilter')">Groups ▼</button>
@@ -152,7 +141,6 @@ th {
 
   <button onclick="selectAll()">Select All</button>
   <button onclick="clearAll()">Clear</button>
-  <button onclick="exportSelected()">Export</button>
 </div>
 
 <table>
@@ -160,22 +148,18 @@ th {
 <tr>
 <th></th>
 <th onclick="sortTable('name')">Name</th>
+<th onclick="sortTable('nepaliName')">Nepali Name</th>
 <th>Phones</th>
-<th>Email</th>
-<th>Post</th>
-<th>Groups</th>
-<th>Status</th>
+<th onclick="sortTable('email')">Email</th>
+<th onclick="sortTable('post')">Post</th>
+<th onclick="sortTable('groups')">Groups</th>
+<th onclick="sortTable('status')">Status</th>
 <th>Action</th>
 </tr>
 </thead>
+
 <tbody id="tableBody"></tbody>
 </table>
-
-<div class="pagination">
-<button onclick="prevPage()">Prev</button>
-<span id="pageInfo"></span>
-<button onclick="nextPage()">Next</button>
-</div>
 
 <script>
 
@@ -183,11 +167,10 @@ const SHEET_URL = "https://opensheet.elk.sh/1HAaZ_Vc71R4ewjH_YLOrAtI_O0EjPXeSFuX
 
 let contacts = [];
 let filteredData = [];
+let currentSort = {key:null, asc:true};
 let selectedIds = new Set();
-let currentPage = 1;
-const perPage = 20;
 
-// Dropdown
+// dropdown
 function toggleDropdown(id){
   document.querySelectorAll(".dropdown-content").forEach(d=>{
     if(d.id !== id) d.style.display="none";
@@ -196,7 +179,7 @@ function toggleDropdown(id){
   el.style.display = el.style.display==="block"?"none":"block";
 }
 
-// Parse
+// parse phones
 function parsePhones(str){
   if(!str) return [];
   return str.split(";").map(p=>{
@@ -205,7 +188,7 @@ function parsePhones(str){
   });
 }
 
-// Load
+// load data
 async function loadData(){
   const res = await fetch(SHEET_URL);
   const data = await res.json();
@@ -213,10 +196,11 @@ async function loadData(){
   contacts = data.map((r,i)=>({
     id:i,
     name:r.Name||"",
+    nepaliName:r.NepaliName||"",   // ✅ NEW FIELD
     email:r.Email||"",
     post:r.Post||"",
     phones:parsePhones(r.Phones),
-    groups:(r.Groups||"").split(","),
+    groups:(r.Groups||"").split(",").map(g=>g.trim()),
     status:(r.Status||"").toLowerCase()
   }));
 
@@ -224,30 +208,63 @@ async function loadData(){
   renderTable();
 }
 
-// Render
+// FILTER + SEARCH (FIXED)
+function applyFilters(){
+  const search = document.getElementById("search").value.toLowerCase();
+
+  filteredData = contacts.filter(c=>{
+
+    const matchSearch =
+      c.name.toLowerCase().includes(search) ||
+      c.nepaliName.toLowerCase().includes(search) ||   // ✅ Nepali search
+      c.phones.some(p=>p.number.includes(search));
+
+    return matchSearch;
+  });
+
+  renderTable();
+}
+
+// SORT (FIXED)
+function sortTable(key){
+  currentSort.asc = currentSort.key===key ? !currentSort.asc : true;
+  currentSort.key = key;
+
+  filteredData.sort((a,b)=>{
+    let A=a[key]||"", B=b[key]||"";
+
+    if(Array.isArray(A)) A=A.join(",");
+    if(Array.isArray(B)) B=B.join(",");
+
+    return currentSort.asc
+      ? String(A).localeCompare(String(B))
+      : String(B).localeCompare(String(A));
+  });
+
+  renderTable();
+}
+
+// render
 function renderTable(){
   const tbody=document.getElementById("tableBody");
   tbody.innerHTML="";
 
-  const start=(currentPage-1)*perPage;
-  const page=filteredData.slice(start,start+perPage);
-
-  page.forEach(c=>{
+  filteredData.forEach(c=>{
 
     const phonesHTML = c.phones.map(p=>`
       <div class="phone-row">
         <span class="phone">${p.number}</span>
-        <a class="call-btn" href="tel:${p.number}">📞</a>
+        <a href="tel:${p.number}">📞</a>
       </div>
     `).join("");
 
     tbody.innerHTML+=`
 <tr>
-<td data-label="Select">
-<input type="checkbox" data-id="${c.id}">
-</td>
+<td data-label="Select"><input type="checkbox"></td>
 
 <td data-label="Name">${c.name}</td>
+
+<td data-label="Nepali Name">${c.nepaliName}</td>
 
 <td data-label="Phones">${phonesHTML}</td>
 
@@ -266,11 +283,22 @@ function renderTable(){
   });
 }
 
-// Pagination
-function nextPage(){ currentPage++; renderTable(); }
-function prevPage(){ currentPage--; renderTable(); }
+// select all
+function selectAll(){
+  document.querySelectorAll("tbody input[type=checkbox]")
+    .forEach(cb=>cb.checked=true);
+}
 
-// Init
+// clear all
+function clearAll(){
+  document.querySelectorAll("tbody input[type=checkbox]")
+    .forEach(cb=>cb.checked=false);
+}
+
+// search event
+document.getElementById("search").addEventListener("input", applyFilters);
+
+// init
 loadData();
 
 </script>
