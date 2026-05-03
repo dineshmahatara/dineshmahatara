@@ -8,6 +8,9 @@
 <!-- Bootstrap -->
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 
+<!-- Bootstrap Icons -->
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+
 </head>
 
 <body class="bg-light">
@@ -36,11 +39,27 @@
 </div>
 
 <div class="col-md-3 d-flex gap-2 flex-wrap">
-<button class="btn btn-primary" onclick="applyFilters()">फिल्टर</button>
-<button class="btn btn-secondary" onclick="clearFilters()">हटाउनुहोस्</button>
-<button class="btn btn-success" onclick="selectAll()">सबै छान्नुहोस्</button>
-<button class="btn btn-warning" onclick="clearAll()">खाली गर्नुहोस्</button>
-<button class="btn btn-danger" onclick="exportContacts()">निर्यात</button>
+
+<button class="btn btn-primary" onclick="applyFilters()" data-bs-toggle="tooltip" title="फिल्टर गर्नुहोस्">
+<i class="bi bi-funnel"></i>
+</button>
+
+<button class="btn btn-secondary" onclick="clearFilters()" data-bs-toggle="tooltip" title="फिल्टर हटाउनुहोस्">
+<i class="bi bi-x-circle"></i>
+</button>
+
+<button class="btn btn-success" onclick="selectAll()" data-bs-toggle="tooltip" title="सबै छान्नुहोस्">
+<i class="bi bi-check2-square"></i>
+</button>
+
+<button class="btn btn-warning" onclick="clearAll()" data-bs-toggle="tooltip" title="खाली गर्नुहोस्">
+<i class="bi bi-trash"></i>
+</button>
+
+<button class="btn btn-danger" onclick="exportContacts()" data-bs-toggle="tooltip" title="Export (VCF)">
+<i class="bi bi-download"></i>
+</button>
+
 </div>
 
 </div>
@@ -74,6 +93,9 @@
 </div>
 
 </div>
+
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
 <script>
 
@@ -117,6 +139,13 @@ async function load(){
   filtered=data;
   buildFilters();
   render();
+  initTooltips();
+}
+
+// tooltips init
+function initTooltips(){
+  const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]');
+  tooltipTriggerList.forEach(el => new bootstrap.Tooltip(el));
 }
 
 // filters
@@ -223,7 +252,7 @@ function render(){
 <td><input type="checkbox" ${selected.has(c.id)?"checked":""} onclick="toggleSel(${c.id})"></td>
 <td>${c.name}</td>
 <td>${c.nepaliName}</td>
-<td><a href="${emailLink(c.email,c.name)}">✉ इमेल</a></td>
+<td><a href="${emailLink(c.email,c.name)}">✉</a></td>
 <td>${phones}</td>
 <td>${c.post}</td>
 <td>${c.groups}</td>
