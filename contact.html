@@ -5,30 +5,27 @@
     <title>Parliament Contact Management System</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
+    <!-- CSS Dependencies -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
+    
     <style>
         :root { --sidebar-width: 240px; --sidebar-collapsed: 70px; }
-        body { transition: background 0.3s, color 0.3s; overflow-x: hidden; }
+        body { transition: background 0.3s, color 0.3s; overflow-x: hidden; font-family: 'Segoe UI', sans-serif; }
         body.dark { background: #121212; color: #e0e0e0; }
 
         /* Login Page */
         #loginPage { min-height: 100vh; display: flex; align-items: center; justify-content: center; background: #f8f9fa; padding: 15px; }
         body.dark #loginPage { background: #1a1a1a; }
-        .login-card { width: 100%; max-width: 400px; padding: 2rem; background: #fff; border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
+        .login-card { width: 100%; max-width: 400px; padding: 2.5rem; background: #fff; border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
         body.dark .login-card { background: #2d2d2d; color: #fff; }
 
-        /* Responsive Sidebar */
+        /* Sidebar Styles */
         .sidebar {
             width: var(--sidebar-width); position: fixed; height: 100vh;
             background: #0d6efd; color: #fff; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             z-index: 1050; left: 0; display: flex; flex-direction: column;
         }
-        
-        /* Desktop Collapse State */
         .sidebar.collapsed { width: var(--sidebar-collapsed); }
         .sidebar.collapsed span, .sidebar.collapsed .border-bottom span { display: none; }
         .sidebar.collapsed a { justify-content: center; padding: 15px 0; }
@@ -42,7 +39,7 @@
         .sidebar a:hover { background: rgba(255,255,255,0.1); color: #fff; }
         .sidebar a.active { background: #084298; border-left: 4px solid #fff; color: #fff; }
 
-        /* Main Content Adjustment */
+        /* Content Area */
         .main { margin-left: var(--sidebar-width); transition: all 0.3s; padding: 20px; min-height: 100vh; }
         .sidebar.collapsed ~ .main { margin-left: var(--sidebar-collapsed); }
 
@@ -56,18 +53,25 @@
             .overlay.active { display: block; }
         }
 
-        /* Enhanced Responsive Table */
-        @media (max-width: 768px) {
-            .table-responsive-stack thead { display: none; }
-            .table-responsive-stack tr { display: block; border: 1px solid #eee; margin-bottom: 1rem; border-radius: 8px; background: #fff; padding: 10px; }
-            body.dark .table-responsive-stack tr { background: #1e1e1e; border-color: #333; }
-            .table-responsive-stack td { display: flex; justify-content: space-between; align-items: center; border: none; padding: 8px 5px; text-align: right; }
-            .table-responsive-stack td:before { content: attr(data-label); font-weight: bold; text-align: left; flex: 1; color: #666; font-size: 0.85rem; }
-            body.dark .table-responsive-stack td:before { color: #aaa; }
+        /* Large Text Tooltip */
+        .large-tooltip .tooltip-inner {
+            font-size: 1.8rem !important;
+            font-weight: bold;
+            padding: 12px 24px;
+            background-color: #0d6efd;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
         }
 
-        .card { border-radius: 12px; }
-        .badge { font-weight: 500; }
+        /* Responsive Table Stack */
+        @media (max-width: 768px) {
+            .table-responsive-stack thead { display: none; }
+            .table-responsive-stack tr { display: block; border: 1px solid #eee; margin-bottom: 1.5rem; border-radius: 10px; background: #fff; padding: 10px; }
+            body.dark .table-responsive-stack tr { background: #1e1e1e; border-color: #333; }
+            .table-responsive-stack td { display: flex; justify-content: space-between; align-items: center; border: none; padding: 10px 5px; text-align: right; }
+            .table-responsive-stack td:before { content: attr(data-label); font-weight: bold; text-align: left; flex: 1; color: #666; }
+        }
+
+        .card { border-radius: 12px; border: none; }
     </style>
 </head>
 
@@ -78,26 +82,27 @@
 <!-- LOGIN PAGE -->
 <div id="loginPage">
     <div class="login-card">
-        <div class="text-center">
+        <div class="text-center mb-4">
             <i class="bi bi-bank2 fs-1 text-primary"></i>
-            <h4 class="fw-bold mt-2">Parliament</h4>
-            <p class="text-muted mb-4">Contact Management System</p>
+            <h4 class="fw-bold mt-2">Parliament CMS</h4>
+            <p class="text-muted">Login to Continue</p>
         </div>
         <div class="mb-3">
             <label class="form-label small fw-bold">Username</label>
-            <input id="username" class="form-control" placeholder="Admin">
+            <input id="username" class="form-control" placeholder="Enter username">
         </div>
         <div class="mb-4">
             <label class="form-label small fw-bold">Password</label>
             <input id="password" type="password" class="form-control" placeholder="••••••••">
         </div>
-        <button class="btn btn-primary w-100 py-2 fw-bold" onclick="login()">Sign In</button>
+        <button class="btn btn-primary w-100 py-2 fw-bold" onclick="login()">Login</button>
     </div>
 </div>
 
 <!-- APP CONTENT -->
 <div id="app" style="display:none">
 
+    <!-- SIDEBAR WITH ANALYTICS INCLUDED -->
     <div class="sidebar" id="sidebar">
         <div class="p-3 text-center border-bottom border-white border-opacity-25 mb-2">
             <i class="bi bi-bank2 fs-4"></i> <span class="fw-bold ms-2">PCMS</span>
@@ -108,7 +113,7 @@
             <a onclick="showSettings(this)" class="nav-link-item"><i class="bi bi-gear"></i><span>Settings</span></a>
         </div>
         <div class="border-top border-white border-opacity-10">
-            <a onclick="toggleSidebar()" class="d-none d-md-flex"><i class="bi bi-arrows-angle-contract"></i><span>Collapse</span></a>
+            <a onclick="toggleSidebar()" class="d-none d-md-flex"><i class="bi bi-list"></i><span>Collapse</span></a>
             <a onclick="logout()" class="text-warning"><i class="bi bi-box-arrow-right"></i><span>Logout</span></a>
         </div>
     </div>
@@ -117,38 +122,34 @@
         <div class="d-flex justify-content-between align-items-center mb-4">
             <div class="d-flex align-items-center gap-3">
                 <button class="btn btn-primary d-lg-none" onclick="toggleSidebar()"><i class="bi bi-list"></i></button>
-                <h4 class="m-0 fw-bold d-none d-sm-block">🏛️ Parliament Portal</h4>
-                <h5 class="m-0 fw-bold d-sm-none">🏛️ Portal</h5>
+                <h4 class="m-0 fw-bold">🏛️ Portal Dashboard</h4>
             </div>
-            <div class="badge bg-primary px-3 py-2 rounded-pill">v1.1</div>
+            <div class="badge bg-primary px-3 py-2 rounded-pill shadow-sm">v1.2</div>
         </div>
 
-        <div class="row g-2 mb-4">
-            <div class="col-4"><div class="card p-3 shadow-sm border-0 text-center">Total <h5 id="total" class="m-0 text-primary fw-bold">0</h5></div></div>
-            <div class="col-4"><div class="card p-3 shadow-sm border-0 text-center">Found <h5 id="filteredCount" class="m-0 text-success fw-bold">0</h5></div></div>
-            <div class="col-4"><div class="card p-3 shadow-sm border-0 text-center">Selected <h5 id="selectedCount" class="m-0 text-danger fw-bold">0</h5></div></div>
+        <div class="row g-3 mb-4 text-center">
+            <div class="col-4"><div class="card p-3 shadow-sm">Total <h5 id="total" class="m-0 text-primary fw-bold">0</h5></div></div>
+            <div class="col-4"><div class="card p-3 shadow-sm">Matches <h5 id="filteredCount" class="m-0 text-success fw-bold">0</h5></div></div>
+            <div class="col-4"><div class="card p-3 shadow-sm">Selected <h5 id="selectedCount" class="m-0 text-danger fw-bold">0</h5></div></div>
         </div>
 
         <!-- HOME PAGE -->
         <div id="homePage">
-            <div class="card p-3 border-0 shadow-sm mb-4">
-                <div class="row g-3">
+            <div class="card p-3 shadow-sm mb-4">
+                <div class="row g-2">
                     <div class="col-12 col-xl-4">
-                        <div class="input-group">
-                            <span class="input-group-text bg-white border-end-0"><i class="bi bi-search"></i></span>
-                            <input id="search" class="form-control border-start-0" placeholder="Search name, email, phone...">
-                        </div>
+                        <input id="search" class="form-control" placeholder="Search (Name, Phone, Email...)">
                     </div>
                     <div class="col-6 col-md-3 col-xl-2">
-                        <select id="filterPost" class="form-select" multiple data-placeholder="Filter Post"></select>
+                        <select id="filterPost" class="form-select" multiple></select>
                     </div>
                     <div class="col-6 col-md-3 col-xl-2">
                         <select id="filterGroup" class="form-select" multiple></select>
                     </div>
                     <div class="col-12 col-md-6 col-xl-4 d-flex gap-2">
-                        <button class="btn btn-outline-secondary flex-grow-1" onclick="clearFilters()">Reset</button>
-                        <button class="btn btn-success" title="VCF" onclick="exportVCF()"><i class="bi bi-person-rolodex"></i></button>
-                        <button class="btn btn-warning" title="Excel" onclick="exportExcel()"><i class="bi bi-file-earmark-excel"></i></button>
+                        <button class="btn btn-light border flex-grow-1" onclick="clearFilters()">Reset</button>
+                        <button class="btn btn-success" onclick="exportVCF()"><i class="bi bi-person-rolodex"></i></button>
+                        <button class="btn btn-warning" onclick="exportExcel()"><i class="bi bi-file-earmark-excel"></i></button>
                     </div>
                 </div>
             </div>
@@ -157,10 +158,10 @@
                 <table class="table table-hover align-middle mb-0 table-responsive-stack">
                     <thead class="table-primary text-nowrap">
                         <tr>
-                            <th style="width: 40px;"><input type="checkbox" onclick="toggleAll(this)" class="form-check-input"></th>
-                            <th onclick="sort('name')" style="cursor:pointer">Name <i class="bi bi-arrow-down-up ms-1"></i></th>
-                            <th>Contact Detail</th>
-                            <th onclick="sort('post')" style="cursor:pointer">Post <i class="bi bi-arrow-down-up ms-1"></i></th>
+                            <th style="width: 50px;"><input type="checkbox" onclick="toggleAll(this)" class="form-check-input"></th>
+                            <th onclick="sort('name')" style="cursor:pointer">Name <i class="bi bi-arrow-down-up small"></i></th>
+                            <th>Contact Detail (Hover)</th>
+                            <th onclick="sort('post')" style="cursor:pointer">Post</th>
                             <th>Group</th>
                             <th>Status</th>
                         </tr>
@@ -170,15 +171,15 @@
             </div>
 
             <div class="d-flex justify-content-between align-items-center mt-4">
-                <button class="btn btn-sm btn-outline-primary px-3" onclick="prevPage()"><i class="bi bi-chevron-left"></i></button>
-                <div class="fw-bold">Page <span id="pageInfo" class="badge bg-primary rounded-circle">1</span></div>
-                <button class="btn btn-sm btn-outline-primary px-3" onclick="nextPage()"><i class="bi bi-chevron-right"></i></button>
+                <button class="btn btn-sm btn-outline-primary" onclick="prevPage()">Previous</button>
+                <div class="fw-bold">Page <span id="pageInfo">1</span></div>
+                <button class="btn btn-sm btn-outline-primary" onclick="nextPage()">Next</button>
             </div>
         </div>
 
-        <!-- ANALYTICS PAGE -->
+        <!-- ANALYTICS PAGE (ORIGINAL LOGIC KEPT) -->
         <div id="analyticsPage" style="display:none">
-            <div class="card p-4 border-0 shadow-sm">
+            <div class="card p-4 shadow-sm">
                 <h4>📊 Data Insights</h4>
                 <hr>
                 <div id="analyticsContent"></div>
@@ -187,15 +188,14 @@
 
         <!-- SETTINGS PAGE -->
         <div id="settingsPage" style="display:none">
-            <div class="card p-4 border-0 shadow-sm" style="max-width: 500px;">
+            <div class="card p-4 shadow-sm" style="max-width: 500px;">
                 <h4>⚙️ App Settings</h4>
-                <hr>
-                <div class="mb-4">
-                    <label class="form-label fw-bold">Interface Font Size (<span id="fontVal">16</span>px)</label>
+                <div class="mb-4 mt-3">
+                    <label class="form-label fw-bold">Font Size</label>
                     <input type="range" class="form-range" min="12" max="22" id="fontRange" oninput="setFont(this.value)">
                 </div>
                 <div class="mb-4">
-                    <label class="form-label fw-bold">Color Theme</label>
+                    <label class="form-label fw-bold">Theme Mode</label>
                     <select onchange="setTheme(this.value)" id="themeSelect" class="form-select">
                         <option value="light">Light Mode</option>
                         <option value="dark">Dark Mode</option>
@@ -206,6 +206,11 @@
     </div>
 </div>
 
+<!-- JS Dependencies -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
 <script>
 const SHEET_URL = "https://opensheet.elk.sh/1HAaZ_Vc71R4ewjH_YLOrAtI_O0EjPXeSFuXAopuC9nM/Sheet1";
 
@@ -213,110 +218,47 @@ let data = [], filtered = [], selected = new Set();
 let currentPage = 1, perPage = 20;
 let sortKey = "", sortAsc = true;
 
-// LOGIN LOGIC
+// LOGIN
 async function login() {
     const u = document.getElementById("username").value;
     const p = document.getElementById("password").value;
-    if(!u || !p) return alert("Please enter credentials");
-    
+    if(!u || !p) return alert("Fill credentials");
     try {
         const res = await fetch(SHEET_URL);
         const d = await res.json();
         const user = d.find(x => x.username == u && x.password == p);
-        if (user) {
-            localStorage.setItem("user", u);
-            startApp();
-        } else {
-            alert("Invalid Credentials!");
-        }
-    } catch (e) {
-        alert("Connection Error. Check internet.");
-    }
+        if (user) { localStorage.setItem("user", u); startApp(); } 
+        else { alert("Failed Login."); }
+    } catch (e) { alert("Error connecting."); }
 }
-
 function logout() { localStorage.removeItem("user"); location.reload(); }
-
 function startApp() {
     document.getElementById("loginPage").style.display = "none";
     document.getElementById("app").style.display = "block";
     load();
 }
-
 if (localStorage.getItem("user")) startApp();
 
-// IMPROVED RESPONSIVE SIDEBAR LOGIC
+// NAV LOGIC
 function toggleSidebar() {
     const sb = document.getElementById("sidebar");
     const overlay = document.getElementById("overlay");
-    
-    if (window.innerWidth < 992) {
-        sb.classList.toggle("show");
-        overlay.classList.toggle("active");
-    } else {
-        sb.classList.toggle("collapsed");
-    }
+    if (window.innerWidth < 992) { sb.classList.toggle("show"); overlay.classList.toggle("active"); } 
+    else { sb.classList.toggle("collapsed"); }
 }
-
-// Auto-collapse sidebar on smaller desktops
-window.addEventListener('resize', () => {
-    const sb = document.getElementById("sidebar");
-    if (window.innerWidth < 1200 && window.innerWidth >= 992) {
-        sb.classList.add("collapsed");
-    } else if (window.innerWidth >= 1200) {
-        sb.classList.remove("collapsed");
-    }
-});
-
 function setActive(el) {
     document.querySelectorAll(".nav-link-item").forEach(a => a.classList.remove("active"));
     el.classList.add("active");
-    if(window.innerWidth < 992) toggleSidebar(); // Auto-close on mobile after click
+    if(window.innerWidth < 992) toggleSidebar();
 }
+function showHome(el) { setActive(el); document.getElementById("homePage").style.display = "block"; document.getElementById("analyticsPage").style.display = "none"; document.getElementById("settingsPage").style.display = "none"; }
+function showAnalytics(el) { setActive(el); document.getElementById("homePage").style.display = "none"; document.getElementById("analyticsPage").style.display = "block"; document.getElementById("settingsPage").style.display = "none"; renderAnalytics(); }
+function showSettings(el) { setActive(el); document.getElementById("homePage").style.display = "none"; document.getElementById("analyticsPage").style.display = "none"; document.getElementById("settingsPage").style.display = "block"; }
 
-function showHome(el) {
-    setActive(el);
-    document.getElementById("homePage").style.display = "block";
-    document.getElementById("analyticsPage").style.display = "none";
-    document.getElementById("settingsPage").style.display = "none";
-}
-
-function showAnalytics(el) {
-    setActive(el);
-    document.getElementById("homePage").style.display = "none";
-    document.getElementById("analyticsPage").style.display = "block";
-    document.getElementById("settingsPage").style.display = "none";
-    renderAnalytics();
-}
-
-function showSettings(el) {
-    setActive(el);
-    document.getElementById("homePage").style.display = "none";
-    document.getElementById("analyticsPage").style.display = "none";
-    document.getElementById("settingsPage").style.display = "block";
-}
-
-// SETTINGS
-function setFont(v) { 
-    document.body.style.fontSize = v + "px"; 
-    document.getElementById("fontVal").innerText = v;
-    localStorage.setItem("font", v);
-}
-function setTheme(v) { 
-    document.body.className = v === "dark" ? "dark" : ""; 
-    localStorage.setItem("theme", v);
-}
-
-// Initialization
-document.body.style.fontSize = localStorage.getItem("font") || "16px";
-document.getElementById("fontRange").value = parseInt(localStorage.getItem("font")) || 16;
-setTheme(localStorage.getItem("theme") || "light");
-document.getElementById("themeSelect").value = localStorage.getItem("theme") || "light";
-
-// DATA LOAD
+// CORE DATA
 async function load() {
     const res = await fetch(SHEET_URL);
     const raw = await res.json();
-
     data = raw.map((r, i) => ({
         id: i,
         name: r.Name || "",
@@ -327,7 +269,6 @@ async function load() {
         groups: r.Groups || "General",
         status: r.Status || "Active"
     }));
-
     filtered = [...data];
     buildFilters();
     render();
@@ -337,73 +278,47 @@ function buildFilters() {
     fill("filterPost", [...new Set(data.map(d => d.post))]);
     fill("filterGroup", [...new Set(data.map(d => d.groups))]);
 }
-
 function fill(id, arr) {
-    const el = document.getElementById(id);
-    el.innerHTML = "";
-    arr.sort().forEach(v => {
-        if (v) {
-            const o = document.createElement("option");
-            o.value = v; o.textContent = v;
-            el.appendChild(o);
-        }
-    });
+    const el = document.getElementById(id); el.innerHTML = "";
+    arr.sort().forEach(v => { if (v) { const o = document.createElement("option"); o.value = v; o.textContent = v; el.appendChild(o); } });
 }
-
 function applyFilters() {
     const s = document.getElementById("search").value.toLowerCase();
     const posts = Array.from(document.getElementById("filterPost").selectedOptions).map(o => o.value);
     const groups = Array.from(document.getElementById("filterGroup").selectedOptions).map(o => o.value);
-
-    filtered = data.filter(c =>
-        (c.name.toLowerCase().includes(s) ||
-         c.nepaliName.toLowerCase().includes(s) ||
-         c.email.toLowerCase().includes(s) ||
-         c.phones.join().includes(s))
-        && (posts.length === 0 || posts.includes(c.post))
-        && (groups.length === 0 || groups.includes(c.groups))
-    );
-
-    currentPage = 1;
-    render();
+    filtered = data.filter(c => (c.name.toLowerCase().includes(s) || c.nepaliName.toLowerCase().includes(s) || c.phones.join().includes(s))
+        && (posts.length === 0 || posts.includes(c.post)) && (groups.length === 0 || groups.includes(c.groups)));
+    currentPage = 1; render();
 }
-
 document.getElementById("search").addEventListener("input", applyFilters);
 document.getElementById("filterPost").addEventListener("change", applyFilters);
 document.getElementById("filterGroup").addEventListener("change", applyFilters);
-
-function clearFilters() {
-    document.getElementById("search").value = "";
-    document.getElementById("filterPost").selectedIndex = -1;
-    document.getElementById("filterGroup").selectedIndex = -1;
-    applyFilters();
-}
+function clearFilters() { document.getElementById("search").value = ""; document.getElementById("filterPost").selectedIndex = -1; document.getElementById("filterGroup").selectedIndex = -1; applyFilters(); }
 
 function sort(key) {
     sortAsc = (sortKey === key) ? !sortAsc : true;
     sortKey = key;
-    filtered.sort((a, b) => {
-        let A = a[key], B = b[key];
-        return sortAsc ? String(A).localeCompare(String(B)) : String(B).localeCompare(String(A));
-    });
+    filtered.sort((a, b) => sortAsc ? String(a[key]).localeCompare(String(b[key])) : String(b[key]).localeCompare(String(a[key])));
     render();
 }
 
 function render() {
-    const tbody = document.getElementById("tableBody");
-    tbody.innerHTML = "";
+    const tbody = document.getElementById("tableBody"); tbody.innerHTML = "";
     const start = (currentPage - 1) * perPage;
     const page = filtered.slice(start, start + perPage);
 
     page.forEach(c => {
-        const phones = c.phones.map(p => `<div>${p} <a href="tel:${p}" class="text-primary">📞</a></div>`).join("");
-        const emails = c.email ? c.email.split(",").map(e => `<div>${e.trim()} <a href="mailto:${e.trim()}" class="text-primary">✉️</a></div>`).join("") : "-";
+        const phones = c.phones.map(p => `
+            <div class="mb-1">
+                ${p} 
+                <a href="tel:${p}" class="ms-1" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-custom-class="large-tooltip" title="${p}">📞</a>
+            </div>`).join("");
 
         tbody.innerHTML += `
             <tr>
                 <td data-label="Select"><input type="checkbox" class="form-check-input" ${selected.has(c.id) ? "checked" : ""} onclick="toggleSel(${c.id})"></td>
                 <td data-label="Name"><div class="fw-bold">${c.name}</div><small class="text-muted">${c.nepaliName}</small></td>
-                <td data-label="Contact" style="font-size:0.85rem">${emails}${phones}</td>
+                <td data-label="Contact">${phones}</td>
                 <td data-label="Post"><span class="badge bg-light text-dark border">${c.post}</span></td>
                 <td data-label="Group">${c.groups}</td>
                 <td data-label="Status"><span class="badge ${c.status === 'Active' ? 'bg-success' : 'bg-secondary'}">${c.status}</span></td>
@@ -414,8 +329,12 @@ function render() {
     document.getElementById("total").innerText = data.length;
     document.getElementById("filteredCount").innerText = filtered.length;
     document.getElementById("selectedCount").innerText = selected.size;
+
+    // Tooltip Init
+    [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]')).map(el => new bootstrap.Tooltip(el));
 }
 
+// FULL ANALYTICS LOGIC (AS REQUESTED)
 function renderAnalytics() {
     let groupCount = {}, postCount = {}, statusCount = {};
     data.forEach(c => {
@@ -424,24 +343,24 @@ function renderAnalytics() {
         statusCount[c.status] = (statusCount[c.status] || 0) + 1;
     });
 
-    let html = `<div class="row g-4">
-        <div class="col-md-6">
+    let html = `<div class="row">
+        <div class="col-md-6 mb-4">
             <h5>Post Distribution</h5>
-            <div class="table-responsive"><table class='table table-sm table-bordered'>
+            <table class='table table-sm table-bordered'>
                 <thead class='table-light'><tr><th>Post</th><th>Count</th></tr></thead>
                 <tbody>${Object.entries(postCount).map(([k,v]) => `<tr><td>${k}</td><td>${v}</td></tr>`).join('')}</tbody>
-            </table></div>
+            </table>
         </div>
-        <div class="col-md-6">
+        <div class="col-md-6 mb-4">
             <h5>Group Distribution</h5>
-            <div class="table-responsive"><table class='table table-sm table-bordered'>
+            <table class='table table-sm table-bordered'>
                 <thead class='table-light'><tr><th>Group</th><th>Count</th></tr></thead>
                 <tbody>${Object.entries(groupCount).map(([k,v]) => `<tr><td>${k}</td><td>${v}</td></tr>`).join('')}</tbody>
-            </table></div>
+            </table>
         </div>
     </div>
-    <div class="mt-4" style="max-width:400px; margin:auto;">
-        <h5 class="text-center">Status Overview</h5>
+    <div class="mt-4 text-center" style="max-width:450px; margin:auto;">
+        <h5>Status Overview</h5>
         <canvas id="statusChart"></canvas>
     </div>`;
 
@@ -459,37 +378,27 @@ function renderAnalytics() {
     });
 }
 
+// UTILS
 function exportVCF() {
     let vcf = "";
     const targets = selected.size > 0 ? data.filter(c => selected.has(c.id)) : filtered;
-    targets.forEach(c => {
-        vcf += "BEGIN:VCARD\nVERSION:3.0\n";
-        vcf += `FN:${c.name}\n`;
-        c.phones.forEach(p => vcf += `TEL:${p}\n`);
-        if (c.email) vcf += `EMAIL:${c.email}\n`;
-        if (c.groups) vcf += `ORG:${c.groups}\n`;
-        if (c.post) vcf += `TITLE:${c.post}\n`;
-        vcf += "END:VCARD\n\n";
-    });
-    downloadFile(vcf, "contacts.vcf", "text/vcard");
+    targets.forEach(c => { vcf += `BEGIN:VCARD\nVERSION:3.0\nFN:${c.name}\n`; c.phones.forEach(p => vcf += `TEL:${p}\n`); vcf += `TITLE:${c.post}\nORG:${c.groups}\nEND:VCARD\n\n`; });
+    const blob = new Blob([vcf], { type: "text/vcard" });
+    const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = "contacts.vcf"; a.click();
 }
-
 function exportExcel() {
     const targets = selected.size > 0 ? data.filter(c => selected.has(c.id)) : filtered;
-    const rows = targets.map(c => ({ Name: c.name, Nepali: c.nepaliName, Email: c.email, Phone: c.phones.join(", "), Post: c.post, Group: c.groups, Status: c.status }));
-    const ws = XLSX.utils.json_to_sheet(rows);
-    const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, "Contacts");
+    const ws = XLSX.utils.json_to_sheet(targets);
+    const wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, ws, "Contacts");
     XLSX.writeFile(wb, "parliament_contacts.xlsx");
 }
+function setFont(v) { document.body.style.fontSize = v + "px"; localStorage.setItem("font", v); }
+function setTheme(v) { document.body.className = v === "dark" ? "dark" : ""; localStorage.setItem("theme", v); }
 
-function downloadFile(content, name, type) {
-    const blob = new Blob([content], { type });
-    const a = document.createElement("a");
-    a.href = URL.createObjectURL(blob);
-    a.download = name;
-    a.click();
-}
+// INIT SETTINGS
+document.body.style.fontSize = localStorage.getItem("font") || "16px";
+document.getElementById("fontRange").value = parseInt(localStorage.getItem("font")) || 16;
+setTheme(localStorage.getItem("theme") || "light");
 
 function toggleSel(id) { selected.has(id) ? selected.delete(id) : selected.add(id); render(); }
 function toggleAll(cb) { cb.checked ? filtered.forEach(c => selected.add(c.id)) : selected.clear(); render(); }
