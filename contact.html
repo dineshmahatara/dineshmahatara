@@ -11,87 +11,87 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
     <style>
-        body { transition: background 0.3s, color 0.3s; }
+        :root { --sidebar-width: 240px; --sidebar-collapsed: 70px; }
+        body { transition: background 0.3s, color 0.3s; overflow-x: hidden; }
         body.dark { background: #121212; color: #e0e0e0; }
 
-        /* Login Page Centering */
-        #loginPage {
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: #f8f9fa;
-        }
+        /* Login Page */
+        #loginPage { min-height: 100vh; display: flex; align-items: center; justify-content: center; background: #f8f9fa; padding: 15px; }
         body.dark #loginPage { background: #1a1a1a; }
+        .login-card { width: 100%; max-width: 400px; padding: 2rem; background: #fff; border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
+        body.dark .login-card { background: #2d2d2d; color: #fff; }
 
-        .login-card {
-            width: 100%;
-            max-width: 420px;
-            padding: 2.5rem;
-            background: #fff;
-            border-radius: 15px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
-            text-align: center;
-        }
-        body.dark .login-card { background: #2d2d2d; color: #fff; box-shadow: 0 10px 25px rgba(0,0,0,0.4); }
-
-        .logo-box {
-            font-size: 3.5rem;
-            color: #0d6efd;
-            margin-bottom: 1rem;
-        }
-
-        /* Sidebar Styles */
+        /* Responsive Sidebar */
         .sidebar {
-            width: 220px; position: fixed; height: 100%;
-            background: #0d6efd; color: #fff;
-            transition: 0.3s; z-index: 1000;
+            width: var(--sidebar-width); position: fixed; height: 100vh;
+            background: #0d6efd; color: #fff; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 1050; left: 0; display: flex; flex-direction: column;
         }
-        .sidebar.collapsed { width: 60px; }
-        .sidebar.collapsed span { display: none; }
+        
+        /* Desktop Collapse State */
+        .sidebar.collapsed { width: var(--sidebar-collapsed); }
+        .sidebar.collapsed span, .sidebar.collapsed .border-bottom span { display: none; }
+        .sidebar.collapsed a { justify-content: center; padding: 15px 0; }
+        .sidebar.collapsed i { margin: 0; font-size: 1.4rem; }
 
         .sidebar a {
-            display: flex; align-items: center; gap: 10px;
-            padding: 12px 20px; color: #fff; text-decoration: none;
-            cursor: pointer;
+            display: flex; align-items: center; gap: 12px;
+            padding: 12px 20px; color: rgba(255,255,255,0.8); text-decoration: none;
+            cursor: pointer; transition: 0.2s;
         }
-        .sidebar a:hover { background: #0b5ed7; }
-        .sidebar a.active { background: #084298; border-left: 4px solid #fff; }
+        .sidebar a:hover { background: rgba(255,255,255,0.1); color: #fff; }
+        .sidebar a.active { background: #084298; border-left: 4px solid #fff; color: #fff; }
 
-        .main { margin-left: 220px; transition: 0.3s; padding: 20px; }
-        .sidebar.collapsed ~ .main { margin-left: 60px; }
+        /* Main Content Adjustment */
+        .main { margin-left: var(--sidebar-width); transition: all 0.3s; padding: 20px; min-height: 100vh; }
+        .sidebar.collapsed ~ .main { margin-left: var(--sidebar-collapsed); }
 
-        /* Mobile Sidebar */
-        @media(max-width: 768px) {
-            .sidebar { left: -220px; }
-            .sidebar.show { left: 0; }
-            .main { margin-left: 0; }
+        /* Mobile Adjustments */
+        @media(max-width: 992px) {
+            .sidebar { left: calc(-1 * var(--sidebar-width)); }
+            .sidebar.show { left: 0; width: var(--sidebar-width) !important; }
+            .sidebar.show span { display: inline !important; }
+            .main { margin-left: 0 !important; }
+            .overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 1040; }
+            .overlay.active { display: block; }
         }
 
-        .table-responsive { border-radius: 8px; overflow: hidden; }
+        /* Enhanced Responsive Table */
+        @media (max-width: 768px) {
+            .table-responsive-stack thead { display: none; }
+            .table-responsive-stack tr { display: block; border: 1px solid #eee; margin-bottom: 1rem; border-radius: 8px; background: #fff; padding: 10px; }
+            body.dark .table-responsive-stack tr { background: #1e1e1e; border-color: #333; }
+            .table-responsive-stack td { display: flex; justify-content: space-between; align-items: center; border: none; padding: 8px 5px; text-align: right; }
+            .table-responsive-stack td:before { content: attr(data-label); font-weight: bold; text-align: left; flex: 1; color: #666; font-size: 0.85rem; }
+            body.dark .table-responsive-stack td:before { color: #aaa; }
+        }
+
+        .card { border-radius: 12px; }
+        .badge { font-weight: 500; }
     </style>
 </head>
 
 <body>
 
+<div class="overlay" id="overlay" onclick="toggleSidebar()"></div>
+
 <!-- LOGIN PAGE -->
 <div id="loginPage">
     <div class="login-card">
-        <div class="logo-box">
-            <i class="bi bi-bank2"></i>
+        <div class="text-center">
+            <i class="bi bi-bank2 fs-1 text-primary"></i>
+            <h4 class="fw-bold mt-2">Parliament</h4>
+            <p class="text-muted mb-4">Contact Management System</p>
         </div>
-        <h4 class="fw-bold">Parliament</h4>
-        <p class="text-muted mb-4">Contact Management System</p>
-        
-        <div class="text-start">
+        <div class="mb-3">
             <label class="form-label small fw-bold">Username</label>
-            <input id="username" class="form-control mb-3" placeholder="Enter username">
-            
-            <label class="form-label small fw-bold">Password</label>
-            <input id="password" type="password" class="form-control mb-4" placeholder="••••••••">
+            <input id="username" class="form-control" placeholder="Admin">
         </div>
-        
-        <button class="btn btn-primary w-100 py-2 fw-bold" onclick="login()">Login</button>
+        <div class="mb-4">
+            <label class="form-label small fw-bold">Password</label>
+            <input id="password" type="password" class="form-control" placeholder="••••••••">
+        </div>
+        <button class="btn btn-primary w-100 py-2 fw-bold" onclick="login()">Sign In</button>
     </div>
 </div>
 
@@ -100,69 +100,79 @@
 
     <div class="sidebar" id="sidebar">
         <div class="p-3 text-center border-bottom border-white border-opacity-25 mb-2">
-            <i class="bi bi-bank2 fs-4"></i> <span class="fw-bold">PCMS</span>
+            <i class="bi bi-bank2 fs-4"></i> <span class="fw-bold ms-2">PCMS</span>
         </div>
-        <a onclick="showHome(this)" class="active"><i class="bi bi-house"></i><span>Home</span></a>
-        <a onclick="showAnalytics(this)"><i class="bi bi-bar-chart"></i><span>Analytics</span></a>
-        <a onclick="showSettings(this)"><i class="bi bi-gear"></i><span>Settings</span></a>
-        <a onclick="logout()" class="mt-auto text-warning"><i class="bi bi-box-arrow-right"></i><span>Logout</span></a>
-        <a onclick="toggleSidebar()" class="d-none d-md-flex"><i class="bi bi-list"></i><span>Collapse</span></a>
+        <div class="flex-grow-1">
+            <a onclick="showHome(this)" class="nav-link-item active"><i class="bi bi-house"></i><span>Home</span></a>
+            <a onclick="showAnalytics(this)" class="nav-link-item"><i class="bi bi-bar-chart"></i><span>Analytics</span></a>
+            <a onclick="showSettings(this)" class="nav-link-item"><i class="bi bi-gear"></i><span>Settings</span></a>
+        </div>
+        <div class="border-top border-white border-opacity-10">
+            <a onclick="toggleSidebar()" class="d-none d-md-flex"><i class="bi bi-arrows-angle-contract"></i><span>Collapse</span></a>
+            <a onclick="logout()" class="text-warning"><i class="bi bi-box-arrow-right"></i><span>Logout</span></a>
+        </div>
     </div>
 
     <div class="main">
         <div class="d-flex justify-content-between align-items-center mb-4">
-            <button class="btn btn-outline-primary d-md-none" onclick="toggleSidebar()"><i class="bi bi-list"></i></button>
-            <h4 class="m-0 fw-bold">🏛️ Parliament Contact Management System</h4>
-            <div class="badge bg-primary p-2">v1.0</div>
+            <div class="d-flex align-items-center gap-3">
+                <button class="btn btn-primary d-lg-none" onclick="toggleSidebar()"><i class="bi bi-list"></i></button>
+                <h4 class="m-0 fw-bold d-none d-sm-block">🏛️ Parliament Portal</h4>
+                <h5 class="m-0 fw-bold d-sm-none">🏛️ Portal</h5>
+            </div>
+            <div class="badge bg-primary px-3 py-2 rounded-pill">v1.1</div>
         </div>
 
-        <div class="row g-3 mb-4 text-center">
-            <div class="col-4"><div class="card p-2 shadow-sm border-0">Total <h5 id="total" class="m-0 text-primary">0</h5></div></div>
-            <div class="col-4"><div class="card p-2 shadow-sm border-0">Filtered <h5 id="filteredCount" class="m-0 text-success">0</h5></div></div>
-            <div class="col-4"><div class="card p-2 shadow-sm border-0">Selected <h5 id="selectedCount" class="m-0 text-danger">0</h5></div></div>
+        <div class="row g-2 mb-4">
+            <div class="col-4"><div class="card p-3 shadow-sm border-0 text-center">Total <h5 id="total" class="m-0 text-primary fw-bold">0</h5></div></div>
+            <div class="col-4"><div class="card p-3 shadow-sm border-0 text-center">Found <h5 id="filteredCount" class="m-0 text-success fw-bold">0</h5></div></div>
+            <div class="col-4"><div class="card p-3 shadow-sm border-0 text-center">Selected <h5 id="selectedCount" class="m-0 text-danger fw-bold">0</h5></div></div>
         </div>
 
         <!-- HOME PAGE -->
         <div id="homePage">
             <div class="card p-3 border-0 shadow-sm mb-4">
-                <div class="row g-2">
-                    <div class="col-12 col-md-3">
-                        <input id="search" class="form-control" placeholder="Search (नाम, इमेल, फोन...)">
+                <div class="row g-3">
+                    <div class="col-12 col-xl-4">
+                        <div class="input-group">
+                            <span class="input-group-text bg-white border-end-0"><i class="bi bi-search"></i></span>
+                            <input id="search" class="form-control border-start-0" placeholder="Search name, email, phone...">
+                        </div>
                     </div>
-                    <div class="col-6 col-md-3">
-                        <select id="filterPost" class="form-select" multiple data-placeholder="Filter by Post"></select>
+                    <div class="col-6 col-md-3 col-xl-2">
+                        <select id="filterPost" class="form-select" multiple data-placeholder="Filter Post"></select>
                     </div>
-                    <div class="col-6 col-md-3">
+                    <div class="col-6 col-md-3 col-xl-2">
                         <select id="filterGroup" class="form-select" multiple></select>
                     </div>
-                    <div class="col-12 col-md-3 d-flex gap-2">
-                        <button class="btn btn-light border w-100" onclick="clearFilters()">Reset</button>
-                        <button class="btn btn-success w-100" title="Export VCF" onclick="exportVCF()"><i class="bi bi-person-rolodex"></i></button>
-                        <button class="btn btn-warning w-100" title="Export Excel" onclick="exportExcel()"><i class="bi bi-file-earmark-excel"></i></button>
+                    <div class="col-12 col-md-6 col-xl-4 d-flex gap-2">
+                        <button class="btn btn-outline-secondary flex-grow-1" onclick="clearFilters()">Reset</button>
+                        <button class="btn btn-success" title="VCF" onclick="exportVCF()"><i class="bi bi-person-rolodex"></i></button>
+                        <button class="btn btn-warning" title="Excel" onclick="exportExcel()"><i class="bi bi-file-earmark-excel"></i></button>
                     </div>
                 </div>
             </div>
 
-            <div class="table-responsive shadow-sm bg-white">
-                <table class="table table-hover align-middle mb-0">
-                    <thead class="table-primary">
+            <div class="table-responsive shadow-sm bg-white rounded-3">
+                <table class="table table-hover align-middle mb-0 table-responsive-stack">
+                    <thead class="table-primary text-nowrap">
                         <tr>
-                            <th><input type="checkbox" onclick="toggleAll(this)" class="form-check-input"></th>
-                            <th onclick="sort('name')" style="cursor:pointer">नाम <i class="bi bi-arrow-down-up small"></i></th>
-                            <th>सम्पर्क (Email/Phone)</th>
-                            <th onclick="sort('post')" style="cursor:pointer">पद <i class="bi bi-arrow-down-up small"></i></th>
-                            <th>समूह</th>
-                            <th>स्थिति</th>
+                            <th style="width: 40px;"><input type="checkbox" onclick="toggleAll(this)" class="form-check-input"></th>
+                            <th onclick="sort('name')" style="cursor:pointer">Name <i class="bi bi-arrow-down-up ms-1"></i></th>
+                            <th>Contact Detail</th>
+                            <th onclick="sort('post')" style="cursor:pointer">Post <i class="bi bi-arrow-down-up ms-1"></i></th>
+                            <th>Group</th>
+                            <th>Status</th>
                         </tr>
                     </thead>
                     <tbody id="tableBody"></tbody>
                 </table>
             </div>
 
-            <div class="d-flex justify-content-between align-items-center mt-3">
-                <button class="btn btn-outline-primary btn-sm" onclick="prevPage()">Previous</button>
-                <span class="fw-bold">Page <span id="pageInfo">1</span></span>
-                <button class="btn btn-outline-primary btn-sm" onclick="nextPage()">Next</button>
+            <div class="d-flex justify-content-between align-items-center mt-4">
+                <button class="btn btn-sm btn-outline-primary px-3" onclick="prevPage()"><i class="bi bi-chevron-left"></i></button>
+                <div class="fw-bold">Page <span id="pageInfo" class="badge bg-primary rounded-circle">1</span></div>
+                <button class="btn btn-sm btn-outline-primary px-3" onclick="nextPage()"><i class="bi bi-chevron-right"></i></button>
             </div>
         </div>
 
@@ -181,7 +191,7 @@
                 <h4>⚙️ App Settings</h4>
                 <hr>
                 <div class="mb-4">
-                    <label class="form-label fw-bold">Interface Font Size</label>
+                    <label class="form-label fw-bold">Interface Font Size (<span id="fontVal">16</span>px)</label>
                     <input type="range" class="form-range" min="12" max="22" id="fontRange" oninput="setFont(this.value)">
                 </div>
                 <div class="mb-4">
@@ -193,7 +203,6 @@
                 </div>
             </div>
         </div>
-
     </div>
 </div>
 
@@ -221,7 +230,7 @@ async function login() {
             alert("Invalid Credentials!");
         }
     } catch (e) {
-        alert("Connection Error. Please check your internet.");
+        alert("Connection Error. Check internet.");
     }
 }
 
@@ -235,19 +244,33 @@ function startApp() {
 
 if (localStorage.getItem("user")) startApp();
 
-// NAVIGATION & UI
+// IMPROVED RESPONSIVE SIDEBAR LOGIC
 function toggleSidebar() {
     const sb = document.getElementById("sidebar");
-    if (window.innerWidth < 768) {
+    const overlay = document.getElementById("overlay");
+    
+    if (window.innerWidth < 992) {
         sb.classList.toggle("show");
+        overlay.classList.toggle("active");
     } else {
         sb.classList.toggle("collapsed");
     }
 }
 
+// Auto-collapse sidebar on smaller desktops
+window.addEventListener('resize', () => {
+    const sb = document.getElementById("sidebar");
+    if (window.innerWidth < 1200 && window.innerWidth >= 992) {
+        sb.classList.add("collapsed");
+    } else if (window.innerWidth >= 1200) {
+        sb.classList.remove("collapsed");
+    }
+});
+
 function setActive(el) {
-    document.querySelectorAll(".sidebar a").forEach(a => a.classList.remove("active"));
+    document.querySelectorAll(".nav-link-item").forEach(a => a.classList.remove("active"));
     el.classList.add("active");
+    if(window.innerWidth < 992) toggleSidebar(); // Auto-close on mobile after click
 }
 
 function showHome(el) {
@@ -272,9 +295,10 @@ function showSettings(el) {
     document.getElementById("settingsPage").style.display = "block";
 }
 
-// SETTINGS PRESERVATION
+// SETTINGS
 function setFont(v) { 
     document.body.style.fontSize = v + "px"; 
+    document.getElementById("fontVal").innerText = v;
     localStorage.setItem("font", v);
 }
 function setTheme(v) { 
@@ -282,13 +306,13 @@ function setTheme(v) {
     localStorage.setItem("theme", v);
 }
 
-// Initialization of settings
+// Initialization
 document.body.style.fontSize = localStorage.getItem("font") || "16px";
 document.getElementById("fontRange").value = parseInt(localStorage.getItem("font")) || 16;
 setTheme(localStorage.getItem("theme") || "light");
 document.getElementById("themeSelect").value = localStorage.getItem("theme") || "light";
 
-// DATA MANAGEMENT
+// DATA LOAD
 async function load() {
     const res = await fetch(SHEET_URL);
     const raw = await res.json();
@@ -372,17 +396,17 @@ function render() {
     const page = filtered.slice(start, start + perPage);
 
     page.forEach(c => {
-        const phones = c.phones.map(p => `<div>${p} <a href="tel:${p}" class="text-decoration-none">📞</a></div>`).join("");
-        const emails = c.email ? c.email.split(",").map(e => `<div>${e.trim()} <a href="mailto:${e.trim()}" class="text-decoration-none">✉️</a></div>`).join("") : "-";
+        const phones = c.phones.map(p => `<div>${p} <a href="tel:${p}" class="text-primary">📞</a></div>`).join("");
+        const emails = c.email ? c.email.split(",").map(e => `<div>${e.trim()} <a href="mailto:${e.trim()}" class="text-primary">✉️</a></div>`).join("") : "-";
 
         tbody.innerHTML += `
             <tr>
-                <td><input type="checkbox" class="form-check-input" ${selected.has(c.id) ? "checked" : ""} onclick="toggleSel(${c.id})"></td>
-                <td><div class="fw-bold">${c.name}</div><small class="text-muted">${c.nepaliName}</small></td>
-                <td style="font-size:0.9rem">${emails}${phones}</td>
-                <td><span class="badge bg-light text-dark border">${c.post}</span></td>
-                <td>${c.groups}</td>
-                <td><span class="badge ${c.status === 'Active' ? 'bg-success' : 'bg-secondary'}">${c.status}</span></td>
+                <td data-label="Select"><input type="checkbox" class="form-check-input" ${selected.has(c.id) ? "checked" : ""} onclick="toggleSel(${c.id})"></td>
+                <td data-label="Name"><div class="fw-bold">${c.name}</div><small class="text-muted">${c.nepaliName}</small></td>
+                <td data-label="Contact" style="font-size:0.85rem">${emails}${phones}</td>
+                <td data-label="Post"><span class="badge bg-light text-dark border">${c.post}</span></td>
+                <td data-label="Group">${c.groups}</td>
+                <td data-label="Status"><span class="badge ${c.status === 'Active' ? 'bg-success' : 'bg-secondary'}">${c.status}</span></td>
             </tr>`;
     });
 
@@ -400,23 +424,23 @@ function renderAnalytics() {
         statusCount[c.status] = (statusCount[c.status] || 0) + 1;
     });
 
-    let html = `<div class="row">
+    let html = `<div class="row g-4">
         <div class="col-md-6">
             <h5>Post Distribution</h5>
-            <table class='table table-sm table-bordered'>
+            <div class="table-responsive"><table class='table table-sm table-bordered'>
                 <thead class='table-light'><tr><th>Post</th><th>Count</th></tr></thead>
                 <tbody>${Object.entries(postCount).map(([k,v]) => `<tr><td>${k}</td><td>${v}</td></tr>`).join('')}</tbody>
-            </table>
+            </table></div>
         </div>
         <div class="col-md-6">
             <h5>Group Distribution</h5>
-            <table class='table table-sm table-bordered'>
+            <div class="table-responsive"><table class='table table-sm table-bordered'>
                 <thead class='table-light'><tr><th>Group</th><th>Count</th></tr></thead>
                 <tbody>${Object.entries(groupCount).map(([k,v]) => `<tr><td>${k}</td><td>${v}</td></tr>`).join('')}</tbody>
-            </table>
+            </table></div>
         </div>
     </div>
-    <div class="mt-4" style="max-width:500px; margin:auto;">
+    <div class="mt-4" style="max-width:400px; margin:auto;">
         <h5 class="text-center">Status Overview</h5>
         <canvas id="statusChart"></canvas>
     </div>`;
@@ -452,15 +476,7 @@ function exportVCF() {
 
 function exportExcel() {
     const targets = selected.size > 0 ? data.filter(c => selected.has(c.id)) : filtered;
-    const rows = targets.map(c => ({
-        Name: c.name,
-        Nepali: c.nepaliName,
-        Email: c.email,
-        Phone: c.phones.join(", "),
-        Post: c.post,
-        Group: c.groups,
-        Status: c.status
-    }));
+    const rows = targets.map(c => ({ Name: c.name, Nepali: c.nepaliName, Email: c.email, Phone: c.phones.join(", "), Post: c.post, Group: c.groups, Status: c.status }));
     const ws = XLSX.utils.json_to_sheet(rows);
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, "Contacts");
