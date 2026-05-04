@@ -1,324 +1,484 @@
 <!DOCTYPE html>
 <html lang="ne">
 <head>
-<meta charset="UTF-8">
-<title>सम्पर्क व्यवस्थापन प्रणाली</title>
-<meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta charset="UTF-8">
+    <title>Parliament Contact Management System</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
 
-<!-- Bootstrap -->
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-<!-- Bootstrap Icons -->
-<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        body { transition: background 0.3s, color 0.3s; }
+        body.dark { background: #121212; color: #e0e0e0; }
 
+        /* Login Page Centering */
+        #loginPage {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #f8f9fa;
+        }
+        body.dark #loginPage { background: #1a1a1a; }
+
+        .login-card {
+            width: 100%;
+            max-width: 420px;
+            padding: 2.5rem;
+            background: #fff;
+            border-radius: 15px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+        body.dark .login-card { background: #2d2d2d; color: #fff; box-shadow: 0 10px 25px rgba(0,0,0,0.4); }
+
+        .logo-box {
+            font-size: 3.5rem;
+            color: #0d6efd;
+            margin-bottom: 1rem;
+        }
+
+        /* Sidebar Styles */
+        .sidebar {
+            width: 220px; position: fixed; height: 100%;
+            background: #0d6efd; color: #fff;
+            transition: 0.3s; z-index: 1000;
+        }
+        .sidebar.collapsed { width: 60px; }
+        .sidebar.collapsed span { display: none; }
+
+        .sidebar a {
+            display: flex; align-items: center; gap: 10px;
+            padding: 12px 20px; color: #fff; text-decoration: none;
+            cursor: pointer;
+        }
+        .sidebar a:hover { background: #0b5ed7; }
+        .sidebar a.active { background: #084298; border-left: 4px solid #fff; }
+
+        .main { margin-left: 220px; transition: 0.3s; padding: 20px; }
+        .sidebar.collapsed ~ .main { margin-left: 60px; }
+
+        /* Mobile Sidebar */
+        @media(max-width: 768px) {
+            .sidebar { left: -220px; }
+            .sidebar.show { left: 0; }
+            .main { margin-left: 0; }
+        }
+
+        .table-responsive { border-radius: 8px; overflow: hidden; }
+    </style>
 </head>
 
-<body class="bg-light">
+<body>
 
-<div class="container-fluid py-3">
-
-<h3 class="text-center mb-3">📒 सम्पर्क व्यवस्थापन प्रणाली</h3>
-
-<!-- Controls -->
-<div class="row g-2 mb-3">
-
-<div class="col-md-3">
-<input id="search" class="form-control" placeholder="नाम / नेपाली / फोन खोज्नुहोस्">
+<!-- LOGIN PAGE -->
+<div id="loginPage">
+    <div class="login-card">
+        <div class="logo-box">
+            <i class="bi bi-bank2"></i>
+        </div>
+        <h4 class="fw-bold">Parliament</h4>
+        <p class="text-muted mb-4">Contact Management System</p>
+        
+        <div class="text-start">
+            <label class="form-label small fw-bold">Username</label>
+            <input id="username" class="form-control mb-3" placeholder="Enter username">
+            
+            <label class="form-label small fw-bold">Password</label>
+            <input id="password" type="password" class="form-control mb-4" placeholder="••••••••">
+        </div>
+        
+        <button class="btn btn-primary w-100 py-2 fw-bold" onclick="login()">Login</button>
+    </div>
 </div>
 
-<div class="col-md-2">
-<select id="filterPost" class="form-select" multiple></select>
+<!-- APP CONTENT -->
+<div id="app" style="display:none">
+
+    <div class="sidebar" id="sidebar">
+        <div class="p-3 text-center border-bottom border-white border-opacity-25 mb-2">
+            <i class="bi bi-bank2 fs-4"></i> <span class="fw-bold">PCMS</span>
+        </div>
+        <a onclick="showHome(this)" class="active"><i class="bi bi-house"></i><span>Home</span></a>
+        <a onclick="showAnalytics(this)"><i class="bi bi-bar-chart"></i><span>Analytics</span></a>
+        <a onclick="showSettings(this)"><i class="bi bi-gear"></i><span>Settings</span></a>
+        <a onclick="logout()" class="mt-auto text-warning"><i class="bi bi-box-arrow-right"></i><span>Logout</span></a>
+        <a onclick="toggleSidebar()" class="d-none d-md-flex"><i class="bi bi-list"></i><span>Collapse</span></a>
+    </div>
+
+    <div class="main">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <button class="btn btn-outline-primary d-md-none" onclick="toggleSidebar()"><i class="bi bi-list"></i></button>
+            <h4 class="m-0 fw-bold">🏛️ Parliament Contact Management System</h4>
+            <div class="badge bg-primary p-2">v1.0</div>
+        </div>
+
+        <div class="row g-3 mb-4 text-center">
+            <div class="col-4"><div class="card p-2 shadow-sm border-0">Total <h5 id="total" class="m-0 text-primary">0</h5></div></div>
+            <div class="col-4"><div class="card p-2 shadow-sm border-0">Filtered <h5 id="filteredCount" class="m-0 text-success">0</h5></div></div>
+            <div class="col-4"><div class="card p-2 shadow-sm border-0">Selected <h5 id="selectedCount" class="m-0 text-danger">0</h5></div></div>
+        </div>
+
+        <!-- HOME PAGE -->
+        <div id="homePage">
+            <div class="card p-3 border-0 shadow-sm mb-4">
+                <div class="row g-2">
+                    <div class="col-12 col-md-3">
+                        <input id="search" class="form-control" placeholder="Search (नाम, इमेल, फोन...)">
+                    </div>
+                    <div class="col-6 col-md-3">
+                        <select id="filterPost" class="form-select" multiple data-placeholder="Filter by Post"></select>
+                    </div>
+                    <div class="col-6 col-md-3">
+                        <select id="filterGroup" class="form-select" multiple></select>
+                    </div>
+                    <div class="col-12 col-md-3 d-flex gap-2">
+                        <button class="btn btn-light border w-100" onclick="clearFilters()">Reset</button>
+                        <button class="btn btn-success w-100" title="Export VCF" onclick="exportVCF()"><i class="bi bi-person-rolodex"></i></button>
+                        <button class="btn btn-warning w-100" title="Export Excel" onclick="exportExcel()"><i class="bi bi-file-earmark-excel"></i></button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="table-responsive shadow-sm bg-white">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-primary">
+                        <tr>
+                            <th><input type="checkbox" onclick="toggleAll(this)" class="form-check-input"></th>
+                            <th onclick="sort('name')" style="cursor:pointer">नाम <i class="bi bi-arrow-down-up small"></i></th>
+                            <th>सम्पर्क (Email/Phone)</th>
+                            <th onclick="sort('post')" style="cursor:pointer">पद <i class="bi bi-arrow-down-up small"></i></th>
+                            <th>समूह</th>
+                            <th>स्थिति</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tableBody"></tbody>
+                </table>
+            </div>
+
+            <div class="d-flex justify-content-between align-items-center mt-3">
+                <button class="btn btn-outline-primary btn-sm" onclick="prevPage()">Previous</button>
+                <span class="fw-bold">Page <span id="pageInfo">1</span></span>
+                <button class="btn btn-outline-primary btn-sm" onclick="nextPage()">Next</button>
+            </div>
+        </div>
+
+        <!-- ANALYTICS PAGE -->
+        <div id="analyticsPage" style="display:none">
+            <div class="card p-4 border-0 shadow-sm">
+                <h4>📊 Data Insights</h4>
+                <hr>
+                <div id="analyticsContent"></div>
+            </div>
+        </div>
+
+        <!-- SETTINGS PAGE -->
+        <div id="settingsPage" style="display:none">
+            <div class="card p-4 border-0 shadow-sm" style="max-width: 500px;">
+                <h4>⚙️ App Settings</h4>
+                <hr>
+                <div class="mb-4">
+                    <label class="form-label fw-bold">Interface Font Size</label>
+                    <input type="range" class="form-range" min="12" max="22" id="fontRange" oninput="setFont(this.value)">
+                </div>
+                <div class="mb-4">
+                    <label class="form-label fw-bold">Color Theme</label>
+                    <select onchange="setTheme(this.value)" id="themeSelect" class="form-select">
+                        <option value="light">Light Mode</option>
+                        <option value="dark">Dark Mode</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+    </div>
 </div>
-
-<div class="col-md-2">
-<select id="filterStatus" class="form-select" multiple></select>
-</div>
-
-<div class="col-md-2">
-<select id="filterGroup" class="form-select" multiple></select>
-</div>
-
-<div class="col-md-3 d-flex gap-2 flex-wrap">
-
-<button class="btn btn-primary" onclick="applyFilters()" data-bs-toggle="tooltip" title="फिल्टर गर्नुहोस्">
-<i class="bi bi-funnel"></i>
-</button>
-
-<button class="btn btn-secondary" onclick="clearFilters()" data-bs-toggle="tooltip" title="फिल्टर हटाउनुहोस्">
-<i class="bi bi-x-circle"></i>
-</button>
-
-<button class="btn btn-success" onclick="selectAll()" data-bs-toggle="tooltip" title="सबै छान्नुहोस्">
-<i class="bi bi-check2-square"></i>
-</button>
-
-<button class="btn btn-warning" onclick="clearAll()" data-bs-toggle="tooltip" title="खाली गर्नुहोस्">
-<i class="bi bi-trash"></i>
-</button>
-
-<button class="btn btn-danger" onclick="exportContacts()" data-bs-toggle="tooltip" title="Export (VCF)">
-<i class="bi bi-download"></i>
-</button>
-
-</div>
-
-</div>
-
-<!-- Table -->
-<div class="table-responsive">
-<table class="table table-bordered table-hover align-middle">
-
-<thead class="table-primary">
-<tr>
-<th><input type="checkbox" onclick="toggleAll(this)"></th>
-<th onclick="sort('name')">नाम</th>
-<th onclick="sort('nepaliName')">नेपाली नाम</th>
-<th>इमेल</th>
-<th>फोन</th>
-<th onclick="sort('post')">पद</th>
-<th onclick="sort('groups')">समूह</th>
-<th onclick="sort('status')">स्थिति</th>
-</tr>
-</thead>
-
-<tbody id="tableBody"></tbody>
-</table>
-</div>
-
-<!-- Pagination -->
-<div class="d-flex justify-content-center align-items-center gap-3">
-<button class="btn btn-outline-primary" onclick="prevPage()">अघिल्लो</button>
-<span id="pageInfo"></span>
-<button class="btn btn-outline-primary" onclick="nextPage()">अर्को</button>
-</div>
-
-</div>
-
-<!-- Bootstrap JS -->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
 <script>
-
 const SHEET_URL = "https://opensheet.elk.sh/1HAaZ_Vc71R4ewjH_YLOrAtI_O0EjPXeSFuXAopuC9nM/Sheet1";
 
-let data = [];
-let filtered = [];
-let selected = new Set();
+let data = [], filtered = [], selected = new Set();
+let currentPage = 1, perPage = 20;
+let sortKey = "", sortAsc = true;
 
-let currentPage = 1;
-const perPage = 20;
-
-let sortKey="";
-let sortAsc=true;
-
-// parse phones
-function parsePhones(str){
-  if(!str) return [];
-  return str.split(";").map(p=>{
-    const [l,n]=p.split(":");
-    return {label:l||"CELL",number:n||""};
-  });
-}
-
-// load
-async function load(){
-  const res = await fetch(SHEET_URL);
-  const raw = await res.json();
-
-  data = raw.map((r,i)=>({
-    id:i,
-    name:r.Name||"",
-    nepaliName:r.nepaliName||r["Nepali Name"]||"",
-    email:r.Email||"",
-    phones:parsePhones(r.Phones),
-    post:r.Post||"",
-    groups:r.Groups||"",
-    status:r.Status||""
-  }));
-
-  filtered=data;
-  buildFilters();
-  render();
-  initTooltips();
-}
-
-// tooltips init
-function initTooltips(){
-  const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]');
-  tooltipTriggerList.forEach(el => new bootstrap.Tooltip(el));
-}
-
-// filters
-function buildFilters(){
-  fill("filterPost",[...new Set(data.map(d=>d.post))]);
-  fill("filterStatus",[...new Set(data.map(d=>d.status))]);
-  fill("filterGroup",[...new Set(data.map(d=>d.groups))]);
-}
-
-function fill(id, arr){
-  const el=document.getElementById(id);
-  arr.forEach(v=>{
-    if(v){
-      const o=document.createElement("option");
-      o.value=v;
-      o.textContent=v;
-      el.appendChild(o);
+// LOGIN LOGIC
+async function login() {
+    const u = document.getElementById("username").value;
+    const p = document.getElementById("password").value;
+    if(!u || !p) return alert("Please enter credentials");
+    
+    try {
+        const res = await fetch(SHEET_URL);
+        const d = await res.json();
+        const user = d.find(x => x.username == u && x.password == p);
+        if (user) {
+            localStorage.setItem("user", u);
+            startApp();
+        } else {
+            alert("Invalid Credentials!");
+        }
+    } catch (e) {
+        alert("Connection Error. Please check your internet.");
     }
-  });
 }
 
-function getMulti(id){
-  return Array.from(document.getElementById(id).selectedOptions).map(o=>o.value);
+function logout() { localStorage.removeItem("user"); location.reload(); }
+
+function startApp() {
+    document.getElementById("loginPage").style.display = "none";
+    document.getElementById("app").style.display = "block";
+    load();
 }
 
-// apply filters
-function applyFilters(){
-  const s=document.getElementById("search").value.toLowerCase();
-  const posts=getMulti("filterPost");
-  const status=getMulti("filterStatus");
-  const groups=getMulti("filterGroup");
+if (localStorage.getItem("user")) startApp();
 
-  filtered=data.filter(c=>{
-    return (
-      (c.name.toLowerCase().includes(s) ||
-       c.nepaliName.toLowerCase().includes(s) ||
-       c.phones.some(p=>p.number.includes(s)))
-      &&
-      (posts.length===0 || posts.includes(c.post))
-      &&
-      (status.length===0 || status.includes(c.status))
-      &&
-      (groups.length===0 || groups.includes(c.groups))
+// NAVIGATION & UI
+function toggleSidebar() {
+    const sb = document.getElementById("sidebar");
+    if (window.innerWidth < 768) {
+        sb.classList.toggle("show");
+    } else {
+        sb.classList.toggle("collapsed");
+    }
+}
+
+function setActive(el) {
+    document.querySelectorAll(".sidebar a").forEach(a => a.classList.remove("active"));
+    el.classList.add("active");
+}
+
+function showHome(el) {
+    setActive(el);
+    document.getElementById("homePage").style.display = "block";
+    document.getElementById("analyticsPage").style.display = "none";
+    document.getElementById("settingsPage").style.display = "none";
+}
+
+function showAnalytics(el) {
+    setActive(el);
+    document.getElementById("homePage").style.display = "none";
+    document.getElementById("analyticsPage").style.display = "block";
+    document.getElementById("settingsPage").style.display = "none";
+    renderAnalytics();
+}
+
+function showSettings(el) {
+    setActive(el);
+    document.getElementById("homePage").style.display = "none";
+    document.getElementById("analyticsPage").style.display = "none";
+    document.getElementById("settingsPage").style.display = "block";
+}
+
+// SETTINGS PRESERVATION
+function setFont(v) { 
+    document.body.style.fontSize = v + "px"; 
+    localStorage.setItem("font", v);
+}
+function setTheme(v) { 
+    document.body.className = v === "dark" ? "dark" : ""; 
+    localStorage.setItem("theme", v);
+}
+
+// Initialization of settings
+document.body.style.fontSize = localStorage.getItem("font") || "16px";
+document.getElementById("fontRange").value = parseInt(localStorage.getItem("font")) || 16;
+setTheme(localStorage.getItem("theme") || "light");
+document.getElementById("themeSelect").value = localStorage.getItem("theme") || "light";
+
+// DATA MANAGEMENT
+async function load() {
+    const res = await fetch(SHEET_URL);
+    const raw = await res.json();
+
+    data = raw.map((r, i) => ({
+        id: i,
+        name: r.Name || "",
+        nepaliName: r["Nepali Name"] || "",
+        email: r.Email || "",
+        phones: (r.Phones || "").split(";").filter(p => p.trim() !== ""),
+        post: r.Post || "N/A",
+        groups: r.Groups || "General",
+        status: r.Status || "Active"
+    }));
+
+    filtered = [...data];
+    buildFilters();
+    render();
+}
+
+function buildFilters() {
+    fill("filterPost", [...new Set(data.map(d => d.post))]);
+    fill("filterGroup", [...new Set(data.map(d => d.groups))]);
+}
+
+function fill(id, arr) {
+    const el = document.getElementById(id);
+    el.innerHTML = "";
+    arr.sort().forEach(v => {
+        if (v) {
+            const o = document.createElement("option");
+            o.value = v; o.textContent = v;
+            el.appendChild(o);
+        }
+    });
+}
+
+function applyFilters() {
+    const s = document.getElementById("search").value.toLowerCase();
+    const posts = Array.from(document.getElementById("filterPost").selectedOptions).map(o => o.value);
+    const groups = Array.from(document.getElementById("filterGroup").selectedOptions).map(o => o.value);
+
+    filtered = data.filter(c =>
+        (c.name.toLowerCase().includes(s) ||
+         c.nepaliName.toLowerCase().includes(s) ||
+         c.email.toLowerCase().includes(s) ||
+         c.phones.join().includes(s))
+        && (posts.length === 0 || posts.includes(c.post))
+        && (groups.length === 0 || groups.includes(c.groups))
     );
-  });
 
-  currentPage=1;
-  render();
-}
-
-function clearFilters(){
-  document.querySelectorAll("select").forEach(s=>s.selectedIndex=-1);
-  applyFilters();
-}
-
-// selection
-function selectAll(){
-  filtered.forEach(c=>selected.add(c.id));
-  render();
-}
-
-function clearAll(){
-  selected.clear();
-  render();
-}
-
-function toggleAll(cb){
-  cb.checked ? selectAll() : clearAll();
-}
-
-// sort
-function sort(key){
-  sortAsc = sortKey===key ? !sortAsc : true;
-  sortKey=key;
-
-  filtered.sort((a,b)=>{
-    return sortAsc
-      ? String(a[key]).localeCompare(String(b[key]))
-      : String(b[key]).localeCompare(String(a[key]));
-  });
-
-  render();
-}
-
-// render
-function render(){
-
-  const tbody=document.getElementById("tableBody");
-  tbody.innerHTML="";
-
-  const start=(currentPage-1)*perPage;
-  const page=filtered.slice(start,start+perPage);
-
-  page.forEach(c=>{
-
-    const phones=c.phones.map(p=>`
-      <div>
-        <span class="fw-bold">${p.number}</span>
-        <a href="tel:${p.number}" class="ms-1">📞</a>
-      </div>`).join("");
-
-    tbody.innerHTML+=`
-<tr>
-<td><input type="checkbox" ${selected.has(c.id)?"checked":""} onclick="toggleSel(${c.id})"></td>
-<td>${c.name}</td>
-<td>${c.nepaliName}</td>
-<td><a href="${emailLink(c.email,c.name)}">✉</a></td>
-<td>${phones}</td>
-<td>${c.post}</td>
-<td>${c.groups}</td>
-<td>${c.status}</td>
-</tr>`;
-  });
-
-  document.getElementById("pageInfo").innerText =
-    `पृष्ठ ${currentPage} / ${Math.ceil(filtered.length/perPage) || 1}`;
-}
-
-function toggleSel(id){
-  selected.has(id) ? selected.delete(id) : selected.add(id);
-}
-
-// pagination
-function nextPage(){
-  if(currentPage < Math.ceil(filtered.length/perPage)){
-    currentPage++;
+    currentPage = 1;
     render();
-  }
 }
 
-function prevPage(){
-  if(currentPage>1){
-    currentPage--;
+document.getElementById("search").addEventListener("input", applyFilters);
+document.getElementById("filterPost").addEventListener("change", applyFilters);
+document.getElementById("filterGroup").addEventListener("change", applyFilters);
+
+function clearFilters() {
+    document.getElementById("search").value = "";
+    document.getElementById("filterPost").selectedIndex = -1;
+    document.getElementById("filterGroup").selectedIndex = -1;
+    applyFilters();
+}
+
+function sort(key) {
+    sortAsc = (sortKey === key) ? !sortAsc : true;
+    sortKey = key;
+    filtered.sort((a, b) => {
+        let A = a[key], B = b[key];
+        return sortAsc ? String(A).localeCompare(String(B)) : String(B).localeCompare(String(A));
+    });
     render();
-  }
 }
 
-// email
-function emailLink(email,name){
-  const list=email.split(",").map(e=>e.trim()).join(",");
-  return `mailto:${list}?subject=सम्पर्क&body=${encodeURIComponent(name+" ज्यू,")}`;
-}
+function render() {
+    const tbody = document.getElementById("tableBody");
+    tbody.innerHTML = "";
+    const start = (currentPage - 1) * perPage;
+    const page = filtered.slice(start, start + perPage);
 
-// export
-function exportContacts(){
+    page.forEach(c => {
+        const phones = c.phones.map(p => `<div>${p} <a href="tel:${p}" class="text-decoration-none">📞</a></div>`).join("");
+        const emails = c.email ? c.email.split(",").map(e => `<div>${e.trim()} <a href="mailto:${e.trim()}" class="text-decoration-none">✉️</a></div>`).join("") : "-";
 
-  let vcf="";
-
-  data.filter(c=>selected.has(c.id)).forEach(c=>{
-
-    vcf+="BEGIN:VCARD\nVERSION:3.0\n";
-    vcf+=`FN:${c.name}\n`;
-
-    c.phones.forEach(p=>{
-      vcf+=`TEL;TYPE=CELL:${p.number}\n`;
+        tbody.innerHTML += `
+            <tr>
+                <td><input type="checkbox" class="form-check-input" ${selected.has(c.id) ? "checked" : ""} onclick="toggleSel(${c.id})"></td>
+                <td><div class="fw-bold">${c.name}</div><small class="text-muted">${c.nepaliName}</small></td>
+                <td style="font-size:0.9rem">${emails}${phones}</td>
+                <td><span class="badge bg-light text-dark border">${c.post}</span></td>
+                <td>${c.groups}</td>
+                <td><span class="badge ${c.status === 'Active' ? 'bg-success' : 'bg-secondary'}">${c.status}</span></td>
+            </tr>`;
     });
 
-    if(c.email) vcf+=`EMAIL:${c.email}\n`;
-
-    vcf+="END:VCARD\n\n";
-  });
-
-  const blob=new Blob([vcf],{type:"text/vcard"});
-  const a=document.createElement("a");
-  a.href=URL.createObjectURL(blob);
-  a.download="contacts.vcf";
-  a.click();
+    document.getElementById("pageInfo").innerText = currentPage;
+    document.getElementById("total").innerText = data.length;
+    document.getElementById("filteredCount").innerText = filtered.length;
+    document.getElementById("selectedCount").innerText = selected.size;
 }
 
-document.getElementById("search").addEventListener("input",applyFilters);
+function renderAnalytics() {
+    let groupCount = {}, postCount = {}, statusCount = {};
+    data.forEach(c => {
+        groupCount[c.groups] = (groupCount[c.groups] || 0) + 1;
+        postCount[c.post] = (postCount[c.post] || 0) + 1;
+        statusCount[c.status] = (statusCount[c.status] || 0) + 1;
+    });
 
-load();
+    let html = `<div class="row">
+        <div class="col-md-6">
+            <h5>Post Distribution</h5>
+            <table class='table table-sm table-bordered'>
+                <thead class='table-light'><tr><th>Post</th><th>Count</th></tr></thead>
+                <tbody>${Object.entries(postCount).map(([k,v]) => `<tr><td>${k}</td><td>${v}</td></tr>`).join('')}</tbody>
+            </table>
+        </div>
+        <div class="col-md-6">
+            <h5>Group Distribution</h5>
+            <table class='table table-sm table-bordered'>
+                <thead class='table-light'><tr><th>Group</th><th>Count</th></tr></thead>
+                <tbody>${Object.entries(groupCount).map(([k,v]) => `<tr><td>${k}</td><td>${v}</td></tr>`).join('')}</tbody>
+            </table>
+        </div>
+    </div>
+    <div class="mt-4" style="max-width:500px; margin:auto;">
+        <h5 class="text-center">Status Overview</h5>
+        <canvas id="statusChart"></canvas>
+    </div>`;
 
+    document.getElementById("analyticsContent").innerHTML = html;
+
+    new Chart(document.getElementById("statusChart"), {
+        type: 'doughnut',
+        data: {
+            labels: Object.keys(statusCount),
+            datasets: [{
+                data: Object.values(statusCount),
+                backgroundColor: ['#198754', '#adb5bd', '#ffc107', '#dc3545']
+            }]
+        }
+    });
+}
+
+function exportVCF() {
+    let vcf = "";
+    const targets = selected.size > 0 ? data.filter(c => selected.has(c.id)) : filtered;
+    targets.forEach(c => {
+        vcf += "BEGIN:VCARD\nVERSION:3.0\n";
+        vcf += `FN:${c.name}\n`;
+        c.phones.forEach(p => vcf += `TEL:${p}\n`);
+        if (c.email) vcf += `EMAIL:${c.email}\n`;
+        if (c.groups) vcf += `ORG:${c.groups}\n`;
+        if (c.post) vcf += `TITLE:${c.post}\n`;
+        vcf += "END:VCARD\n\n";
+    });
+    downloadFile(vcf, "contacts.vcf", "text/vcard");
+}
+
+function exportExcel() {
+    const targets = selected.size > 0 ? data.filter(c => selected.has(c.id)) : filtered;
+    const rows = targets.map(c => ({
+        Name: c.name,
+        Nepali: c.nepaliName,
+        Email: c.email,
+        Phone: c.phones.join(", "),
+        Post: c.post,
+        Group: c.groups,
+        Status: c.status
+    }));
+    const ws = XLSX.utils.json_to_sheet(rows);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Contacts");
+    XLSX.writeFile(wb, "parliament_contacts.xlsx");
+}
+
+function downloadFile(content, name, type) {
+    const blob = new Blob([content], { type });
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = name;
+    a.click();
+}
+
+function toggleSel(id) { selected.has(id) ? selected.delete(id) : selected.add(id); render(); }
+function toggleAll(cb) { cb.checked ? filtered.forEach(c => selected.add(c.id)) : selected.clear(); render(); }
+function nextPage() { if (currentPage < Math.ceil(filtered.length / perPage)) { currentPage++; render(); } }
+function prevPage() { if (currentPage > 1) { currentPage--; render(); } }
 </script>
 
 </body>
