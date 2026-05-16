@@ -1,0 +1,807 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>NoticeHub - Enterprise Control Center</title>
+  <!-- Tailwind CSS Core -->
+  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+  <!-- Google Font Inter for Modern Typography -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <!-- FontAwesome Icons Pack -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <style>
+    body { font-family: 'Inter', sans-serif; }
+    @keyframes gradientShift {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+    .animated-mesh {
+      background: linear-gradient(-45deg, #eef2ff, #f0fdf4, #fafafa, #e0f2fe);
+      background-size: 400% 400%;
+      animation: gradientShift 15s ease infinite;
+    }
+  </style>
+</head>
+<body class="bg-slate-50/50 text-slate-800 antialiased min-h-screen flex flex-col">
+
+  <!-- ==================== PUSH NOTIFICATION ALERT TOAST BOX ==================== -->
+  <div id="pushToast" class="fixed bottom-5 right-5 z-50 max-w-sm w-full bg-slate-900 text-white rounded-2xl shadow-2xl border border-slate-700/50 p-4 transform translate-y-24 opacity-0 transition-all duration-300 pointer-events-none flex items-start gap-3">
+    <div class="bg-indigo-500 text-white p-2 rounded-xl"><i class="fa-solid fa-bell-ring animate-bounce"></i></div>
+    <div class="flex-1">
+      <h5 class="text-xs font-bold text-indigo-400 uppercase tracking-wider">New Broadcast Published</h5>
+      <p id="toastBody" class="text-xs text-slate-200 mt-0.5 font-medium line-clamp-2"></p>
+    </div>
+  </div>
+
+  <!-- ==================== SIGN IN CONTAINER OVERLAY ==================== -->
+  <div id="loginModal" class="fixed inset-0 animated-mesh flex items-center justify-center z-50 p-4">
+    <div class="bg-white/80 backdrop-blur-md p-8 rounded-2xl shadow-2xl max-w-md w-full border border-white/60 ring-1 ring-slate-900/5 transition-all">
+      <div class="text-center mb-8">
+        <div class="inline-flex bg-indigo-600 text-white p-3.5 rounded-xl shadow-lg shadow-indigo-200 mb-4">
+          <i class="fa-solid fa-bolt-lightning text-xl"></i>
+        </div>
+        <h2 class="text-2xl font-bold tracking-tight text-slate-900">Enterprise NoticeHub</h2>
+        <p class="text-slate-500 text-sm mt-1.5">Sign in to sync your updates & dashboards</p>
+      </div>
+      
+      <div class="space-y-4">
+        <div>
+          <label class="block text-xs font-semibold uppercase tracking-wider text-slate-600 mb-1.5">Corporate Email</label>
+          <div class="relative">
+            <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 text-slate-400 text-sm"><i class="fa-regular fa-envelope"></i></span>
+            <input type="email" id="userEmail" placeholder="name@company.com" class="w-full pl-10 pr-4 py-2.5 bg-white/90 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all text-sm">
+          </div>
+        </div>
+        <div>
+          <label class="block text-xs font-semibold uppercase tracking-wider text-slate-600 mb-1.5">Security Password</label>
+          <div class="relative">
+            <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 text-slate-400 text-sm"><i class="fa-solid fa-lock-open"></i></span>
+            <input type="password" id="userPassword" placeholder="••••••••" class="w-full pl-10 pr-4 py-2.5 bg-white/90 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all text-sm">
+          </div>
+        </div>
+        <button onclick="login()" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-3 px-4 rounded-xl transition shadow-md shadow-indigo-100 hover:shadow-lg active:scale-[0.99] cursor-pointer mt-2 text-sm">
+          Authenticate Session
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== MAIN SYSTEM DESKTOP APP UI ==================== -->
+  <div id="appContainer" class="hidden min-h-screen flex flex-col">
+    <header class="bg-white border-b border-slate-200/80 sticky top-0 z-40 shadow-xs">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+        <div class="flex items-center gap-3">
+          <div class="bg-indigo-600 text-white p-2 rounded-xl shadow-md shadow-indigo-100"><i class="fa-solid fa-shapes text-base"></i></div>
+          <span class="font-bold text-lg tracking-tight text-slate-900">NoticeHub <span class="text-[11px] font-medium px-2 py-0.5 bg-indigo-50 text-indigo-600 rounded-md border border-indigo-100/60 ml-1.5">Workspace</span></span>
+        </div>
+        <div class="flex items-center gap-4">
+          <div class="flex items-center gap-2">
+            <span id="userBadge" class="text-xs font-semibold bg-slate-100 text-slate-700 px-3 py-2 rounded-xl border border-slate-200/60 flex items-center gap-1.5"></span>
+            <span id="unseenCounter" class="bg-rose-600 text-white text-[11px] font-bold px-2.5 py-1 rounded-full shadow-xs hidden animate-pulse">0 Unseen</span>
+          </div>
+          <button onclick="logout()" class="text-slate-400 hover:text-rose-600 cursor-pointer w-8 h-8 rounded-lg hover:bg-rose-50 flex items-center justify-center transition-all" title="Sign Out Session"><i class="fa-solid fa-arrow-right-from-bracket text-sm"></i></button>
+        </div>
+      </div>
+    </header>
+
+    <nav id="adminNav" class="hidden bg-white border-b border-slate-200/60 shadow-xs">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex space-x-8">
+        <button onclick="switchTab('notices')" id="tab-notices" class="border-b-2 border-indigo-600 text-indigo-600 py-4 px-1 text-sm font-semibold cursor-pointer focus:outline-none transition-all flex items-center gap-2"><i class="fa-regular fa-rectangle-list"></i> Notice Stream</button>
+        <button onclick="switchTab('admin-panel')" id="tab-admin-panel" class="border-b-2 border-transparent text-slate-500 hover:text-slate-800 py-4 px-1 text-sm font-medium cursor-pointer focus:outline-none transition-all flex items-center gap-2"><i class="fa-solid fa-sliders"></i> Control Center</button>
+      </div>
+    </nav>
+
+    <main class="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 lg:p-8">
+      
+      <!-- ==================== NOTICES LOGS DESK FEED ==================== -->
+      <section id="view-notices" class="space-y-4">
+        <div class="flex items-center justify-between border-b border-slate-200/60 pb-3">
+          <div>
+            <h2 class="text-xl font-bold tracking-tight text-slate-900">Your Notifications Stream</h2>
+            <p class="text-xs text-slate-500 mt-0.5">Chronologically ordered according to date published parameters.</p>
+          </div>
+          <button onclick="syncSystemState()" class="text-xs bg-white text-slate-700 border border-slate-200 font-medium px-3 py-1.5 rounded-xl hover:bg-slate-50 cursor-pointer transition flex items-center gap-1"><i class="fa-solid fa-arrows-rotate"></i> Sync Feed</button>
+        </div>
+        <div id="noticeList" class="grid gap-4 lg:grid-cols-1"></div>
+        
+        <!-- Notices Paginate controls -->
+        <div id="noticePagination" class="flex justify-between items-center pt-2">
+          <button onclick="changeNoticePage(-1)" id="btnPrevNotice" class="text-xs bg-white text-slate-700 border border-slate-200 font-semibold px-3 py-1.5 rounded-xl disabled:opacity-40 disabled:cursor-not-allowed">Previous</button>
+          <span id="noticePageLabel" class="text-xs font-medium text-slate-500">Page 1 of 1</span>
+          <button onclick="changeNoticePage(1)" id="btnNextNotice" class="text-xs bg-white text-slate-700 border border-slate-200 font-semibold px-3 py-1.5 rounded-xl disabled:opacity-40 disabled:cursor-not-allowed">Next</button>
+        </div>
+      </section>
+
+      <!-- ==================== CONTROL CENTER WORKSPACE ==================== -->
+      <section id="view-admin-panel" class="hidden space-y-8">
+        <div class="grid lg:grid-cols-3 gap-8">
+          
+          <!-- Broadcast Configuration Engine Form Card -->
+          <div class="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm space-y-4 flex flex-col justify-between">
+            <div class="space-y-4">
+              <h3 id="formTitle" class="text-base font-bold text-slate-900 flex items-center gap-2"><i class="fa-regular fa-square-plus text-indigo-500"></i>Create Corporate Notice</h3>
+              <input type="hidden" id="editNoticeId" value="">
+              <div>
+                <label class="block text-xs font-semibold uppercase tracking-wider text-slate-500 mb-1">Notice Headline Title</label>
+                <input type="text" id="infoTitle" class="w-full border border-slate-200 rounded-xl p-2.5 text-sm outline-none focus:ring-2 focus:ring-indigo-500/10 focus:border-indigo-500 transition-all bg-slate-50/50">
+              </div>
+              <div>
+                <label class="block text-xs font-semibold uppercase tracking-wider text-slate-500 mb-1">Notice Body Message Contents</label>
+                <textarea id="infoContent" rows="4" class="w-full border border-slate-200 rounded-xl p-2.5 text-sm outline-none focus:ring-2 focus:ring-indigo-500/10 focus:border-indigo-500 transition-all bg-slate-50/50"></textarea>
+              </div>
+              <div class="grid grid-cols-2 gap-3">
+                <div>
+                  <label class="block text-xs font-semibold uppercase tracking-wider text-slate-500 mb-1">Target Mapping Mode</label>
+                  <select id="infoTargetType" class="w-full border border-slate-200 rounded-xl p-2.5 text-sm bg-slate-50/50 outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/10" onchange="toggleTargetInput()">
+                    <option value="Individual">Individual User</option>
+                    <option value="Group">Group Unit Cluster</option>
+                    <option value="All">All Users & Groups</option>
+                  </select>
+                </div>
+                <div>
+                  <label class="block text-xs font-semibold uppercase tracking-wider text-slate-500 mb-1">Scope Key Target</label>
+                  <select id="infoTargetNameSelect" class="w-full border border-slate-200 rounded-xl p-2.5 text-sm bg-slate-50/50 outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/10"></select>
+                </div>
+              </div>
+            </div>
+            <div class="flex gap-2 pt-4 border-t border-slate-100">
+              <button onclick="submitNoticeForm()" id="btnSubmitNotice" class="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2.5 rounded-xl text-sm cursor-pointer shadow-sm shadow-indigo-100 transition-all">Commit Broadcast Entry</button>
+              <button onclick="clearNoticeForm()" id="btnCancelEdit" class="hidden bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium py-2.5 px-4 rounded-xl text-sm cursor-pointer transition-all">Cancel</button>
+            </div>
+          </div>
+
+          <!-- Groups Clusters Matrix Setup Panel (UPGRADED SINGLE/MASS MANAGEMENT MODULE) -->
+          <div class="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm flex flex-col h-[480px]">
+            <div class="flex justify-between items-start mb-1">
+              <h3 class="text-base font-bold text-slate-900 flex items-center gap-2"><i class="fa-solid fa-users-rectangle text-indigo-500"></i>Groups CRUD Panel</h3>
+              <button onclick="purgeSelectedGroupProfile()" class="text-[10px] bg-rose-50 text-rose-600 px-2 py-1 rounded-md font-bold border border-rose-100 hover:bg-rose-100 transition-all">Delete Cluster</button>
+            </div>
+            <p class="text-[11px] text-slate-400 mb-2">Build profiles or delete entire cluster sheets schemas directly.</p>
+            <div class="space-y-2 mb-4 bg-slate-50 border border-slate-200/60 p-3 rounded-xl">
+              <div class="grid grid-cols-1 gap-2">
+                <input type="text" id="groupName" placeholder="Group Profile Label (e.g. Sales, Devs)" class="border border-slate-200 rounded-lg p-2 text-xs bg-white outline-none focus:border-indigo-500 w-full font-semibold">
+                <label class="block text-[10px] font-bold uppercase tracking-wider text-slate-500">Check Registered Members to Include:</label>
+                <div id="groupCheckboxesList" class="max-h-[85px] overflow-y-auto border border-slate-200 rounded-lg p-2 bg-white space-y-1.5 shadow-inner"></div>
+              </div>
+              <button onclick="submitGroupMember()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white py-2 rounded-lg text-xs font-semibold cursor-pointer shadow-xs transition-all">Save Group Allocations</button>
+            </div>
+            <div class="flex-1 overflow-y-auto text-xs border border-slate-100 rounded-xl divide-y divide-slate-100 shadow-inner bg-slate-50/30" id="groupTableList"></div>
+          </div>
+
+          <!-- Real-time Systems Activity Tracker Monitors Audits Panel -->
+          <div class="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm flex flex-col h-[480px]">
+            <h3 class="text-base font-bold text-slate-900 mb-3 flex items-center gap-2"><i class="fa-solid fa-chart-line text-indigo-500"></i>Acknowledge Analytics Logs</h3>
+            <div class="overflow-y-auto flex-1 text-xs space-y-2 pr-1 shadow-inner p-2 bg-slate-50/50 rounded-xl border border-slate-100" id="auditLogs"></div>
+          </div>
+        </div>
+
+        <!-- Master Core Account User Directory CRUD Administration Table Row -->
+        <div class="bg-white rounded-2xl border border-slate-200/80 shadow-sm overflow-hidden">
+          <div class="p-6 flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 border-b border-slate-100">
+            <div>
+              <h3 class="text-base font-bold text-slate-900 flex items-center gap-2"><i class="fa-solid fa-user-shield text-indigo-500"></i>Core Systems Profile Directory</h3>
+              <p class="text-xs text-slate-500 mt-0.5">Provision roles, access settings, and security credentials mapping parameters live.</p>
+            </div>
+            <div class="flex flex-wrap lg:flex-nowrap gap-2 w-full lg:w-auto bg-slate-50 border border-slate-200/60 p-2 rounded-xl">
+              <input type="email" id="newUserEmail" placeholder="User Registration Email" class="border border-slate-200 rounded-lg px-3 py-1.5 text-xs bg-white outline-none focus:border-indigo-500">
+              <input type="text" id="newUserPassword" placeholder="Set Password String" class="border border-slate-200 rounded-lg px-3 py-1.5 text-xs bg-white outline-none focus:border-indigo-500">
+              <select id="newUserRole" class="border border-slate-200 rounded-lg px-2 py-1.5 text-xs bg-white outline-none focus:border-indigo-500">
+                <option value="Employee">Employee</option>
+                <option value="Admin">Administrator</option>
+              </select>
+              <button onclick="submitNewUser()" class="bg-slate-900 hover:bg-slate-950 text-white px-4 py-1.5 rounded-lg text-xs font-semibold cursor-pointer shadow-xs transition-all shrink-0">Provision User</button>
+            </div>
+          </div>
+          <div class="overflow-x-auto">
+            <table class="w-full text-left text-xs border-collapse">
+              <thead class="bg-slate-50 text-slate-500 font-semibold uppercase tracking-wider border-b border-slate-200/60">
+                <tr>
+                  <th class="px-6 py-3.5">Account Identity Email Address</th>
+                  <th class="px-6 py-3.5">Access Authorization Privilege Role</th>
+                  <th class="px-6 py-3.5 text-right">Directory Record Operations</th>
+                </tr>
+              </thead>
+              <tbody id="userDirectoryTableBody" class="divide-y divide-slate-100 bg-white"></tbody>
+            </table>
+          </div>
+          <!-- User Directory Table Pagination control bars -->
+          <div class="p-4 bg-slate-50 border-t border-slate-200/60 flex justify-between items-center">
+            <button onclick="changeUserPage(-1)" id="btnPrevUser" class="text-xs bg-white text-slate-700 border border-slate-200 font-semibold px-3 py-1.5 rounded-xl disabled:opacity-40 disabled:cursor-not-allowed">Previous</button>
+            <span id="userPageLabel" class="text-xs font-medium text-slate-500">Page 1 of 1</span>
+            <button onclick="changeUserPage(1)" id="btnNextUser" class="text-xs bg-white text-slate-700 border border-slate-200 font-semibold px-3 py-1.5 rounded-xl disabled:opacity-40 disabled:cursor-not-allowed">Next</button>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <!-- ==================== SYSTEM JAVASCRIPT CONTROLLER MOTOR ==================== -->
+  <script>
+    // ⚠️ REPLACE THIS LINK WITH YOUR COPIED APPS SCRIPT WEB APP API ROUTE URL!
+    const API_URL = "https://script.google.com/macros/s/AKfycbzbK2mF6ksSmMozhVwp41KV75qFmtS2sMHIZmrjqtF8I5ByA8FBrSUhIdXQc8bDVkk/exec";
+
+    let state = {};
+    let currentActiveUserEmail = "";
+    let currentActiveUserPassword = "";
+    
+    // PAGINATION ENGINE LIMIT CONFIGS
+    const ITEMS_PER_PAGE = 5;
+    let currentNoticePage = 1;
+    let currentUserPage = 1;
+
+    // BACKGROUND SYNC ENGINE STORAGE FLAGS
+    let knownNoticeIdsList = [];
+    let processingInitialBoot = true;
+
+    window.addEventListener('DOMContentLoaded', () => {
+      const savedEmail = localStorage.getItem('notice_hub_email');
+      const savedPassword = localStorage.getItem('notice_hub_password');
+      if (savedEmail && savedPassword) {
+        document.getElementById('userEmail').value = savedEmail;
+        document.getElementById('userPassword').value = savedPassword;
+        login(true);
+      }
+    });
+
+    async function login(isAutoLogin = false) {
+      const email = document.getElementById('userEmail').value.trim();
+      const pass = document.getElementById('userPassword').value.trim();
+      if (!email || !pass) return alert('Please key in both valid system registration parameters.');
+
+      try {
+        if (!isAutoLogin) {
+          document.getElementById('loginModal').querySelector('button').innerText = "Authenticating...";
+        }
+
+        const queryUrl = `${API_URL}?email=${encodeURIComponent(email)}&password=${encodeURIComponent(pass)}`;
+        const response = await fetch(queryUrl);
+        const data = await response.json();
+
+        if (!data.authenticated) {
+          if (isAutoLogin) logout(); 
+          else alert('System authorization failed. Please check matching credentials record.');
+          document.getElementById('loginModal').querySelector('button').innerText = "Authenticate Session";
+          return;
+        }
+
+        state = data;
+        currentActiveUserEmail = email;
+        currentActiveUserPassword = pass;
+
+        localStorage.setItem('notice_hub_email', email);
+        localStorage.setItem('notice_hub_password', pass);
+
+        document.getElementById('loginModal').classList.add('hidden');
+        document.getElementById('appContainer').classList.remove('hidden');
+        document.getElementById('userBadge').innerHTML = `<i class="fa-regular fa-circle-user text-slate-400"></i> ${state.email} (${state.role})`;
+
+        if (state.role === 'Admin') {
+          document.getElementById('adminNav').classList.remove('hidden');
+        }
+
+        // Snapshot all existing IDs so alerts don't fire for historical entries on login
+        knownNoticeIdsList = state.information.map(info => info.ID);
+        processingInitialBoot = false;
+
+        refreshSystemViews();
+
+        // Start background polling loop every 8 seconds
+        setInterval(silentlyPollForNewNotices, 8000);
+
+      } catch (err) {
+        console.error(err);
+        if(!isAutoLogin) alert('Could not resolve transactional queries cycle loop with external API Engine.');
+      }
+    }
+
+    function logout() {
+      localStorage.removeItem('notice_hub_email');
+      localStorage.removeItem('notice_hub_password');
+      location.reload();
+    }
+
+    async function syncSystemState() {
+      const queryUrl = `${API_URL}?email=${encodeURIComponent(currentActiveUserEmail)}&password=${encodeURIComponent(currentActiveUserPassword)}`;
+      const response = await fetch(queryUrl);
+      state = await response.json();
+      refreshSystemViews();
+    }
+
+    // SILENT REAL-TIME BACKGROUND POLLING LOOP ENGINE
+    async function silentlyPollForNewNotices() {
+      if (!currentActiveUserEmail || !currentActiveUserPassword) return;
+      
+      try {
+        const queryUrl = `${API_URL}?email=${encodeURIComponent(currentActiveUserEmail)}&password=${encodeURIComponent(currentActiveUserPassword)}`;
+        const response = await fetch(queryUrl);
+        const updatedData = await response.json();
+        
+        if (updatedData && updatedData.authenticated) {
+          const oldInfoLength = state.information.length;
+          
+          // Check for any newly discovered ID rows
+          const incomingNotices = updatedData.information.filter(info => !knownNoticeIdsList.includes(info.ID));
+          
+          state = updatedData; // Apply latest data pull
+          
+          if (incomingNotices.length > 0) {
+            // Re-render indices update 
+            incomingNotices.forEach(notice => {
+              knownNoticeIdsList.push(notice.ID);
+              // Trigger a system alert if this notice applies directly to the user
+              if (shouldAlertUserForNotice(notice)) {
+                triggerNativeDeviceToastAlert(notice);
+              }
+            });
+          }
+          refreshSystemViews();
+        }
+      } catch (e) {
+        console.warn("Background notification fetch handshake dropped loop cycle.", e);
+      }
+    }
+
+    function shouldAlertUserForNotice(notice) {
+      if (state.role === 'Admin') return true;
+      if (notice['Target Type'] === 'All') return true;
+      if (notice['Target Type'] === 'Individual' && notice['Target Name'].toLowerCase() === state.email.toLowerCase()) return true;
+      
+      if (notice['Target Type'] === 'Group') {
+        const structuralGroups = state.groups.filter(g => g['Member Email'].toLowerCase() === state.email.toLowerCase()).map(g => g['Group Name']);
+        if (structuralGroups.includes(notice['Target Name'])) return true;
+      }
+      return false;
+    }
+
+    function triggerNativeDeviceToastAlert(notice) {
+      const toast = document.getElementById('pushToast');
+      document.getElementById('toastBody').innerText = `[${notice.Title}] - ${notice.Content}`;
+      
+      // Toast Slide-In UI Action
+      toast.classList.remove('translate-y-24', 'opacity-0', 'pointer-events-none');
+      
+      setTimeout(() => {
+        toast.classList.add('translate-y-24', 'opacity-0', 'pointer-events-none');
+      }, 5500);
+    }
+
+    function refreshSystemViews() {
+      computeUnseenBadgeCount();
+      renderNotices();
+      renderAuditLogs();
+      renderGroupsTableList();
+      renderUserDirectoryTable();
+      populateTargetDropdowns();
+      renderGroupCheckboxes();
+    }
+
+    function computeUnseenBadgeCount() {
+      const myGroups = state.groups.filter(g => g['Member Email'].toLowerCase() === state.email.toLowerCase()).map(g => g['Group Name']);
+      
+      const relevantNotices = state.information.filter(info => {
+        if (state.role === 'Admin') return true;
+        if (info['Target Type'] === 'Individual' && info['Target Name'].toLowerCase() === state.email.toLowerCase()) return true;
+        if (info['Target Type'] === 'Group' && myGroups.includes(info['Target Name'])) return true;
+        if (info['Target Type'] === 'All') return true;
+        return false;
+      });
+
+      let unseenCount = 0;
+      relevantNotices.forEach(notice => {
+        const userAck = state.acknowledgements.find(a => a['Info ID'] === notice.ID && a['Employee Email'].toLowerCase() === state.email.toLowerCase());
+        if (!userAck || userAck.Status === 'Unseen') {
+          unseenCount++;
+        }
+      });
+
+      const badge = document.getElementById('unseenCounter');
+      if (unseenCount > 0) {
+        badge.innerText = `${unseenCount} Unseen`;
+        badge.classList.remove('hidden');
+      } else {
+        badge.classList.add('hidden');
+      }
+    }
+
+    async function postToApi(payload) {
+      try {
+        const response = await fetch(API_URL, { method: 'POST', body: JSON.stringify(payload) });
+        return await response.json();
+      } catch (err) {
+        console.error("Transmission fault processing event execution.", err);
+      }
+    }
+
+    async function markAsSeen(id) {
+      const result = await postToApi({ action: 'acknowledgeInfo', infoId: id, email: state.email });
+      if(result && result.success) syncSystemState();
+    }
+
+    // INTERFACE DYNAMIC POOL FILTERS DROPDOWNS ENGINE
+    function populateTargetDropdowns() {
+      const type = document.getElementById('infoTargetType').value;
+      const select = document.getElementById('infoTargetNameSelect');
+      select.innerHTML = '';
+      select.disabled = false;
+
+      if (type === 'Individual') {
+        state.allUsers.forEach(u => {
+          select.innerHTML += `<option value="${u.Email}">${u.Email}</option>`;
+        });
+      } else if (type === 'Group') {
+        const uniqueGroups = [...new Set(state.groups.map(g => g['Group Name']))];
+        if (uniqueGroups.length === 0) {
+          select.innerHTML = `<option value="">No Groups Initialized</option>`;
+          select.disabled = true;
+        }
+        uniqueGroups.forEach(g => {
+          select.innerHTML += `<option value="${g}">${g}</option>`;
+        });
+      } else if (type === 'All') {
+        select.innerHTML = `<option value="ALL_CHANNELS">Broadcast: Global Distribution</option>`;
+        select.disabled = true;
+      }
+    }
+
+    function toggleTargetInput() {
+      populateTargetDropdowns();
+    }
+
+    function renderGroupCheckboxes() {
+      const container = document.getElementById('groupCheckboxesList');
+      container.innerHTML = '';
+      state.allUsers.forEach((user, idx) => {
+        container.innerHTML += `
+          <div class="flex items-center gap-2">
+            <input type="checkbox" id="chkUser-${idx}" value="${user.Email}" class="w-3.5 h-3.5 text-indigo-600 border-slate-300 rounded-sm focus:ring-indigo-500 cursor-pointer">
+            <label for="chkUser-${idx}" class="text-[11px] font-mono text-slate-600 truncate cursor-pointer select-none">${user.Email}</label>
+          </div>
+        `;
+      });
+    }
+
+    async function submitNoticeForm() {
+      const editId = document.getElementById('editNoticeId').value;
+      const title = document.getElementById('infoTitle').value.trim();
+      const content = document.getElementById('infoContent').value.trim();
+      const targetType = document.getElementById('infoTargetType').value;
+      const targetName = document.getElementById('infoTargetNameSelect').value;
+
+      if (!title || !content || !targetName) return alert('Please build all configuration parameters fields criteria metrics.');
+
+      let result;
+      if (editId) {
+        result = await postToApi({ action: 'updateInformation', id: editId, title, content, targetType, targetName });
+      } else {
+        result = await postToApi({ action: 'createInformation', title, content, targetType, targetName });
+      }
+
+      if(result && result.success) {
+        clearNoticeForm();
+        syncSystemState();
+      }
+    }
+
+    function editNoticeMode(id) {
+      const targetNotice = state.information.find(item => item.ID === id);
+      if(!targetNotice) return alert('Entity record missing mapping anomaly flags.');
+
+      document.getElementById('editNoticeId').value = targetNotice.ID;
+      document.getElementById('infoTitle').value = targetNotice.Title;
+      document.getElementById('infoContent').value = targetNotice.Content;
+      document.getElementById('infoTargetType').value = targetNotice['Target Type'];
+      
+      populateTargetDropdowns();
+      document.getElementById('infoTargetNameSelect').value = targetNotice['Target Name'];
+
+      document.getElementById('formTitle').innerHTML = `<i class="fa-solid fa-pen-nib mr-2 text-amber-500"></i>Modify Notice Record`;
+      document.getElementById('btnSubmitNotice').innerText = "Commit Update Entry";
+      document.getElementById('btnCancelEdit').classList.remove('hidden');
+      switchTab('admin-panel');
+    }
+
+    function clearNoticeForm() {
+      document.getElementById('editNoticeId').value = "";
+      document.getElementById('infoTitle').value = "";
+      document.getElementById('infoContent').value = "";
+      document.getElementById('infoTargetType').value = "Individual";
+      populateTargetDropdowns();
+      document.getElementById('formTitle').innerHTML = `<i class="fa-regular fa-square-plus text-indigo-500"></i>Create Corporate Notice`;
+      document.getElementById('btnSubmitNotice').innerText = "Commit Broadcast Entry";
+      document.getElementById('btnCancelEdit').classList.add('hidden');
+    }
+
+    async function deleteNotice(id) {
+      if (!confirm("Delete broadcast announcement instance permanently?")) return;
+      const result = await postToApi({ action: 'deleteInformation', id });
+      if(result && result.success) syncSystemState();
+    }
+
+    // MASS MEMBER & GROUP SAVING MULTI MATRIX OPERATIONS
+    async function submitGroupMember() {
+      const groupName = document.getElementById('groupName').value.trim();
+      if (!groupName) return alert('Please input a valid Group Cluster Name.');
+
+      const checkedBoxes = document.querySelectorAll('#groupCheckboxesList input[type="checkbox"]:checked');
+      const selectedEmails = Array.from(checkedBoxes).map(cb => cb.value);
+
+      if (selectedEmails.length === 0) return alert('Select at least one registered profile member checkbox.');
+
+      const result = await postToApi({ action: 'saveGroupMembers', groupName, emails: selectedEmails });
+      if(result && result.success) {
+        document.getElementById('groupName').value = "";
+        renderGroupCheckboxes();
+        syncSystemState();
+      }
+    }
+
+    // FULL GROUP PROFILE CRUD: DESTRUCTION MODULE
+    async function purgeSelectedGroupProfile() {
+      const groupName = document.getElementById('groupName').value.trim();
+      if (!groupName) return alert('Type or select an active group layer name from list to drop completely.');
+      if (!confirm(`Are you sure you want to completely drop and delete the Group profile metadata for [${groupName}]?`)) return;
+
+      const result = await postToApi({ action: 'deleteGroupEntirely', groupName });
+      if (result && result.success) {
+        document.getElementById('groupName').value = "";
+        renderGroupCheckboxes();
+        syncSystemState();
+      }
+    }
+
+    function loadGroupForEditing(groupLabel) {
+      document.getElementById('groupName').value = groupLabel;
+      const associatedMembers = state.groups.filter(g => g['Group Name'] === groupLabel).map(g => g['Member Email'].toLowerCase());
+      
+      const checkboxes = document.querySelectorAll('#groupCheckboxesList input[type="checkbox"]');
+      checkboxes.forEach(cb => {
+        cb.checked = associatedMembers.includes(cb.value.toLowerCase());
+      });
+    }
+
+    async function deleteGroupMember(groupName, email) {
+      if (!confirm(`Remove link for entry [${email}] inside profile area cluster [${groupName}]?`)) return;
+      const result = await postToApi({ action: 'deleteGroupMember', groupName, email });
+      if(result && result.success) syncSystemState();
+    }
+
+    async function submitNewUser() {
+      const email = document.getElementById('newUserEmail').value.trim();
+      const pass = document.getElementById('newUserPassword').value.trim();
+      const role = document.getElementById('newUserRole').value;
+      if (!email || !pass) return alert('Complete credential strings maps rules requirements.');
+      
+      const result = await postToApi({ action: 'addUser', email, password: pass, role });
+      if(result && result.success) {
+        document.getElementById('newUserEmail').value = "";
+        document.getElementById('newUserPassword').value = "";
+        syncSystemState();
+      }
+    }
+
+    async function changeUserRole(email, newRole) {
+      const result = await postToApi({ action: 'updateUserRole', email, role: newRole });
+      if(result && result.success) syncSystemState();
+    }
+
+    async function deleteUserAccount(email) {
+      if(email.toLowerCase() === currentActiveUserEmail.toLowerCase()) return alert('Self locking prevents runtime removal routine execution.');
+      if(!confirm(`Exterminate access profile for identity [${email}]?`)) return;
+      const result = await postToApi({ action: 'deleteUser', email });
+      if(result && result.success) syncSystemState();
+    }
+
+    function switchTab(tabId) {
+      const tabs = ['notices', 'admin-panel'];
+      tabs.forEach(t => {
+        document.getElementById(`view-${t}`).classList.add('hidden');
+        document.getElementById(`tab-${t}`).className = "border-b-2 border-transparent text-slate-500 hover:text-slate-800 py-4 px-1 text-sm font-medium cursor-pointer focus:outline-none transition-all";
+      });
+      document.getElementById(`view-${tabId}`).classList.remove('hidden');
+      document.getElementById(`tab-${tabId}`).className = "border-b-2 border-indigo-600 text-indigo-600 py-4 px-1 text-sm font-semibold cursor-pointer focus:outline-none transition-all";
+    }
+
+    // CHRONOLOGICAL CHANNELS CHANNELS PAGINATION VIEW ENGINE
+    function renderNotices() {
+      const container = document.getElementById('noticeList');
+      container.innerHTML = '';
+
+      const myGroups = state.groups.filter(g => g['Member Email'].toLowerCase() === state.email.toLowerCase()).map(g => g['Group Name']);
+      
+      // Filter targeted channels criteria scope
+      let relevantNotices = state.information.filter(info => {
+        if (state.role === 'Admin') return true;
+        if (info['Target Type'] === 'Individual' && info['Target Name'].toLowerCase() === state.email.toLowerCase()) return true;
+        if (info['Target Type'] === 'Group' && myGroups.includes(info['Target Name'])) return true;
+        if (info['Target Type'] === 'All') return true;
+        return false;
+      });
+
+      // SORT ACCORDING TO DATE PUBLISHED AT TOP (CHRONOLOGICAL REVERSE ORDER)
+      relevantNotices.sort((a, b) => {
+        return new Date(b['Created At']) - new Date(a['Created At']);
+      });
+
+      if (relevantNotices.length === 0) {
+        container.innerHTML = `<div class="text-center p-12 text-slate-400 bg-white border border-slate-200/60 rounded-2xl shadow-xs italic text-sm">All notices read clear.</div>`;
+        document.getElementById('noticePagination').classList.add('hidden');
+        return;
+      }
+      document.getElementById('noticePagination').classList.remove('hidden');
+
+      // Pagination math block mapping slices
+      const totalPages = Math.ceil(relevantNotices.length / ITEMS_PER_PAGE);
+      if (currentNoticePage > totalPages) currentNoticePage = totalPages;
+      if (currentNoticePage < 1) currentNoticePage = 1;
+
+      document.getElementById('noticePageLabel').innerText = `Page ${currentNoticePage} of ${totalPages}`;
+      document.getElementById('btnPrevNotice').disabled = (currentNoticePage === 1);
+      document.getElementById('btnNextNotice').disabled = (currentNoticePage === totalPages);
+
+      const startIdx = (currentNoticePage - 1) * ITEMS_PER_PAGE;
+      const pagedNotices = relevantNotices.slice(startIdx, startIdx + ITEMS_PER_PAGE);
+
+      pagedNotices.forEach(notice => {
+        const userAck = state.acknowledgements.find(a => a['Info ID'] === notice.ID && a['Employee Email'].toLowerCase() === state.email.toLowerCase());
+        const isSeen = userAck ? userAck.Status === 'Seen' : false;
+
+        const totalLogs = state.acknowledgements.filter(a => a['Info ID'] === notice.ID);
+        const seenLogsCount = totalLogs.filter(a => a.Status === 'Seen').length;
+        const totalLogsCount = totalLogs.length;
+        const readPercentage = totalLogsCount > 0 ? Math.round((seenLogsCount / totalLogsCount) * 100) : 0;
+
+        const card = document.createElement('div');
+        card.className = `p-6 bg-white border rounded-2xl shadow-xs transition-all duration-200 hover:shadow-md ${isSeen && state.role !== 'Admin' ? 'border-slate-200 opacity-65' : 'border-l-4 border-l-indigo-600 border-slate-300'}`;
+        
+        let statsHtml = '';
+        if (state.role === 'Admin') {
+          statsHtml = `
+            <div class="mt-4 pt-3 border-t border-slate-100">
+              <div class="flex justify-between items-center text-xs text-slate-500 mb-1">
+                <span class="font-medium flex items-center gap-1"><i class="fa-solid fa-chart-pie text-slate-400"></i> Read Progress Metrics:</span>
+                <span class="font-semibold text-slate-700">${seenLogsCount} / ${totalLogsCount} Members Seen (${readPercentage}%)</span>
+              </div>
+              <div class="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
+                <div class="bg-indigo-600 h-2 rounded-full transition-all duration-500" style="width: ${readPercentage}%"></div>
+              </div>
+            </div>
+          `;
+        }
+
+        card.innerHTML = `
+          <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+            <div class="space-y-1.5 flex-1">
+              <div class="flex flex-wrap items-center gap-2 text-[11px] font-mono text-slate-400">
+                <span><i class="fa-regular fa-hashtag"></i> ${notice.ID}</span>
+                <span>•</span>
+                <span class="text-indigo-600 font-semibold"><i class="fa-regular fa-clock"></i> ${notice['Created At']}</span>
+                <span class="bg-slate-100 text-slate-600 rounded-md font-sans px-2 py-0.5 font-medium text-[10px]">Scope: ${notice['Target Type']} (${notice['Target Name']})</span>
+              </div>
+              <h4 class="text-base font-bold text-slate-900 tracking-tight">${notice.Title}</h4>
+              <p class="text-sm text-slate-600 whitespace-pre-wrap leading-relaxed pt-1">${notice.Content}</p>
+            </div>
+            <div class="shrink-0 flex flex-row sm:flex-col items-end gap-2 w-full sm:w-auto border-t sm:border-t-0 pt-3 sm:pt-0 border-slate-100 justify-between">
+              ${isSeen 
+                ? `<span class="bg-emerald-50 text-emerald-700 text-xs px-3 py-1.5 rounded-xl font-semibold border border-emerald-100 flex items-center gap-1.5"><i class="fa-solid fa-circle-check"></i> Seen</span>`
+                : `<button onclick="markAsSeen('${notice.ID}')" class="bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold px-4 py-2 rounded-xl shadow-sm cursor-pointer transition-all active:scale-[0.98]">Acknowledge Notice</button>`
+              }
+              ${state.role === 'Admin' ? `
+                <div class="flex gap-3 text-xs mt-1 font-medium text-slate-500">
+                  <button onclick="editNoticeMode('${notice.ID}')" class="hover:text-amber-600 cursor-pointer transition-all flex items-center gap-1"><i class="fa-regular fa-pen-to-square"></i> Edit</button>
+                  <button onclick="deleteNotice('${notice.ID}')" class="hover:text-rose-600 cursor-pointer transition-all flex items-center gap-1"><i class="fa-regular fa-trash-can"></i> Purge</button>
+                </div>
+              ` : ''}
+            </div>
+          </div>
+          ${statsHtml}
+        `;
+        container.appendChild(card);
+      });
+    }
+
+    function changeNoticePage(direction) {
+      currentNoticePage += direction;
+      renderNotices();
+    }
+
+    // USER REGISTRY COMPONENT PAGINATION ENGINE
+    function renderUserDirectoryTable() {
+      if (state.role !== 'Admin') return;
+      const tbody = document.getElementById('userDirectoryTableBody');
+      tbody.innerHTML = '';
+
+      if(!state.allUsers || state.allUsers.length === 0) return;
+
+      const totalPages = Math.ceil(state.allUsers.length / ITEMS_PER_PAGE);
+      if (currentUserPage > totalPages) currentUserPage = totalPages;
+      if (currentUserPage < 1) currentUserPage = 1;
+
+      document.getElementById('userPageLabel').innerText = `Page ${currentUserPage} of ${totalPages}`;
+      document.getElementById('btnPrevUser').disabled = (currentUserPage === 1);
+      document.getElementById('btnNextUser').disabled = (currentUserPage === totalPages);
+
+      const startIdx = (currentUserPage - 1) * ITEMS_PER_PAGE;
+      const pagedUsers = state.allUsers.slice(startIdx, startIdx + ITEMS_PER_PAGE);
+
+      pagedUsers.forEach(profile => {
+        const tr = document.createElement('tr');
+        tr.className = "hover:bg-slate-50/50 transition-all";
+        tr.innerHTML = `
+          <td class="px-6 py-3.5 font-mono text-slate-700 font-medium">${profile.Email}</td>
+          <td class="px-6 py-3.5">
+            <select onchange="changeUserRole('${profile.Email}', this.value)" class="bg-white border border-slate-200 text-slate-700 text-xs rounded-lg px-2.5 py-1.5 outline-none font-semibold focus:border-indigo-500 cursor-pointer">
+              <option value="Employee" ${profile.Role === 'Employee' ? 'selected' : ''}>Employee</option>
+              <option value="Admin" ${profile.Role === 'Admin' ? 'selected' : ''}>Administrator</option>
+            </select>
+          </td>
+          <td class="px-6 py-3.5 text-right">
+            <button onclick="deleteUserAccount('${profile.Email}')" class="text-rose-600 hover:text-white text-xs font-semibold px-3 py-1.5 hover:bg-rose-600 rounded-xl border border-rose-100 transition-all"><i class="fa-regular fa-trash-can mr-1"></i> Erase</button>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function changeUserPage(direction) {
+      currentUserPage += direction;
+      renderUserDirectoryTable();
+    }
+
+    function renderGroupsTableList() {
+      if (state.role !== 'Admin') return;
+      const container = document.getElementById('groupTableList');
+      container.innerHTML = '';
+
+      if(!state.groups || state.groups.length === 0) {
+        container.innerHTML = '<div class="text-slate-400 text-center p-6 italic">No group links configured.</div>';
+        return;
+      }
+
+      state.groups.forEach(row => {
+        const rowEl = document.createElement('div');
+        rowEl.className = "p-2 flex justify-between items-center bg-white hover:bg-slate-50 transition-all cursor-pointer";
+        rowEl.setAttribute('onclick', `loadGroupForEditing('${row['Group Name']}')`);
+        rowEl.innerHTML = `
+          <div class="flex items-center gap-2 truncate">
+            <span class="font-bold text-slate-700 bg-indigo-50 border border-indigo-100 text-indigo-700 px-2 py-0.5 rounded-md text-[10px] uppercase tracking-wide shrink-0">${row['Group Name']}</span>
+            <span class="text-slate-600 font-mono text-[11px] truncate">${row['Member Email']}</span>
+          </div>
+          <button onclick="event.stopPropagation(); deleteGroupMember('${row['Group Name']}', '${row['Member Email']}')" class="text-slate-300 hover:text-rose-600 cursor-pointer text-xs p-1 transition-all" title="Remove Member"><i class="fa-solid fa-circle-minus"></i></button>
+        `;
+        container.appendChild(rowEl);
+      });
+    }
+
+    function renderAuditLogs() {
+      if (state.role !== 'Admin') return;
+      const logContainer = document.getElementById('auditLogs');
+      logContainer.innerHTML = '';
+
+      if(!state.acknowledgements || state.acknowledgements.length === 0) {
+        logContainer.innerHTML = '<div class="text-slate-400 italic p-6 text-center">No monitoring entries.</div>';
+        return;
+      }
+
+      state.acknowledgements.forEach(ack => {
+        const notice = state.information.find(i => i.ID === ack['Info ID']);
+        const title = notice ? notice.Title : 'Purged Notice Registry ID';
+        const item = document.createElement('div');
+        item.className = `p-3 rounded-xl border flex flex-col gap-0.5 shadow-xs ${ack.Status === 'Seen' ? 'bg-emerald-50/40 border-emerald-100' : 'bg-amber-50/40 border-amber-100'}`;
+        item.innerHTML = `
+          <div class="flex justify-between items-center font-medium">
+            <span class="text-slate-700 font-mono text-[11px] truncate max-w-[170px]">${ack['Employee Email']}</span>
+            <span class="text-[10px] px-1.5 py-0.5 rounded-md font-bold uppercase tracking-wider ${ack.Status === 'Seen' ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'}">${ack.Status}</span>
+          </div>
+          <div class="text-[11px] text-slate-400 truncate mt-0.5">Notice: "${title}"</div>
+          ${ack.Timestamp ? `<div class="text-[10px] text-slate-400 mt-1 flex items-center gap-1 font-mono"><i class="fa-regular fa-clock text-slate-300"></i> ${ack.Timestamp}</div>` : ''}
+        `;
+        logContainer.appendChild(item);
+      });
+    }
+  </script>
+</body>
+</html>
