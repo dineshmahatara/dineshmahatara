@@ -10,7 +10,7 @@
   <meta name="apple-mobile-web-app-title" content="NoticeHub">
   <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/3602/3602149.png">
   
-  <link rel="manifest" href="data:application/json;base64,ewogICJuYW1lIjogIk5vdGljZUh1YiIsCiAgInNob3J0X25hbWUiOiAiTm90aWNlSHViIiwKICAic3RhcnRvdXJsIjogIi4iLAogICJkaXNwbGF5IjogInN0YW5kYWxvbmUiLAogICJiYWNrZ3JvdW5kX2NvbG9yIjogIiNmOGZhZmMiLAogICJ0aGVtZV9jb2xvciI6ICIjNGY0NmVmIiwKICAiaWNvbnMiOiBbCiAgICB7CiAgICAgICJzcmMiOiAiaHR0YHM6Ly9jZG4taWNvbnMtcG5nLmZsYXRpY29uLmNvbS81MTIvMzYwMi8zNjAyMTQ5LnBuZyIsCiAgICAgICJzaXplcyI6ICI1MTJ4NTEyIiwKICAgICAgInR5cGUiOiAiaW1hZ2UvcG5nIiwKICAgICAgImNob2ljZSI6ICFueXNoYXJlIgogICAgfQogIF0KfQ==">
+  <link rel="manifest" href="data:application/json;base64,ewogICJuYW1lIjogIk5vdGljZUh1YiIsCiAgInNob3J0X25hbWUiOiAiTm90aWNlSHViIiwKICAic3RhcnRvdXJsIjogIi4vIiwKICAiZGlzcGxheSI6ICJzdGFuZGFsb25lIiwKICAiYmFja2dyb3VuZF9jb2xvciI6ICIjZjhmYWZjIiwKICAidGhlbWVfY29sb3IiOiAiIzRmNDZlZiIsCiAgImljb25zIjogWwogICAgewogICAgICAic3JjIjogImh0dHBzOi8vY2RuLWljb25zLXBuZy5mbGF0aWNvbi5jb20vNTEyLzM2MDIvMzYwMjE0OS5wbmciLAogICAgICAic2l6ZXMiOiAiNTEyeDUxMiIsCiAgICAgICJ0eXBlIjogImltYWdlL3BuZyIsCiAgICAgICJwdXJwb3NlIjogImFueSBtYXNreWJsZSIKICAgIH0KICBdCn0=">
 
   <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -24,11 +24,14 @@
 </head>
 <body class="bg-slate-50 text-slate-800 antialiased min-h-screen flex flex-col">
 
-  <div id="pushToast" class="fixed bottom-5 right-5 z-50 max-w-sm w-11/12 sm:w-full bg-slate-900 text-white rounded-2xl shadow-2xl p-4 transform translate-y-24 opacity-0 transition-all duration-300 pointer-events-none flex items-start gap-3">
-    <div class="bg-indigo-500 text-white p-2 rounded-xl"><i class="fa-solid fa-bell-ring animate-bounce"></i></div>
-    <div class="flex-1">
-      <h5 class="text-xs font-bold text-indigo-400 uppercase tracking-wider">Live System Broadcast</h5>
-      <p id="toastBody" class="text-xs text-slate-200 mt-0.5 font-medium line-clamp-2"></p>
+  <div id="pwaInstallBanner" class="hidden bg-indigo-900 text-white px-4 py-3 text-sm flex items-center justify-between gap-3 sticky top-0 z-50 shadow-md">
+    <div class="flex items-center gap-2">
+      <i class="fa-solid fa-cloud-arrow-down text-indigo-400"></i>
+      <span>Add <b>NoticeHub</b> to your mobile home screen for native system notifications.</span>
+    </div>
+    <div class="flex items-center gap-2 shrink-0">
+      <button onclick="dismissInstallPrompt()" class="text-xs text-indigo-200 hover:text-white px-2 py-1">Later</button>
+      <button onclick="triggerNativeAppInstallation()" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs px-3 py-1.5 rounded-lg transition shadow-sm">Install App</button>
     </div>
   </div>
 
@@ -215,7 +218,7 @@
               <button onclick="testSelectedRingtone()" class="w-full bg-slate-900 hover:bg-slate-800 text-white py-2 rounded-xl text-xs font-semibold tracking-wide transition shadow-xs"><i class="fa-solid fa-circle-play mr-1.5"></i>Test Play Ringtone</button>
               <hr class="border-slate-200 my-1">
               <div class="bg-indigo-50/60 p-2.5 rounded-lg border border-indigo-100 text-[11px] text-indigo-700 leading-normal">
-                <i class="fa-solid fa-circle-info mr-1"></i> Audio channels are loaded dynamically. When new announcements pass configuration parameters, your device speaker will execute the selected audio trace.
+                <i class="fa-solid fa-circle-info mr-1"></i> When a new notice goes live, the system plays the tone selected above and triggers a native mobile system tray alert.
               </div>
             </div>
           </div>
@@ -259,7 +262,7 @@
   </div>
 
   <script>
-    // ⚠️ REPLACE THIS LINK WITH YOUR COPIED APPS SCRIPT WEB APP API ROUTE URL!
+    // ⚠️ UPDATE THIS VARIABLE TO POINT TO YOUR VALID LIVE DEPLOYED APPS SCRIPT PATH INTERFACE EXECUTIVE
     const API_URL = "https://script.google.com/macros/s/AKfycbwPgVttQNoMLb3QpVa6CC8v6uehFfN-d76W3wpFz0s4AMV-1zPNHJ13Ksk1HrlDJFAF/exec";
 
     let state = {};
@@ -271,35 +274,64 @@
     let currentUserPage = 1;
     let knownNoticeIdsList = [];
 
-    // SERVICE WORKER LOGIC TRACK FLAGS
-    let swRegistrationRef = null;
+    // NATIVE MANIFEST PWA ENGINE HANDSHAKE REFERENCERS
+    let deferredPrompt = null;
 
     window.addEventListener('DOMContentLoaded', () => {
       initServiceWorkerEngine();
       initAdminRingtoneSettings();
+      attemptSessionContextAutoRecovery();
+    });
+
+    // Intercept PWA Install Request Event
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault();
+      deferredPrompt = e;
       
-      // PERSISTENT AUTH RETENTION CONTROLLER CHECK
-      const preservedEmailToken = localStorage.getItem('notice_hub_email');
-      const preservedPasswordToken = localStorage.getItem('notice_hub_password');
-      
-      if(preservedEmailToken && preservedPasswordToken) {
-        document.getElementById('userEmail').value = preservedEmailToken;
-        document.getElementById('userPassword').value = preservedPasswordToken;
-        login(true);
+      // Only show the banner if the user hasn't explicitly skipped it this session
+      if (!sessionStorage.getItem('pwa_banner_dismissed')) {
+        document.getElementById('pwaInstallBanner').classList.remove('hidden');
       }
     });
 
+    function triggerNativeAppInstallation() {
+      if (!deferredPrompt) {
+        alert("The app installation criteria haven't been met yet. Ensure you are browsing over secure HTTPS channels.");
+        return;
+      }
+      document.getElementById('pwaInstallBanner').classList.add('hidden');
+      deferredPrompt.prompt();
+      deferredPrompt.userChoice.then((choiceResult) => {
+        if (choiceResult.outcome === 'accepted') {
+          console.log('User installed NoticeHub application context successfully.');
+        }
+        deferredPrompt = null;
+      });
+    }
+
+    function dismissInstallPrompt() {
+      document.getElementById('pwaInstallBanner').classList.add('hidden');
+      sessionStorage.setItem('pwa_banner_dismissed', 'true');
+    }
+
     function initServiceWorkerEngine() {
-      if ('serviceWorker' in navigator && 'PushManager' in window) {
-        navigator.serviceWorker.register('sw.js')
+      if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('sw.js', { scope: './' })
         .then(reg => {
-          swRegistrationRef = reg;
-          console.log('Background Service Worker Hook Registered.');
-        }).catch(err => console.warn('Service Worker setup bypassed.', err));
+          console.log('Background Application Service Worker Hook Registered.');
+          requestSystemNotificationPermissions();
+        }).catch(err => console.warn('Service worker validation skipped.', err));
       }
     }
 
-    // RINGTONE INITIALIZATION AND ALLOCATION MANAGERS
+    function requestSystemNotificationPermissions() {
+      if ('Notification' in window && Notification.permission === 'default') {
+        Notification.requestPermission().then(permission => {
+          console.log(`OS Notification permissions registration answer status: ${permission}`);
+        });
+      }
+    }
+
     function initAdminRingtoneSettings() {
       const storedTone = localStorage.getItem('nh_admin_ringtone');
       if (storedTone) {
@@ -322,10 +354,22 @@
     function executeNoticePlaybackTone() {
       const selectedTone = localStorage.getItem('nh_admin_ringtone') || "https://actions.google.com/sounds/v1/alarms/digital_watch_alarm_long.ogg";
       const alertAudio = new Audio(selectedTone);
-      alertAudio.play().catch(e => console.warn("Audio auto-play context waiting for interaction metrics.", e));
+      alertAudio.play().catch(e => console.warn("Audio execution pending configuration permissions metrics.", e));
     }
 
-    async function login(isSilentRetentionPass = false) {
+    // Persist Session Context on Refresh
+    function attemptSessionContextAutoRecovery() {
+      const storedEmail = localStorage.getItem('nh_session_email');
+      const storedPass = localStorage.getItem('nh_session_password');
+      
+      if (storedEmail && storedPass) {
+        document.getElementById('userEmail').value = storedEmail;
+        document.getElementById('userPassword').value = storedPass;
+        login(true);
+      }
+    }
+
+    async function login(isAutoRecoveryRun = false) {
       const email = document.getElementById('userEmail').value.trim();
       const pass = document.getElementById('userPassword').value.trim();
       if (!email || !pass) return;
@@ -336,6 +380,7 @@
         const data = await response.json();
 
         if (!data.authenticated) {
+          if (!isAutoRecoveryRun) alert('Invalid credentials configuration matrix parameters.');
           logout();
           return;
         }
@@ -344,8 +389,9 @@
         currentActiveUserEmail = email;
         currentActiveUserPassword = pass;
 
-        localStorage.setItem('notice_hub_email', email);
-        localStorage.setItem('notice_hub_password', pass);
+        // Commit profile metadata locks to persistent storage layer mapping indices
+        localStorage.setItem('nh_session_email', email);
+        localStorage.setItem('nh_session_password', pass);
 
         document.getElementById('loginModal').classList.add('hidden');
         document.getElementById('appContainer').classList.remove('hidden');
@@ -358,36 +404,19 @@
 
         knownNoticeIdsList = state.information.map(info => info.ID);
         
-        // Attempt Background OS push subscriptions handshake linking steps
-        configurePushSubscriptionsLink();
-        
         refreshSystemViews();
+        
+        // Background interval updates loop
         setInterval(silentlyPollForNewNotices, 8000);
       } catch (err) {
-        console.error(err);
+        console.error("Authentication validation pass exception:", err);
       }
     }
 
     function logout() {
-      localStorage.clear();
+      localStorage.removeItem('nh_session_email');
+      localStorage.removeItem('nh_session_password');
       location.reload();
-    }
-
-    async function configurePushSubscriptionsLink() {
-      if(!swRegistrationRef) return;
-      try {
-        let subscription = await swRegistrationRef.pushManager.getSubscription();
-        if(!subscription) {
-          subscription = await swRegistrationRef.pushManager.subscribe({
-            userVisibleOnly: true,
-            applicationServerKey: state.vapidPublicKey
-          });
-        }
-        await fetch(API_URL, {
-          method: 'POST',
-          body: JSON.stringify({ action: 'registerPushSubscription', email: currentActiveUserEmail, subscription: subscription })
-        });
-      } catch(e) { console.warn("OS Alert Subscription linking bypassed or unavailable", e); }
     }
 
     async function silentlyPollForNewNotices() {
@@ -402,22 +431,23 @@
           state = updatedData;
           
           if (incomingNotices.length > 0) {
-            let triggeredAudioForPollCycle = false;
+            let soundPlayedThisCycle = false;
             incomingNotices.forEach(notice => {
               knownNoticeIdsList.push(notice.ID);
               if (shouldAlertUserForNotice(notice)) {
-                triggerNativeDeviceToastAlert(notice);
-                // IF LOGGED IN ACCOUNT HAS THE ADMIN PRIVILEGE ROLE, EMIT SELECTED RING TONE
-                if (state.role === 'Admin' && !triggeredAudioForPollCycle) {
+                // Route notification directly to mobile native tray handler
+                triggerNativeMobileSystemTrayNotification(notice);
+                
+                if (state.role === 'Admin' && !soundPlayedThisCycle) {
                   executeNoticePlaybackTone();
-                  triggeredAudioForPollCycle = true;
+                  soundPlayedThisCycle = true;
                 }
               }
             });
           }
           refreshSystemViews();
         }
-      } catch (e) { console.log(e); }
+      } catch (e) { console.log("Background synchronization trace faulted: ", e); }
     }
 
     function shouldAlertUserForNotice(notice) {
@@ -431,11 +461,21 @@
       return false;
     }
 
-    function triggerNativeDeviceToastAlert(notice) {
-      const toast = document.getElementById('pushToast');
-      document.getElementById('toastBody').innerText = `[${notice.Title}] - ${notice.Content}`;
-      toast.classList.remove('translate-y-24', 'opacity-0', 'pointer-events-none');
-      setTimeout(() => { toast.classList.add('translate-y-24', 'opacity-0', 'pointer-events-none'); }, 5000);
+    // Direct Native Mobile Tray Alert Generator Engine Routing Interceptor 
+    function triggerNativeMobileSystemTrayNotification(notice) {
+      if ('serviceWorker' in navigator && 'Notification' in window) {
+        navigator.serviceWorker.ready.then(registration => {
+          const options = {
+            body: notice.Content,
+            icon: 'https://cdn-icons-png.flaticon.com/512/3602/3602149.png',
+            badge: 'https://cdn-icons-png.flaticon.com/512/3602/3602149.png',
+            vibrate: [200, 100, 200],
+            data: { url: window.location.href },
+            tag: notice.ID
+          };
+          registration.showNotification(notice.Title, options);
+        });
+      }
     }
 
     function refreshSystemViews() {
@@ -477,7 +517,6 @@
       return await response.json();
     }
 
-    // MULTIPLE SELECTION CHECKBOX TRACK OPERATIONS
     async function bulkModifyReadState(statusTarget) {
       const selectedBoxes = document.querySelectorAll('.notice-select-chk:checked');
       const targetIds = Array.from(selectedBoxes).map(cb => cb.value);
@@ -497,7 +536,6 @@
       if(res && res.success) syncSystemState();
     }
 
-    // NOTICE SUGGESTION OPERATIONS
     async function submitNoticeSuggestion() {
       const title = document.getElementById('reqTitle').value.trim();
       const content = document.getElementById('reqContent').value.trim();
@@ -667,30 +705,25 @@
       });
     }
 
-        async function submitNoticeForm() {
-          const editId = document.getElementById('editNoticeId').value;
-          const title = document.getElementById('infoTitle').value.trim();
-          const content = document.getElementById('infoContent').value.trim();
-          const targetType = document.getElementById('infoTargetType').value;
-          const targetName = document.getElementById('infoTargetNameSelect').value;
+    async function submitNoticeForm() {
+      const editId = document.getElementById('editNoticeId').value;
+      const title = document.getElementById('infoTitle').value.trim();
+      const content = document.getElementById('infoContent').value.trim();
+      const targetType = document.getElementById('infoTargetType').value;
+      const targetName = document.getElementById('infoTargetNameSelect').value;
 
-          if (!title || !content || !targetName) return alert('Please complete all parameter fields.');
+      if (!title || !content || !targetName) return alert('Please complete all parameter fields.');
 
-          let res;
-          if (editId) {
-            res = await postToApi({ action: 'updateInformation', id: editId, title, content, targetType, targetName });
-          } else {
-            res = await postToApi({ action: 'createInformation', title, content, targetType, targetName });
-          }
+      let res;
+      if (editId) res = await postToApi({ action: 'updateInformation', id: editId, title, content, targetType, targetName });
+      else res = await postToApi({ action: 'createInformation', title, content, targetType, targetName });
 
-          if (res && res.success) {
-            // 🔥 PLAY THE CHOSEN TONE ON THE ADMIN'S SYSTEM IMMEDIATELY UPON PUBLISHING
-            executeNoticePlaybackTone(); 
-            
-            clearNoticeForm(); 
-            syncSystemState(); 
-          }
-        }
+      if(res && res.success) { 
+        executeNoticePlaybackTone();
+        clearNoticeForm(); 
+        syncSystemState(); 
+      }
+    }
 
     function clearNoticeForm() {
       document.getElementById('editNoticeId').value = "";
