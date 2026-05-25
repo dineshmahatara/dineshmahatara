@@ -2,269 +2,312 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>NoticeHub - Enterprise Control Center</title>
-  <!-- Tailwind CSS Core -->
+  <title>NoticeHub - Enterprise Portal</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <!-- PROGRESSIVE WEB APP DISCOVERY ENGINE CONFIGURATION LAYERS -->
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="NoticeHub">
+  <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/3602/3602149.png">
+  
+  <!-- Web App Manifest for Mobile Shortcuts -->
+  <link rel="manifest" href="data:application/json;base64,ewogICJuYW1lIjogIk5vdGljZUh1YiIsCiAgInNob3J0X25hbWUiOiAiTm90aWNlSHViIiwKICAic3RhcnRfdXJsIjogIi4iLAogICJkaXNwbGF5IjogInN0YW5kYWxvbmUiLAogICJiYWNrZ3JvdW5kX2NvbG9yIjogIiNmOGZhZmMiLAogICJ0aGVtZV9jb2xvciI6ICIjNGY0NmVmIiwKICAiaWNvbnMiOiBbCiAgICB7CiAgICAgICJzcmMiOiAiaHR0YHM6Ly9jZG4taWNvbnMtcG5nLmZsYXRpY29uLmNvbS81MTIvMzYwMi8zNjAyMTQ5LnBuZyIsCiAgICAgICJzaXplcyI6ICI1MTJ4NTEyIiwKICAgICAgInR5cGUiOiAiaW1hZ2UvcG5nIiwKICAgICAgImNob2ljZSI6ICFueXNoYXJlIgogICAgfQogIF0KfQ==">
+
   <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
-  <!-- Google Font Inter for Modern Typography -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-  <!-- FontAwesome Icons Pack -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   
   <style>
-    body { font-family: 'Inter', sans-serif; }
-    @keyframes gradientShift {
-      0% { background-position: 0% 50%; }
-      50% { background-position: 100% 50%; }
-      100% { background-position: 0% 50%; }
-    }
-    .animated-mesh {
-      background: linear-gradient(-45deg, #eef2ff, #f0fdf4, #fafafa, #e0f2fe);
-      background-size: 400% 400%;
-      animation: gradientShift 15s ease infinite;
-    }
+    body { font-family: 'Inter', sans-serif; -webkit-tap-highlight-color: transparent; }
   </style>
 </head>
-<body class="bg-slate-50/50 text-slate-800 antialiased min-h-screen flex flex-col">
+<body class="bg-slate-50 text-slate-800 antialiased min-h-screen flex flex-col">
 
-  <!-- ==================== PUSH NOTIFICATION ALERT TOAST BOX ==================== -->
-  <div id="pushToast" class="fixed bottom-5 right-5 z-50 max-w-sm w-full bg-slate-900 text-white rounded-2xl shadow-2xl border border-slate-700/50 p-4 transform translate-y-24 opacity-0 transition-all duration-300 pointer-events-none flex items-start gap-3">
+  <!-- Real-time Banner Notification Alert -->
+  <div id="pushToast" class="fixed bottom-5 right-5 z-50 max-w-sm w-11/12 sm:w-full bg-slate-900 text-white rounded-2xl shadow-2xl p-4 transform translate-y-24 opacity-0 transition-all duration-300 pointer-events-none flex items-start gap-3">
     <div class="bg-indigo-500 text-white p-2 rounded-xl"><i class="fa-solid fa-bell-ring animate-bounce"></i></div>
     <div class="flex-1">
-      <h5 class="text-xs font-bold text-indigo-400 uppercase tracking-wider">New Broadcast Published</h5>
+      <h5 class="text-xs font-bold text-indigo-400 uppercase tracking-wider">Live System Broadcast</h5>
       <p id="toastBody" class="text-xs text-slate-200 mt-0.5 font-medium line-clamp-2"></p>
     </div>
   </div>
 
-  <!-- ==================== SIGN IN CONTAINER OVERLAY ==================== -->
-  <div id="loginModal" class="fixed inset-0 animated-mesh flex items-center justify-center z-50 p-4">
-    <div class="bg-white/80 backdrop-blur-md p-8 rounded-2xl shadow-2xl max-w-md w-full border border-white/60 ring-1 ring-slate-900/5 transition-all">
-      <div class="text-center mb-8">
-        <div class="inline-flex bg-indigo-600 text-white p-3.5 rounded-xl shadow-lg shadow-indigo-200 mb-4">
+  <!-- Authentication Interface Overlay Layer -->
+  <div id="loginModal" class="fixed inset-0 bg-slate-100 flex items-center justify-center z-50 p-4">
+    <div class="bg-white p-6 sm:p-8 rounded-2xl shadow-xl max-w-md w-full border border-slate-200">
+      <div class="text-center mb-6">
+        <div class="inline-flex bg-indigo-600 text-white p-3.5 rounded-xl shadow-lg mb-3">
           <i class="fa-solid fa-bolt-lightning text-xl"></i>
         </div>
-        <h2 class="text-2xl font-bold tracking-tight text-slate-900">Enterprise NoticeHub</h2>
-        <p class="text-slate-500 text-sm mt-1.5">Sign in to sync your updates & dashboards</p>
+        <h2 class="text-xl sm:text-2xl font-bold text-slate-900">NoticeHub Workspace</h2>
+        <p class="text-slate-500 text-xs sm:text-sm mt-1">Authenticate your credentials session context</p>
       </div>
-      
       <div class="space-y-4">
         <div>
-          <label class="block text-xs font-semibold uppercase tracking-wider text-slate-600 mb-1.5">Corporate Email</label>
-          <div class="relative">
-            <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 text-slate-400 text-sm"><i class="fa-regular fa-envelope"></i></span>
-            <input type="email" id="userEmail" placeholder="name@company.com" class="w-full pl-10 pr-4 py-2.5 bg-white/90 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all text-sm">
-          </div>
+          <label class="block text-xs font-semibold uppercase text-slate-600 mb-1">Corporate Email</label>
+          <input type="email" id="userEmail" class="w-full px-4 py-2.5 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500/20 focus:outline-none">
         </div>
         <div>
-          <label class="block text-xs font-semibold uppercase tracking-wider text-slate-600 mb-1.5">Security Password</label>
-          <div class="relative">
-            <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 text-slate-400 text-sm"><i class="fa-solid fa-lock-open"></i></span>
-            <input type="password" id="userPassword" placeholder="••••••••" class="w-full pl-10 pr-4 py-2.5 bg-white/90 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all text-sm">
-          </div>
+          <label class="block text-xs font-semibold uppercase text-slate-600 mb-1">Password Mapping Key</label>
+          <input type="password" id="userPassword" class="w-full px-4 py-2.5 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500/20 focus:outline-none">
         </div>
-        <button onclick="login()" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-3 px-4 rounded-xl transition shadow-md shadow-indigo-100 hover:shadow-lg active:scale-[0.99] cursor-pointer mt-2 text-sm">
-          Authenticate Session
-        </button>
+        <button onclick="login()" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-2.5 rounded-xl text-sm transition">Sign In Dashboard</button>
       </div>
     </div>
   </div>
 
-  <!-- ==================== MAIN SYSTEM DESKTOP APP UI ==================== -->
+  <!-- Primary Application Container -->
   <div id="appContainer" class="hidden min-h-screen flex flex-col">
-    <header class="bg-white border-b border-slate-200/80 sticky top-0 z-40 shadow-xs">
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-        <div class="flex items-center gap-3">
-          <div class="bg-indigo-600 text-white p-2 rounded-xl shadow-md shadow-indigo-100"><i class="fa-solid fa-shapes text-base"></i></div>
-          <span class="font-bold text-lg tracking-tight text-slate-900">NoticeHub <span class="text-[11px] font-medium px-2 py-0.5 bg-indigo-50 text-indigo-600 rounded-md border border-indigo-100/60 ml-1.5">Workspace</span></span>
+    <header class="bg-white border-b border-slate-200 sticky top-0 z-40 shadow-xs">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-2">
+        <div class="flex items-center gap-2">
+          <div class="bg-indigo-600 text-white p-2 rounded-lg"><i class="fa-solid fa-shapes text-sm"></i></div>
+          <span class="font-bold text-base sm:text-lg tracking-tight hidden sm:inline">NoticeHub Portal</span>
         </div>
-        <div class="flex items-center gap-4">
-          <div class="flex items-center gap-2">
-            <span id="userBadge" class="text-xs font-semibold bg-slate-100 text-slate-700 px-3 py-2 rounded-xl border border-slate-200/60 flex items-center gap-1.5"></span>
-            <span id="unseenCounter" class="bg-rose-600 text-white text-[11px] font-bold px-2.5 py-1 rounded-full shadow-xs hidden animate-pulse">0 Unseen</span>
-          </div>
-          <button onclick="logout()" class="text-slate-400 hover:text-rose-600 cursor-pointer w-8 h-8 rounded-lg hover:bg-rose-50 flex items-center justify-center transition-all" title="Sign Out Session"><i class="fa-solid fa-arrow-right-from-bracket text-sm"></i></button>
+        <div class="flex items-center gap-3">
+          <span id="userBadge" class="text-[11px] sm:text-xs font-semibold bg-slate-100 text-slate-700 px-2 sm:px-3 py-1.5 rounded-lg border border-slate-200 truncate max-w-[150px] sm:max-w-none"></span>
+          <span id="unseenCounter" class="bg-rose-600 text-white text-[10px] sm:text-[11px] font-bold px-2 py-0.5 rounded-full hidden">0 Unseen</span>
+          <button onclick="logout()" class="text-slate-400 hover:text-rose-600 p-2 text-sm transition"><i class="fa-solid fa-arrow-right-from-bracket"></i></button>
         </div>
       </div>
     </header>
 
-    <nav id="adminNav" class="hidden bg-white border-b border-slate-200/60 shadow-xs">
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex space-x-8">
-        <button onclick="switchTab('notices')" id="tab-notices" class="border-b-2 border-indigo-600 text-indigo-600 py-4 px-1 text-sm font-semibold cursor-pointer focus:outline-none transition-all flex items-center gap-2"><i class="fa-regular fa-rectangle-list"></i> Notice Stream</button>
-        <button onclick="switchTab('admin-panel')" id="tab-admin-panel" class="border-b-2 border-transparent text-slate-500 hover:text-slate-800 py-4 px-1 text-sm font-medium cursor-pointer focus:outline-none transition-all flex items-center gap-2"><i class="fa-solid fa-sliders"></i> Control Center</button>
+    <nav class="bg-white border-b border-slate-200 shadow-xs px-4 sm:px-8">
+      <div class="max-w-7xl mx-auto flex space-x-6 overflow-x-auto">
+        <button onclick="switchTab('notices')" id="tab-notices" class="border-b-2 border-indigo-600 text-indigo-600 py-3 text-xs sm:text-sm font-semibold whitespace-nowrap"><i class="fa-regular fa-rectangle-list mr-1"></i> Notification Stream</button>
+        <button onclick="switchTab('request-submission')" id="tab-request-submission" class="border-b-2 border-transparent text-slate-500 py-3 text-xs sm:text-sm font-medium whitespace-nowrap"><i class="fa-solid fa-paper-plane mr-1"></i> Propose Notice</button>
+        <button onclick="switchTab('admin-panel')" id="tab-admin-panel" class="hidden border-b-2 border-transparent text-slate-500 py-3 text-xs sm:text-sm font-medium whitespace-nowrap"><i class="fa-solid fa-sliders mr-1"></i> Control Center</button>
       </div>
     </nav>
 
-    <main class="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 lg:p-8">
+    <main class="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 lg:p-8 space-y-6">
       
-      <!-- ==================== NOTICES LOGS DESK FEED ==================== -->
+      <!-- NOTIFICATION FEED SYSTEM LAYER -->
       <section id="view-notices" class="space-y-4">
-        <div class="flex items-center justify-between border-b border-slate-200/60 pb-3">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-200 pb-3">
           <div>
-            <h2 class="text-xl font-bold tracking-tight text-slate-900">Your Notifications Stream</h2>
-            <p class="text-xs text-slate-500 mt-0.5">Chronologically ordered according to date published parameters.</p>
+            <h2 class="text-lg sm:text-xl font-bold text-slate-900">Your Communication Stream</h2>
+            <p class="text-xs text-slate-500">Sorted chronologically by date published parameters.</p>
           </div>
-          <button onclick="syncSystemState()" class="text-xs bg-white text-slate-700 border border-slate-200 font-medium px-3 py-1.5 rounded-xl hover:bg-slate-50 cursor-pointer transition flex items-center gap-1"><i class="fa-solid fa-arrows-rotate"></i> Sync Feed</button>
+          <div class="flex flex-wrap gap-2">
+            <button onclick="bulkModifyReadState('Seen')" class="bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs px-3 py-1.5 rounded-xl font-semibold"><i class="fa-regular fa-eye mr-1"></i> Mark Checked</button>
+            <button onclick="bulkModifyReadState('Unseen')" class="bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs px-3 py-1.5 rounded-xl font-semibold"><i class="fa-regular fa-eye-slash mr-1"></i> Mark Unseen</button>
+            <button id="adminBulkDeleteBtn" onclick="bulkPurgeNotices()" class="hidden bg-rose-50 text-rose-600 hover:bg-rose-100 text-xs px-3 py-1.5 rounded-xl font-semibold"><i class="fa-regular fa-trash-can mr-1"></i> Delete Selected</button>
+          </div>
         </div>
-        <div id="noticeList" class="grid gap-4 lg:grid-cols-1"></div>
+
+        <div id="noticeList" class="space-y-3"></div>
         
-        <!-- Notices Paginate controls -->
         <div id="noticePagination" class="flex justify-between items-center pt-2">
-          <button onclick="changeNoticePage(-1)" id="btnPrevNotice" class="text-xs bg-white text-slate-700 border border-slate-200 font-semibold px-3 py-1.5 rounded-xl disabled:opacity-40 disabled:cursor-not-allowed">Previous</button>
+          <button onclick="changeNoticePage(-1)" id="btnPrevNotice" class="text-xs bg-white text-slate-700 border border-slate-200 px-3 py-1.5 rounded-xl disabled:opacity-40">Previous</button>
           <span id="noticePageLabel" class="text-xs font-medium text-slate-500">Page 1 of 1</span>
-          <button onclick="changeNoticePage(1)" id="btnNextNotice" class="text-xs bg-white text-slate-700 border border-slate-200 font-semibold px-3 py-1.5 rounded-xl disabled:opacity-40 disabled:cursor-not-allowed">Next</button>
+          <button onclick="changeNoticePage(1)" id="btnNextNotice" class="text-xs bg-white text-slate-700 border border-slate-200 px-3 py-1.5 rounded-xl disabled:opacity-40">Next</button>
         </div>
       </section>
 
-      <!-- ==================== CONTROL CENTER WORKSPACE ==================== -->
-      <section id="view-admin-panel" class="hidden space-y-8">
-        <div class="grid lg:grid-cols-3 gap-8">
-          
-          <!-- Broadcast Configuration Engine Form Card -->
-          <div class="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm space-y-4 flex flex-col justify-between">
-            <div class="space-y-4">
-              <h3 id="formTitle" class="text-base font-bold text-slate-900 flex items-center gap-2"><i class="fa-regular fa-square-plus text-indigo-500"></i>Create Corporate Notice</h3>
-              <input type="hidden" id="editNoticeId" value="">
-              <div>
-                <label class="block text-xs font-semibold uppercase tracking-wider text-slate-500 mb-1">Notice Headline Title</label>
-                <input type="text" id="infoTitle" class="w-full border border-slate-200 rounded-xl p-2.5 text-sm outline-none focus:ring-2 focus:ring-indigo-500/10 focus:border-indigo-500 transition-all bg-slate-50/50">
-              </div>
-              <div>
-                <label class="block text-xs font-semibold uppercase tracking-wider text-slate-500 mb-1">Notice Body Message Contents</label>
-                <textarea id="infoContent" rows="4" class="w-full border border-slate-200 rounded-xl p-2.5 text-sm outline-none focus:ring-2 focus:ring-indigo-500/10 focus:border-indigo-500 transition-all bg-slate-50/50"></textarea>
-              </div>
-              <div class="grid grid-cols-2 gap-3">
-                <div>
-                  <label class="block text-xs font-semibold uppercase tracking-wider text-slate-500 mb-1">Target Mapping Mode</label>
-                  <select id="infoTargetType" class="w-full border border-slate-200 rounded-xl p-2.5 text-sm bg-slate-50/50 outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/10" onchange="toggleTargetInput()">
-                    <option value="Individual">Individual User</option>
-                    <option value="Group">Group Unit Cluster</option>
-                    <option value="All">All Users & Groups</option>
-                  </select>
-                </div>
-                <div>
-                  <label class="block text-xs font-semibold uppercase tracking-wider text-slate-500 mb-1">Scope Key Target</label>
-                  <select id="infoTargetNameSelect" class="w-full border border-slate-200 rounded-xl p-2.5 text-sm bg-slate-50/50 outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/10"></select>
-                </div>
-              </div>
+      <!-- EMPLOYEE PROPOSAL LAYER -->
+      <section id="view-request-submission" class="hidden max-w-xl mx-auto bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+        <div>
+          <h3 class="text-base font-bold text-slate-900"><i class="fa-solid fa-paper-plane text-indigo-500 mr-2"></i>Request Notice Publication</h3>
+          <p class="text-xs text-slate-400 mt-0.5">Submit draft announcements to administrators for authorization.</p>
+        </div>
+        <div class="space-y-3">
+          <div>
+            <label class="block text-xs font-semibold text-slate-500 mb-1">Notice Headline Title</label>
+            <input type="text" id="reqTitle" class="w-full border border-slate-200 rounded-xl p-2.5 text-xs outline-none bg-slate-50">
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-500 mb-1">Body Message Contents</label>
+            <textarea id="reqContent" rows="4" class="w-full border border-slate-200 rounded-xl p-2.5 text-xs outline-none bg-slate-50"></textarea>
+          </div>
+          <div class="grid grid-cols-2 gap-2">
+            <div>
+              <label class="block text-xs font-semibold text-slate-500 mb-1">Target Type Scope</label>
+              <select id="reqTargetType" class="w-full border border-slate-200 rounded-xl p-2.5 text-xs bg-slate-50" onchange="toggleReqTargetDropdown()">
+                <option value="Individual">Individual User</option>
+                <option value="Group">Group Unit Cluster</option>
+                <option value="All">All Users</option>
+              </select>
             </div>
-            <div class="flex gap-2 pt-4 border-t border-slate-100">
-              <button onclick="submitNoticeForm()" id="btnSubmitNotice" class="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2.5 rounded-xl text-sm cursor-pointer shadow-sm shadow-indigo-100 transition-all">Commit Broadcast Entry</button>
-              <button onclick="clearNoticeForm()" id="btnCancelEdit" class="hidden bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium py-2.5 px-4 rounded-xl text-sm cursor-pointer transition-all">Cancel</button>
+            <div>
+              <label class="block text-xs font-semibold text-slate-500 mb-1">Target Identifier Scope</label>
+              <select id="reqTargetNameSelect" class="w-full border border-slate-200 rounded-xl p-2.5 text-xs bg-slate-50"></select>
             </div>
           </div>
+          <button onclick="submitNoticeSuggestion()" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2.5 rounded-xl text-xs transition">File Proposal Entry</button>
+        </div>
+      </section>
 
-          <!-- Groups Clusters Matrix Setup Panel (UPGRADED SINGLE/MASS MANAGEMENT MODULE) -->
-          <div class="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm flex flex-col h-[480px]">
-            <div class="flex justify-between items-start mb-1">
-              <h3 class="text-base font-bold text-slate-900 flex items-center gap-2"><i class="fa-solid fa-users-rectangle text-indigo-500"></i>Groups CRUD Panel</h3>
-              <button onclick="purgeSelectedGroupProfile()" class="text-[10px] bg-rose-50 text-rose-600 px-2 py-1 rounded-md font-bold border border-rose-100 hover:bg-rose-100 transition-all">Delete Cluster</button>
-            </div>
-            <p class="text-[11px] text-slate-400 mb-2">Build profiles or delete entire cluster sheets schemas directly.</p>
-            <div class="space-y-2 mb-4 bg-slate-50 border border-slate-200/60 p-3 rounded-xl">
-              <div class="grid grid-cols-1 gap-2">
-                <input type="text" id="groupName" placeholder="Group Profile Label (e.g. Sales, Devs)" class="border border-slate-200 rounded-lg p-2 text-xs bg-white outline-none focus:border-indigo-500 w-full font-semibold">
-                <label class="block text-[10px] font-bold uppercase tracking-wider text-slate-500">Check Registered Members to Include:</label>
-                <div id="groupCheckboxesList" class="max-h-[85px] overflow-y-auto border border-slate-200 rounded-lg p-2 bg-white space-y-1.5 shadow-inner"></div>
-              </div>
-              <button onclick="submitGroupMember()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white py-2 rounded-lg text-xs font-semibold cursor-pointer shadow-xs transition-all">Save Group Allocations</button>
-            </div>
-            <div class="flex-1 overflow-y-auto text-xs border border-slate-100 rounded-xl divide-y divide-slate-100 shadow-inner bg-slate-50/30" id="groupTableList"></div>
-          </div>
-
-          <!-- Real-time Systems Activity Tracker Monitors Audits Panel -->
-          <div class="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm flex flex-col h-[480px]">
-            <h3 class="text-base font-bold text-slate-900 mb-3 flex items-center gap-2"><i class="fa-solid fa-chart-line text-indigo-500"></i>Acknowledge Analytics Logs</h3>
-            <div class="overflow-y-auto flex-1 text-xs space-y-2 pr-1 shadow-inner p-2 bg-slate-50/50 rounded-xl border border-slate-100" id="auditLogs"></div>
+      <!-- ADMIN BACKEND WORKSPACE MANAGEMENT PANEL -->
+      <section id="view-admin-panel" class="hidden space-y-6">
+        
+        <!-- PROPOSALS MANAGEMENT QUEUE -->
+        <div class="bg-white p-4 sm:p-6 rounded-2xl border border-slate-200 shadow-sm space-y-3">
+          <h3 class="text-base font-bold text-slate-900"><i class="fa-solid fa-code-pull-request text-indigo-500 mr-2"></i>Pending Node Suggestion Queue</h3>
+          <div class="overflow-x-auto border border-slate-100 rounded-xl">
+            <table class="w-full text-left text-xs">
+              <thead class="bg-slate-50 text-slate-500 font-semibold border-b border-slate-200">
+                <tr>
+                  <th class="p-3">From</th>
+                  <th class="p-3">Notice Payload</th>
+                  <th class="p-3">Scope Boundary Target</th>
+                  <th class="p-3 text-right">Actions Workflow</th>
+                </tr>
+              </thead>
+              <tbody id="requestQueueTableBody" class="divide-y divide-slate-100"></tbody>
+            </table>
           </div>
         </div>
 
-        <!-- Master Core Account User Directory CRUD Administration Table Row -->
-        <div class="bg-white rounded-2xl border border-slate-200/80 shadow-sm overflow-hidden">
-          <div class="p-6 flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 border-b border-slate-100">
-            <div>
-              <h3 class="text-base font-bold text-slate-900 flex items-center gap-2"><i class="fa-solid fa-user-shield text-indigo-500"></i>Core Systems Profile Directory</h3>
-              <p class="text-xs text-slate-500 mt-0.5">Provision roles, access settings, and security credentials mapping parameters live.</p>
+        <div class="grid lg:grid-cols-3 gap-6">
+          <!-- Create Broadcast Block Card Form -->
+          <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-between space-y-4">
+            <div class="space-y-3">
+              <h3 id="formTitle" class="text-sm font-bold text-slate-900"><i class="fa-regular fa-square-plus text-indigo-500 mr-2"></i>Create Corporate Notice</h3>
+              <input type="hidden" id="editNoticeId" value="">
+              <div>
+                <label class="block text-[11px] font-semibold text-slate-500 mb-1">Notice Headline Title</label>
+                <input type="text" id="infoTitle" class="w-full border border-slate-200 rounded-xl p-2 text-xs bg-slate-50">
+              </div>
+              <div>
+                <label class="block text-[11px] font-semibold text-slate-500 mb-1">Body Contents</label>
+                <textarea id="infoContent" rows="3" class="w-full border border-slate-200 rounded-xl p-2 text-xs bg-slate-50"></textarea>
+              </div>
+              <div class="grid grid-cols-2 gap-2">
+                <div>
+                  <label class="block text-[11px] font-semibold text-slate-500 mb-1">Target Mapping</label>
+                  <select id="infoTargetType" class="w-full border border-slate-200 rounded-xl p-2 text-xs bg-slate-50" onchange="toggleTargetInput()">
+                    <option value="Individual">Individual</option>
+                    <option value="Group">Group Unit</option>
+                    <option value="All">All Users</option>
+                  </select>
+                </div>
+                <div>
+                  <label class="block text-[11px] font-semibold text-slate-500 mb-1">Scope Key Target</label>
+                  <select id="infoTargetNameSelect" class="w-full border border-slate-200 rounded-xl p-2 text-xs bg-slate-50"></select>
+                </div>
+              </div>
             </div>
-            <div class="flex flex-wrap lg:flex-nowrap gap-2 w-full lg:w-auto bg-slate-50 border border-slate-200/60 p-2 rounded-xl">
-              <input type="email" id="newUserEmail" placeholder="User Registration Email" class="border border-slate-200 rounded-lg px-3 py-1.5 text-xs bg-white outline-none focus:border-indigo-500">
-              <input type="text" id="newUserPassword" placeholder="Set Password String" class="border border-slate-200 rounded-lg px-3 py-1.5 text-xs bg-white outline-none focus:border-indigo-500">
-              <select id="newUserRole" class="border border-slate-200 rounded-lg px-2 py-1.5 text-xs bg-white outline-none focus:border-indigo-500">
+            <div class="flex gap-2 pt-2 border-t border-slate-100">
+              <button onclick="submitNoticeForm()" id="btnSubmitNotice" class="flex-1 bg-indigo-600 text-white font-medium py-2 rounded-xl text-xs">Publish Broadcast</button>
+              <button onclick="clearNoticeForm()" id="btnCancelEdit" class="hidden bg-slate-100 text-slate-700 py-2 px-3 rounded-xl text-xs">Cancel</button>
+            </div>
+          </div>
+
+          <!-- Groups Operations Module Container -->
+          <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex flex-col h-[420px]">
+            <div class="flex justify-between items-center mb-2">
+              <h3 class="text-sm font-bold text-slate-900"><i class="fa-solid fa-users-rectangle text-indigo-500 mr-2"></i>Groups CRUD Panel</h3>
+              <button onclick="purgeSelectedGroupProfile()" class="text-[10px] bg-rose-50 text-rose-600 px-2 py-1 rounded-md font-bold">Delete Cluster</button>
+            </div>
+            <div class="space-y-2 mb-3 bg-slate-50 p-2.5 rounded-xl border border-slate-200">
+              <input type="text" id="groupName" placeholder="Group Profile Label" class="border border-slate-200 rounded-lg p-2 text-xs bg-white w-full font-semibold outline-none">
+              <div id="groupCheckboxesList" class="max-h-[75px] overflow-y-auto border border-slate-200 rounded-lg p-2 bg-white space-y-1"></div>
+              <button onclick="submitGroupMember()" class="w-full bg-emerald-600 text-white py-1.5 rounded-lg text-xs font-semibold">Save Allocations</button>
+            </div>
+            <div class="flex-1 overflow-y-auto text-xs border border-slate-100 rounded-xl divide-y divide-slate-100 shadow-inner" id="groupTableList"></div>
+          </div>
+
+          <!-- Logs Track Container -->
+          <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex flex-col h-[420px]">
+            <h3 class="text-sm font-bold text-slate-900 mb-2"><i class="fa-solid fa-chart-line text-indigo-500 mr-2"></i>Acknowledge Logs</h3>
+            <div class="overflow-y-auto flex-1 text-xs space-y-2 pr-1 shadow-inner p-2 bg-slate-50 rounded-xl" id="auditLogs"></div>
+          </div>
+        </div>
+
+        <!-- System User Configuration Registry Profile Directory Grid Table -->
+        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+          <div class="p-4 sm:p-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-slate-100">
+            <div>
+              <h3 class="text-sm font-bold text-slate-900"><i class="fa-solid fa-user-shield text-indigo-500 mr-2"></i>Account Management Directory</h3>
+            </div>
+            <div class="flex flex-wrap sm:flex-nowrap gap-2 w-full sm:w-auto bg-slate-50 border p-2 rounded-xl">
+              <input type="email" id="newUserEmail" placeholder="Email" class="border rounded-lg px-2 py-1 text-xs bg-white outline-none">
+              <input type="text" id="newUserPassword" placeholder="Password" class="border rounded-lg px-2 py-1 text-xs bg-white outline-none">
+              <select id="newUserRole" class="border rounded-lg px-1 py-1 text-xs bg-white outline-none">
                 <option value="Employee">Employee</option>
-                <option value="Admin">Administrator</option>
+                <option value="Admin">Admin</option>
               </select>
-              <button onclick="submitNewUser()" class="bg-slate-900 hover:bg-slate-950 text-white px-4 py-1.5 rounded-lg text-xs font-semibold cursor-pointer shadow-xs transition-all shrink-0">Provision User</button>
+              <button onclick="submitNewUser()" class="bg-slate-900 text-white px-3 py-1 rounded-lg text-xs font-semibold">Provision</button>
             </div>
           </div>
           <div class="overflow-x-auto">
-            <table class="w-full text-left text-xs border-collapse">
-              <thead class="bg-slate-50 text-slate-500 font-semibold uppercase tracking-wider border-b border-slate-200/60">
+            <table class="w-full text-left text-xs">
+              <thead class="bg-slate-50 text-slate-500 font-semibold border-b border-slate-200">
                 <tr>
-                  <th class="px-6 py-3.5">Account Identity Email Address</th>
-                  <th class="px-6 py-3.5">Access Authorization Privilege Role</th>
-                  <th class="px-6 py-3.5 text-right">Directory Record Operations</th>
+                  <th class="px-6 py-3">Account Email</th>
+                  <th class="px-6 py-3">Privilege Access Role</th>
+                  <th class="px-6 py-3 text-right">Operations</th>
                 </tr>
               </thead>
-              <tbody id="userDirectoryTableBody" class="divide-y divide-slate-100 bg-white"></tbody>
+              <tbody id="userDirectoryTableBody" class="divide-y divide-slate-100"></tbody>
             </table>
           </div>
-          <!-- User Directory Table Pagination control bars -->
-          <div class="p-4 bg-slate-50 border-t border-slate-200/60 flex justify-between items-center">
-            <button onclick="changeUserPage(-1)" id="btnPrevUser" class="text-xs bg-white text-slate-700 border border-slate-200 font-semibold px-3 py-1.5 rounded-xl disabled:opacity-40 disabled:cursor-not-allowed">Previous</button>
+          <div class="p-3 bg-slate-50 border-t flex justify-between items-center">
+            <button onclick="changeUserPage(-1)" id="btnPrevUser" class="text-xs bg-white border px-3 py-1 rounded-lg disabled:opacity-40">Previous</button>
             <span id="userPageLabel" class="text-xs font-medium text-slate-500">Page 1 of 1</span>
-            <button onclick="changeUserPage(1)" id="btnNextUser" class="text-xs bg-white text-slate-700 border border-slate-200 font-semibold px-3 py-1.5 rounded-xl disabled:opacity-40 disabled:cursor-not-allowed">Next</button>
+            <button onclick="changeUserPage(1)" id="btnNextUser" class="text-xs bg-white border px-3 py-1 rounded-lg disabled:opacity-40">Next</button>
           </div>
         </div>
       </section>
     </main>
   </div>
 
-  <!-- ==================== SYSTEM JAVASCRIPT CONTROLLER MOTOR ==================== -->
   <script>
     // ⚠️ REPLACE THIS LINK WITH YOUR COPIED APPS SCRIPT WEB APP API ROUTE URL!
-    const API_URL = "https://script.google.com/macros/s/AKfycbzbK2mF6ksSmMozhVwp41KV75qFmtS2sMHIZmrjqtF8I5ByA8FBrSUhIdXQc8bDVkk/exec";
+    const API_URL = "https://script.google.com/macros/s/AKfycbylzNUi1U_9DuArEkquam-LuDmOZbQ9uEKr95IGGhN2pWBkto7jtQggW0aP8PGGSeH9/exec";
 
     let state = {};
     let currentActiveUserEmail = "";
     let currentActiveUserPassword = "";
     
-    // PAGINATION ENGINE LIMIT CONFIGS
     const ITEMS_PER_PAGE = 5;
     let currentNoticePage = 1;
     let currentUserPage = 1;
-
-    // BACKGROUND SYNC ENGINE STORAGE FLAGS
     let knownNoticeIdsList = [];
-    let processingInitialBoot = true;
+
+    // SERVICE WORKER LOGIC TRACK FLAGS
+    let swRegistrationRef = null;
 
     window.addEventListener('DOMContentLoaded', () => {
-      const savedEmail = localStorage.getItem('notice_hub_email');
-      const savedPassword = localStorage.getItem('notice_hub_password');
-      if (savedEmail && savedPassword) {
-        document.getElementById('userEmail').value = savedEmail;
-        document.getElementById('userPassword').value = savedPassword;
+      initServiceWorkerEngine();
+      
+      // PERSISTENT AUTH RETENTION CONTROLLER CHECK
+      const preservedEmailToken = localStorage.getItem('notice_hub_email');
+      const preservedPasswordToken = localStorage.getItem('notice_hub_password');
+      
+      if(preservedEmailToken && preservedPasswordToken) {
+        document.getElementById('userEmail').value = preservedEmailToken;
+        document.getElementById('userPassword').value = preservedPasswordToken;
         login(true);
       }
     });
 
-    async function login(isAutoLogin = false) {
+    function initServiceWorkerEngine() {
+      if ('serviceWorker' in navigator && 'PushManager' in window) {
+        navigator.serviceWorker.register('sw.js')
+        .then(reg => {
+          swRegistrationRef = reg;
+          console.log('Background Service Worker Hook Registered.');
+        }).catch(err => console.warn('Service Worker setup bypassed.', err));
+      }
+    }
+
+    async function login(isSilentRetentionPass = false) {
       const email = document.getElementById('userEmail').value.trim();
       const pass = document.getElementById('userPassword').value.trim();
-      if (!email || !pass) return alert('Please key in both valid system registration parameters.');
+      if (!email || !pass) return;
 
       try {
-        if (!isAutoLogin) {
-          document.getElementById('loginModal').querySelector('button').innerText = "Authenticating...";
-        }
-
         const queryUrl = `${API_URL}?email=${encodeURIComponent(email)}&password=${encodeURIComponent(pass)}`;
         const response = await fetch(queryUrl);
         const data = await response.json();
 
         if (!data.authenticated) {
-          if (isAutoLogin) logout(); 
-          else alert('System authorization failed. Please check matching credentials record.');
-          document.getElementById('loginModal').querySelector('button').innerText = "Authenticate Session";
+          logout();
           return;
         }
 
@@ -277,62 +320,61 @@
 
         document.getElementById('loginModal').classList.add('hidden');
         document.getElementById('appContainer').classList.remove('hidden');
-        document.getElementById('userBadge').innerHTML = `<i class="fa-regular fa-circle-user text-slate-400"></i> ${state.email} (${state.role})`;
+        document.getElementById('userBadge').innerHTML = `<i class="fa-regular fa-circle-user"></i> ${state.email}`;
 
         if (state.role === 'Admin') {
-          document.getElementById('adminNav').classList.remove('hidden');
+          document.getElementById('tab-admin-panel').classList.remove('hidden');
+          document.getElementById('adminBulkDeleteBtn').classList.remove('hidden');
         }
 
-        // Snapshot all existing IDs so alerts don't fire for historical entries on login
         knownNoticeIdsList = state.information.map(info => info.ID);
-        processingInitialBoot = false;
-
+        
+        // Attempt Background OS push subscriptions handshake linking steps
+        configurePushSubscriptionsLink();
+        
         refreshSystemViews();
-
-        // Start background polling loop every 8 seconds
         setInterval(silentlyPollForNewNotices, 8000);
-
       } catch (err) {
         console.error(err);
-        if(!isAutoLogin) alert('Could not resolve transactional queries cycle loop with external API Engine.');
       }
     }
 
     function logout() {
-      localStorage.removeItem('notice_hub_email');
-      localStorage.removeItem('notice_hub_password');
+      localStorage.clear();
       location.reload();
     }
 
-    async function syncSystemState() {
-      const queryUrl = `${API_URL}?email=${encodeURIComponent(currentActiveUserEmail)}&password=${encodeURIComponent(currentActiveUserPassword)}`;
-      const response = await fetch(queryUrl);
-      state = await response.json();
-      refreshSystemViews();
+    async function configurePushSubscriptionsLink() {
+      if(!swRegistrationRef) return;
+      try {
+        let subscription = await swRegistrationRef.pushManager.getSubscription();
+        if(!subscription) {
+          subscription = await swRegistrationRef.pushManager.subscribe({
+            userVisibleOnly: true,
+            applicationServerKey: state.vapidPublicKey
+          });
+        }
+        await fetch(API_URL, {
+          method: 'POST',
+          body: JSON.stringify({ action: 'registerPushSubscription', email: currentActiveUserEmail, subscription: subscription })
+        });
+      } catch(e) { console.warn("OS Alert Subscription linking bypassed or unavailable", e); }
     }
 
-    // SILENT REAL-TIME BACKGROUND POLLING LOOP ENGINE
     async function silentlyPollForNewNotices() {
-      if (!currentActiveUserEmail || !currentActiveUserPassword) return;
-      
+      if (!currentActiveUserEmail) return;
       try {
         const queryUrl = `${API_URL}?email=${encodeURIComponent(currentActiveUserEmail)}&password=${encodeURIComponent(currentActiveUserPassword)}`;
         const response = await fetch(queryUrl);
         const updatedData = await response.json();
         
         if (updatedData && updatedData.authenticated) {
-          const oldInfoLength = state.information.length;
-          
-          // Check for any newly discovered ID rows
           const incomingNotices = updatedData.information.filter(info => !knownNoticeIdsList.includes(info.ID));
-          
-          state = updatedData; // Apply latest data pull
+          state = updatedData;
           
           if (incomingNotices.length > 0) {
-            // Re-render indices update 
             incomingNotices.forEach(notice => {
               knownNoticeIdsList.push(notice.ID);
-              // Trigger a system alert if this notice applies directly to the user
               if (shouldAlertUserForNotice(notice)) {
                 triggerNativeDeviceToastAlert(notice);
               }
@@ -340,16 +382,13 @@
           }
           refreshSystemViews();
         }
-      } catch (e) {
-        console.warn("Background notification fetch handshake dropped loop cycle.", e);
-      }
+      } catch (e) { console.log(e); }
     }
 
     function shouldAlertUserForNotice(notice) {
       if (state.role === 'Admin') return true;
       if (notice['Target Type'] === 'All') return true;
       if (notice['Target Type'] === 'Individual' && notice['Target Name'].toLowerCase() === state.email.toLowerCase()) return true;
-      
       if (notice['Target Type'] === 'Group') {
         const structuralGroups = state.groups.filter(g => g['Member Email'].toLowerCase() === state.email.toLowerCase()).map(g => g['Group Name']);
         if (structuralGroups.includes(notice['Target Name'])) return true;
@@ -360,280 +399,141 @@
     function triggerNativeDeviceToastAlert(notice) {
       const toast = document.getElementById('pushToast');
       document.getElementById('toastBody').innerText = `[${notice.Title}] - ${notice.Content}`;
-      
-      // Toast Slide-In UI Action
       toast.classList.remove('translate-y-24', 'opacity-0', 'pointer-events-none');
-      
-      setTimeout(() => {
-        toast.classList.add('translate-y-24', 'opacity-0', 'pointer-events-none');
-      }, 5500);
+      setTimeout(() => { toast.classList.add('translate-y-24', 'opacity-0', 'pointer-events-none'); }, 5000);
     }
 
     function refreshSystemViews() {
       computeUnseenBadgeCount();
       renderNotices();
-      renderAuditLogs();
-      renderGroupsTableList();
-      renderUserDirectoryTable();
+      if(state.role === 'Admin') {
+        renderAuditLogs();
+        renderGroupsTableList();
+        renderUserDirectoryTable();
+        renderRequestQueueTable();
+      }
       populateTargetDropdowns();
       renderGroupCheckboxes();
     }
 
     function computeUnseenBadgeCount() {
       const myGroups = state.groups.filter(g => g['Member Email'].toLowerCase() === state.email.toLowerCase()).map(g => g['Group Name']);
-      
-      const relevantNotices = state.information.filter(info => {
+      const relevant = state.information.filter(info => {
         if (state.role === 'Admin') return true;
         if (info['Target Type'] === 'Individual' && info['Target Name'].toLowerCase() === state.email.toLowerCase()) return true;
         if (info['Target Type'] === 'Group' && myGroups.includes(info['Target Name'])) return true;
-        if (info['Target Type'] === 'All') return true;
-        return false;
+        return info['Target Type'] === 'All';
       });
 
       let unseenCount = 0;
-      relevantNotices.forEach(notice => {
-        const userAck = state.acknowledgements.find(a => a['Info ID'] === notice.ID && a['Employee Email'].toLowerCase() === state.email.toLowerCase());
-        if (!userAck || userAck.Status === 'Unseen') {
-          unseenCount++;
-        }
+      relevant.forEach(notice => {
+        const ack = state.acknowledgements.find(a => a['Info ID'] === notice.ID && a['Employee Email'].toLowerCase() === state.email.toLowerCase());
+        if (!ack || ack.Status === 'Unseen') unseenCount++;
       });
 
       const badge = document.getElementById('unseenCounter');
       if (unseenCount > 0) {
         badge.innerText = `${unseenCount} Unseen`;
         badge.classList.remove('hidden');
-      } else {
-        badge.classList.add('hidden');
-      }
+      } else { badge.classList.add('hidden'); }
     }
 
     async function postToApi(payload) {
-      try {
-        const response = await fetch(API_URL, { method: 'POST', body: JSON.stringify(payload) });
-        return await response.json();
-      } catch (err) {
-        console.error("Transmission fault processing event execution.", err);
+      const response = await fetch(API_URL, { method: 'POST', body: JSON.stringify(payload) });
+      return await response.json();
+    }
+
+    // MULTIPLE SELECTION CHECKBOX TRACK OPERATIONS
+    async function bulkModifyReadState(statusTarget) {
+      const selectedBoxes = document.querySelectorAll('.notice-select-chk:checked');
+      const targetIds = Array.from(selectedBoxes).map(cb => cb.value);
+      if(targetIds.length === 0) return alert('Select target notice lines via checkbox matrix first.');
+
+      const res = await postToApi({ action: 'bulkSetAcknowledgeStatus', infoIds: targetIds, email: state.email, status: statusTarget });
+      if(res && res.success) syncSystemState();
+    }
+
+    async function bulkPurgeNotices() {
+      const selectedBoxes = document.querySelectorAll('.notice-select-chk:checked');
+      const targetIds = Array.from(selectedBoxes).map(cb => cb.value);
+      if(targetIds.length === 0) return alert('Select target notice lines via checkbox matrix first.');
+      if(!confirm(`Purge ${targetIds.length} notices permanently?`)) return;
+
+      const res = await postToApi({ action: 'bulkDeleteInformation', ids: targetIds });
+      if(res && res.success) syncSystemState();
+    }
+
+    // NOTICE SUGGESTION OPERATIONS
+    async function submitNoticeSuggestion() {
+      const title = document.getElementById('reqTitle').value.trim();
+      const content = document.getElementById('reqContent').value.trim();
+      const targetType = document.getElementById('reqTargetType').value;
+      const targetName = document.getElementById('reqTargetNameSelect').value;
+
+      if(!title || !content || !targetName) return alert('Complete all parameter fields before submitting.');
+
+      const res = await postToApi({ action: 'requestNotice', email: state.email, title, content, targetType, targetName });
+      if(res && res.success) {
+        alert('Notice suggestion submitted for administrative validation review.');
+        document.getElementById('reqTitle').value = '';
+        document.getElementById('reqContent').value = '';
+        switchTab('notices');
+        syncSystemState();
       }
     }
 
-    async function markAsSeen(id) {
-      const result = await postToApi({ action: 'acknowledgeInfo', infoId: id, email: state.email });
-      if(result && result.success) syncSystemState();
+    async function processWorkflowRequest(id, statusDecision) {
+      const res = await postToApi({ action: 'processNoticeRequest', id, status: statusDecision });
+      if(res && res.success) syncSystemState();
     }
 
-    // INTERFACE DYNAMIC POOL FILTERS DROPDOWNS ENGINE
-    function populateTargetDropdowns() {
-      const type = document.getElementById('infoTargetType').value;
-      const select = document.getElementById('infoTargetNameSelect');
-      select.innerHTML = '';
-      select.disabled = false;
+    function renderRequestQueueTable() {
+      const tbody = document.getElementById('requestQueueTableBody');
+      tbody.innerHTML = '';
+      const pendingItems = state.requests.filter(r => r.Status === 'Pending');
 
-      if (type === 'Individual') {
-        state.allUsers.forEach(u => {
-          select.innerHTML += `<option value="${u.Email}">${u.Email}</option>`;
-        });
-      } else if (type === 'Group') {
-        const uniqueGroups = [...new Set(state.groups.map(g => g['Group Name']))];
-        if (uniqueGroups.length === 0) {
-          select.innerHTML = `<option value="">No Groups Initialized</option>`;
-          select.disabled = true;
-        }
-        uniqueGroups.forEach(g => {
-          select.innerHTML += `<option value="${g}">${g}</option>`;
-        });
-      } else if (type === 'All') {
-        select.innerHTML = `<option value="ALL_CHANNELS">Broadcast: Global Distribution</option>`;
-        select.disabled = true;
+      if(pendingItems.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="4" class="p-4 text-center italic text-slate-400">Suggestion queue clear.</td></tr>`;
+        return;
       }
-    }
 
-    function toggleTargetInput() {
-      populateTargetDropdowns();
-    }
-
-    function renderGroupCheckboxes() {
-      const container = document.getElementById('groupCheckboxesList');
-      container.innerHTML = '';
-      state.allUsers.forEach((user, idx) => {
-        container.innerHTML += `
-          <div class="flex items-center gap-2">
-            <input type="checkbox" id="chkUser-${idx}" value="${user.Email}" class="w-3.5 h-3.5 text-indigo-600 border-slate-300 rounded-sm focus:ring-indigo-500 cursor-pointer">
-            <label for="chkUser-${idx}" class="text-[11px] font-mono text-slate-600 truncate cursor-pointer select-none">${user.Email}</label>
-          </div>
+      pendingItems.forEach(req => {
+        const tr = document.createElement('tr');
+        tr.className = "hover:bg-slate-50";
+        tr.innerHTML = `
+          <td class="p-3 font-medium">${req.Requester}</td>
+          <td class="p-3"><div class="font-bold">${req.Title}</div><div class="text-slate-500 line-clamp-1">${req.Content}</div></td>
+          <td class="p-3"><span class="bg-slate-100 px-2 py-0.5 rounded font-mono text-[10px]">${req['Target Type']} (${req['Target Name']})</span></td>
+          <td class="p-3 text-right space-x-1 whitespace-nowrap">
+            <button onclick="processWorkflowRequest('${req.ID}', 'Approved')" class="bg-emerald-600 text-white px-2 py-1 rounded font-semibold text-[11px] cursor-pointer">Approve</button>
+            <button onclick="processWorkflowRequest('${req.ID}', 'Rejected')" class="bg-rose-600 text-white px-2 py-1 rounded font-semibold text-[11px] cursor-pointer">Deny</button>
+          </td>
         `;
+        tbody.appendChild(tr);
       });
     }
 
-    async function submitNoticeForm() {
-      const editId = document.getElementById('editNoticeId').value;
-      const title = document.getElementById('infoTitle').value.trim();
-      const content = document.getElementById('infoContent').value.trim();
-      const targetType = document.getElementById('infoTargetType').value;
-      const targetName = document.getElementById('infoTargetNameSelect').value;
-
-      if (!title || !content || !targetName) return alert('Please build all configuration parameters fields criteria metrics.');
-
-      let result;
-      if (editId) {
-        result = await postToApi({ action: 'updateInformation', id: editId, title, content, targetType, targetName });
-      } else {
-        result = await postToApi({ action: 'createInformation', title, content, targetType, targetName });
-      }
-
-      if(result && result.success) {
-        clearNoticeForm();
-        syncSystemState();
-      }
-    }
-
-    function editNoticeMode(id) {
-      const targetNotice = state.information.find(item => item.ID === id);
-      if(!targetNotice) return alert('Entity record missing mapping anomaly flags.');
-
-      document.getElementById('editNoticeId').value = targetNotice.ID;
-      document.getElementById('infoTitle').value = targetNotice.Title;
-      document.getElementById('infoContent').value = targetNotice.Content;
-      document.getElementById('infoTargetType').value = targetNotice['Target Type'];
-      
-      populateTargetDropdowns();
-      document.getElementById('infoTargetNameSelect').value = targetNotice['Target Name'];
-
-      document.getElementById('formTitle').innerHTML = `<i class="fa-solid fa-pen-nib mr-2 text-amber-500"></i>Modify Notice Record`;
-      document.getElementById('btnSubmitNotice').innerText = "Commit Update Entry";
-      document.getElementById('btnCancelEdit').classList.remove('hidden');
-      switchTab('admin-panel');
-    }
-
-    function clearNoticeForm() {
-      document.getElementById('editNoticeId').value = "";
-      document.getElementById('infoTitle').value = "";
-      document.getElementById('infoContent').value = "";
-      document.getElementById('infoTargetType').value = "Individual";
-      populateTargetDropdowns();
-      document.getElementById('formTitle').innerHTML = `<i class="fa-regular fa-square-plus text-indigo-500"></i>Create Corporate Notice`;
-      document.getElementById('btnSubmitNotice').innerText = "Commit Broadcast Entry";
-      document.getElementById('btnCancelEdit').classList.add('hidden');
-    }
-
-    async function deleteNotice(id) {
-      if (!confirm("Delete broadcast announcement instance permanently?")) return;
-      const result = await postToApi({ action: 'deleteInformation', id });
-      if(result && result.success) syncSystemState();
-    }
-
-    // MASS MEMBER & GROUP SAVING MULTI MATRIX OPERATIONS
-    async function submitGroupMember() {
-      const groupName = document.getElementById('groupName').value.trim();
-      if (!groupName) return alert('Please input a valid Group Cluster Name.');
-
-      const checkedBoxes = document.querySelectorAll('#groupCheckboxesList input[type="checkbox"]:checked');
-      const selectedEmails = Array.from(checkedBoxes).map(cb => cb.value);
-
-      if (selectedEmails.length === 0) return alert('Select at least one registered profile member checkbox.');
-
-      const result = await postToApi({ action: 'saveGroupMembers', groupName, emails: selectedEmails });
-      if(result && result.success) {
-        document.getElementById('groupName').value = "";
-        renderGroupCheckboxes();
-        syncSystemState();
-      }
-    }
-
-    // FULL GROUP PROFILE CRUD: DESTRUCTION MODULE
-    async function purgeSelectedGroupProfile() {
-      const groupName = document.getElementById('groupName').value.trim();
-      if (!groupName) return alert('Type or select an active group layer name from list to drop completely.');
-      if (!confirm(`Are you sure you want to completely drop and delete the Group profile metadata for [${groupName}]?`)) return;
-
-      const result = await postToApi({ action: 'deleteGroupEntirely', groupName });
-      if (result && result.success) {
-        document.getElementById('groupName').value = "";
-        renderGroupCheckboxes();
-        syncSystemState();
-      }
-    }
-
-    function loadGroupForEditing(groupLabel) {
-      document.getElementById('groupName').value = groupLabel;
-      const associatedMembers = state.groups.filter(g => g['Group Name'] === groupLabel).map(g => g['Member Email'].toLowerCase());
-      
-      const checkboxes = document.querySelectorAll('#groupCheckboxesList input[type="checkbox"]');
-      checkboxes.forEach(cb => {
-        cb.checked = associatedMembers.includes(cb.value.toLowerCase());
-      });
-    }
-
-    async function deleteGroupMember(groupName, email) {
-      if (!confirm(`Remove link for entry [${email}] inside profile area cluster [${groupName}]?`)) return;
-      const result = await postToApi({ action: 'deleteGroupMember', groupName, email });
-      if(result && result.success) syncSystemState();
-    }
-
-    async function submitNewUser() {
-      const email = document.getElementById('newUserEmail').value.trim();
-      const pass = document.getElementById('newUserPassword').value.trim();
-      const role = document.getElementById('newUserRole').value;
-      if (!email || !pass) return alert('Complete credential strings maps rules requirements.');
-      
-      const result = await postToApi({ action: 'addUser', email, password: pass, role });
-      if(result && result.success) {
-        document.getElementById('newUserEmail').value = "";
-        document.getElementById('newUserPassword').value = "";
-        syncSystemState();
-      }
-    }
-
-    async function changeUserRole(email, newRole) {
-      const result = await postToApi({ action: 'updateUserRole', email, role: newRole });
-      if(result && result.success) syncSystemState();
-    }
-
-    async function deleteUserAccount(email) {
-      if(email.toLowerCase() === currentActiveUserEmail.toLowerCase()) return alert('Self locking prevents runtime removal routine execution.');
-      if(!confirm(`Exterminate access profile for identity [${email}]?`)) return;
-      const result = await postToApi({ action: 'deleteUser', email });
-      if(result && result.success) syncSystemState();
-    }
-
-    function switchTab(tabId) {
-      const tabs = ['notices', 'admin-panel'];
-      tabs.forEach(t => {
-        document.getElementById(`view-${t}`).classList.add('hidden');
-        document.getElementById(`tab-${t}`).className = "border-b-2 border-transparent text-slate-500 hover:text-slate-800 py-4 px-1 text-sm font-medium cursor-pointer focus:outline-none transition-all";
-      });
-      document.getElementById(`view-${tabId}`).classList.remove('hidden');
-      document.getElementById(`tab-${tabId}`).className = "border-b-2 border-indigo-600 text-indigo-600 py-4 px-1 text-sm font-semibold cursor-pointer focus:outline-none transition-all";
-    }
-
-    // CHRONOLOGICAL CHANNELS CHANNELS PAGINATION VIEW ENGINE
     function renderNotices() {
       const container = document.getElementById('noticeList');
       container.innerHTML = '';
 
       const myGroups = state.groups.filter(g => g['Member Email'].toLowerCase() === state.email.toLowerCase()).map(g => g['Group Name']);
-      
-      // Filter targeted channels criteria scope
       let relevantNotices = state.information.filter(info => {
         if (state.role === 'Admin') return true;
         if (info['Target Type'] === 'Individual' && info['Target Name'].toLowerCase() === state.email.toLowerCase()) return true;
         if (info['Target Type'] === 'Group' && myGroups.includes(info['Target Name'])) return true;
-        if (info['Target Type'] === 'All') return true;
-        return false;
+        return info['Target Type'] === 'All';
       });
 
-      // SORT ACCORDING TO DATE PUBLISHED AT TOP (CHRONOLOGICAL REVERSE ORDER)
-      relevantNotices.sort((a, b) => {
-        return new Date(b['Created At']) - new Date(a['Created At']);
-      });
+      relevantNotices.sort((a, b) => new Date(b['Created At']) - new Date(a['Created At']));
 
       if (relevantNotices.length === 0) {
-        container.innerHTML = `<div class="text-center p-12 text-slate-400 bg-white border border-slate-200/60 rounded-2xl shadow-xs italic text-sm">All notices read clear.</div>`;
+        container.innerHTML = `<div class="text-center p-12 text-slate-400 bg-white border border-slate-200 rounded-2xl italic text-sm">No notices found.</div>`;
         document.getElementById('noticePagination').classList.add('hidden');
         return;
       }
       document.getElementById('noticePagination').classList.remove('hidden');
 
-      // Pagination math block mapping slices
       const totalPages = Math.ceil(relevantNotices.length / ITEMS_PER_PAGE);
       if (currentNoticePage > totalPages) currentNoticePage = totalPages;
       if (currentNoticePage < 1) currentNoticePage = 1;
@@ -646,160 +546,204 @@
       const pagedNotices = relevantNotices.slice(startIdx, startIdx + ITEMS_PER_PAGE);
 
       pagedNotices.forEach(notice => {
-        const userAck = state.acknowledgements.find(a => a['Info ID'] === notice.ID && a['Employee Email'].toLowerCase() === state.email.toLowerCase());
-        const isSeen = userAck ? userAck.Status === 'Seen' : false;
-
-        const totalLogs = state.acknowledgements.filter(a => a['Info ID'] === notice.ID);
-        const seenLogsCount = totalLogs.filter(a => a.Status === 'Seen').length;
-        const totalLogsCount = totalLogs.length;
-        const readPercentage = totalLogsCount > 0 ? Math.round((seenLogsCount / totalLogsCount) * 100) : 0;
+        const ack = state.acknowledgements.find(a => a['Info ID'] === notice.ID && a['Employee Email'].toLowerCase() === state.email.toLowerCase());
+        const isSeen = ack ? ack.Status === 'Seen' : false;
 
         const card = document.createElement('div');
-        card.className = `p-6 bg-white border rounded-2xl shadow-xs transition-all duration-200 hover:shadow-md ${isSeen && state.role !== 'Admin' ? 'border-slate-200 opacity-65' : 'border-l-4 border-l-indigo-600 border-slate-300'}`;
+        card.className = `p-4 bg-white border rounded-xl shadow-xs flex items-start gap-3 ${isSeen && state.role !== 'Admin' ? 'border-slate-200 opacity-60' : 'border-l-4 border-l-indigo-600 border-slate-300'}`;
         
-        let statsHtml = '';
-        if (state.role === 'Admin') {
-          statsHtml = `
-            <div class="mt-4 pt-3 border-t border-slate-100">
-              <div class="flex justify-between items-center text-xs text-slate-500 mb-1">
-                <span class="font-medium flex items-center gap-1"><i class="fa-solid fa-chart-pie text-slate-400"></i> Read Progress Metrics:</span>
-                <span class="font-semibold text-slate-700">${seenLogsCount} / ${totalLogsCount} Members Seen (${readPercentage}%)</span>
-              </div>
-              <div class="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
-                <div class="bg-indigo-600 h-2 rounded-full transition-all duration-500" style="width: ${readPercentage}%"></div>
-              </div>
-            </div>
-          `;
-        }
-
         card.innerHTML = `
-          <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-            <div class="space-y-1.5 flex-1">
-              <div class="flex flex-wrap items-center gap-2 text-[11px] font-mono text-slate-400">
-                <span><i class="fa-regular fa-hashtag"></i> ${notice.ID}</span>
-                <span>•</span>
-                <span class="text-indigo-600 font-semibold"><i class="fa-regular fa-clock"></i> ${notice['Created At']}</span>
-                <span class="bg-slate-100 text-slate-600 rounded-md font-sans px-2 py-0.5 font-medium text-[10px]">Scope: ${notice['Target Type']} (${notice['Target Name']})</span>
-              </div>
-              <h4 class="text-base font-bold text-slate-900 tracking-tight">${notice.Title}</h4>
-              <p class="text-sm text-slate-600 whitespace-pre-wrap leading-relaxed pt-1">${notice.Content}</p>
+          <input type="checkbox" value="${notice.ID}" class="notice-select-chk mt-1 w-4 h-4 rounded text-indigo-600 border-slate-300 focus:ring-indigo-500 cursor-pointer">
+          <div class="flex-1 space-y-1">
+            <div class="flex flex-wrap items-center gap-2 text-[10px] font-mono text-slate-400">
+              <span class="text-indigo-600 font-semibold"><i class="fa-regular fa-clock"></i> ${notice['Created At']}</span>
+              <span>Scope: ${notice['Target Type']} (${notice['Target Name']})</span>
             </div>
-            <div class="shrink-0 flex flex-row sm:flex-col items-end gap-2 w-full sm:w-auto border-t sm:border-t-0 pt-3 sm:pt-0 border-slate-100 justify-between">
-              ${isSeen 
-                ? `<span class="bg-emerald-50 text-emerald-700 text-xs px-3 py-1.5 rounded-xl font-semibold border border-emerald-100 flex items-center gap-1.5"><i class="fa-solid fa-circle-check"></i> Seen</span>`
-                : `<button onclick="markAsSeen('${notice.ID}')" class="bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold px-4 py-2 rounded-xl shadow-sm cursor-pointer transition-all active:scale-[0.98]">Acknowledge Notice</button>`
-              }
-              ${state.role === 'Admin' ? `
-                <div class="flex gap-3 text-xs mt-1 font-medium text-slate-500">
-                  <button onclick="editNoticeMode('${notice.ID}')" class="hover:text-amber-600 cursor-pointer transition-all flex items-center gap-1"><i class="fa-regular fa-pen-to-square"></i> Edit</button>
-                  <button onclick="deleteNotice('${notice.ID}')" class="hover:text-rose-600 cursor-pointer transition-all flex items-center gap-1"><i class="fa-regular fa-trash-can"></i> Purge</button>
-                </div>
-              ` : ''}
-            </div>
+            <h4 class="text-sm font-bold text-slate-900">${notice.Title}</h4>
+            <p class="text-xs text-slate-600 whitespace-pre-wrap leading-relaxed">${notice.Content}</p>
           </div>
-          ${statsHtml}
         `;
         container.appendChild(card);
       });
     }
 
-    function changeNoticePage(direction) {
-      currentNoticePage += direction;
-      renderNotices();
+    function toggleReqTargetDropdown() {
+      const type = document.getElementById('reqTargetType').value;
+      const select = document.getElementById('reqTargetNameSelect');
+      select.innerHTML = ''; select.disabled = false;
+      if (type === 'Individual') {
+        state.allUsers.forEach(u => { select.innerHTML += `<option value="${u.Email}">${u.Email}</option>`; });
+      } else if (type === 'Group') {
+        const uniqueGroups = [...new Set(state.groups.map(g => g['Group Name']))];
+        if(uniqueGroups.length === 0) { select.innerHTML = `<option value="">No Groups</option>`; select.disabled = true; }
+        uniqueGroups.forEach(g => { select.innerHTML += `<option value="${g}">${g}</option>`; });
+      } else {
+        select.innerHTML = `<option value="ALL_CHANNELS">Global Broadcast Scope</option>`; select.disabled = true;
+      }
     }
 
-    // USER REGISTRY COMPONENT PAGINATION ENGINE
-    function renderUserDirectoryTable() {
-      if (state.role !== 'Admin') return;
-      const tbody = document.getElementById('userDirectoryTableBody');
-      tbody.innerHTML = '';
+    function populateTargetDropdowns() {
+      const type = document.getElementById('infoTargetType').value;
+      const select = document.getElementById('infoTargetNameSelect');
+      if(!select) return;
+      select.innerHTML = ''; select.disabled = false;
+      if (type === 'Individual') {
+        state.allUsers.forEach(u => { select.innerHTML += `<option value="${u.Email}">${u.Email}</option>`; });
+      } else if (type === 'Group') {
+        const uniqueGroups = [...new Set(state.groups.map(g => g['Group Name']))];
+        uniqueGroups.forEach(g => { select.innerHTML += `<option value="${g}">${g}</option>`; });
+      } else { select.innerHTML = `<option value="ALL">All Channels</option>`; select.disabled = true; }
+    }
 
-      if(!state.allUsers || state.allUsers.length === 0) return;
+    function toggleTargetInput() { populateTargetDropdowns(); }
+    function changeNoticePage(dir) { currentNoticePage += dir; renderNotices(); }
+    function changeUserPage(dir) { currentUserPage += dir; renderUserDirectoryTable(); }
+
+    async function syncSystemState() {
+      const queryUrl = `${API_URL}?email=${encodeURIComponent(currentActiveUserEmail)}&password=${encodeURIComponent(currentActiveUserPassword)}`;
+      const response = await fetch(queryUrl);
+      state = await response.json();
+      refreshSystemViews();
+    }
+
+    function switchTab(tabId) {
+      const tabs = ['notices', 'request-submission', 'admin-panel'];
+      tabs.forEach(t => {
+        const element = document.getElementById(`view-${t}`);
+        const tabBtn = document.getElementById(`tab-${t}`);
+        if(element) element.classList.add('hidden');
+        if(tabBtn) tabBtn.className = "border-b-2 border-transparent text-slate-500 py-3 text-xs sm:text-sm font-medium whitespace-nowrap";
+      });
+      document.getElementById(`view-${tabId}`).classList.remove('hidden');
+      document.getElementById(`tab-${tabId}`).className = "border-b-2 border-indigo-600 text-indigo-600 py-3 text-xs sm:text-sm font-semibold whitespace-nowrap";
+      if(tabId === 'request-submission') toggleReqTargetDropdown();
+    }
+
+    function renderGroupCheckboxes() {
+      const container = document.getElementById('groupCheckboxesList');
+      if(!container) return; container.innerHTML = '';
+      if(!state.allUsers) return;
+      state.allUsers.forEach((user, idx) => {
+        container.innerHTML += `
+          <div class="flex items-center gap-2">
+            <input type="checkbox" id="chkUser-${idx}" value="${user.Email}" class="w-3.5 h-3.5 text-indigo-600 border-slate-300 rounded focus:ring-indigo-500 cursor-pointer">
+            <label for="chkUser-${idx}" class="text-[11px] text-slate-600 truncate cursor-pointer select-none">${user.Email}</label>
+          </div>
+        `;
+      });
+    }
+
+    async function submitNoticeForm() {
+      const editId = document.getElementById('editNoticeId').value;
+      const title = document.getElementById('infoTitle').value.trim();
+      const content = document.getElementById('infoContent').value.trim();
+      const targetType = document.getElementById('infoTargetType').value;
+      const targetName = document.getElementById('infoTargetNameSelect').value;
+
+      if (!title || !content || !targetName) return alert('Please complete all parameter fields.');
+
+      let res;
+      if (editId) res = await postToApi({ action: 'updateInformation', id: editId, title, content, targetType, targetName });
+      else res = await postToApi({ action: 'createInformation', title, content, targetType, targetName });
+
+      if(res && res.success) { clearNoticeForm(); syncSystemState(); }
+    }
+
+    function clearNoticeForm() {
+      document.getElementById('editNoticeId').value = "";
+      document.getElementById('infoTitle').value = "";
+      document.getElementById('infoContent').value = "";
+      populateTargetDropdowns();
+    }
+
+    async function submitGroupMember() {
+      const groupName = document.getElementById('groupName').value.trim();
+      if (!groupName) return alert('Enter a valid Group Name.');
+      const checkedBoxes = document.querySelectorAll('#groupCheckboxesList input[type="checkbox"]:checked');
+      const selectedEmails = Array.from(checkedBoxes).map(cb => cb.value);
+      if (selectedEmails.length === 0) return alert('Select at least one member.');
+
+      const res = await postToApi({ action: 'saveGroupMembers', groupName, emails: selectedEmails });
+      if(res && res.success) {
+        document.getElementById('groupName').value = "";
+        renderGroupCheckboxes(); syncSystemState();
+      }
+    }
+
+    async function purgeSelectedGroupProfile() {
+      const groupName = document.getElementById('groupName').value.trim();
+      if (!groupName) return alert('Select a group cluster layer first.');
+      const res = await postToApi({ action: 'deleteGroupEntirely', groupName });
+      if (res && res.success) { document.getElementById('groupName').value = ""; syncSystemState(); }
+    }
+
+    async function submitNewUser() {
+      const email = document.getElementById('newUserEmail').value.trim();
+      const pass = document.getElementById('newUserPassword').value.trim();
+      const role = document.getElementById('newUserRole').value;
+      if (!email || !pass) return alert('Complete credential mapping rows requirements.');
+      
+      const res = await postToApi({ action: 'addUser', email, password: pass, role });
+      if(res && res.success) {
+        document.getElementById('newUserEmail').value = "";
+        document.getElementById('newUserPassword').value = "";
+        syncSystemState();
+      }
+    }
+
+    function renderUserDirectoryTable() {
+      const tbody = document.getElementById('userDirectoryTableBody');
+      if(!tbody) return; tbody.innerHTML = '';
+      if(!state.allUsers) return;
 
       const totalPages = Math.ceil(state.allUsers.length / ITEMS_PER_PAGE);
-      if (currentUserPage > totalPages) currentUserPage = totalPages;
-      if (currentUserPage < 1) currentUserPage = 1;
-
-      document.getElementById('userPageLabel').innerText = `Page ${currentUserPage} of ${totalPages}`;
-      document.getElementById('btnPrevUser').disabled = (currentUserPage === 1);
-      document.getElementById('btnNextUser').disabled = (currentUserPage === totalPages);
-
       const startIdx = (currentUserPage - 1) * ITEMS_PER_PAGE;
       const pagedUsers = state.allUsers.slice(startIdx, startIdx + ITEMS_PER_PAGE);
 
+      document.getElementById('userPageLabel').innerText = `Page ${currentUserPage} of ${totalPages}`;
+
       pagedUsers.forEach(profile => {
         const tr = document.createElement('tr');
-        tr.className = "hover:bg-slate-50/50 transition-all";
         tr.innerHTML = `
-          <td class="px-6 py-3.5 font-mono text-slate-700 font-medium">${profile.Email}</td>
-          <td class="px-6 py-3.5">
-            <select onchange="changeUserRole('${profile.Email}', this.value)" class="bg-white border border-slate-200 text-slate-700 text-xs rounded-lg px-2.5 py-1.5 outline-none font-semibold focus:border-indigo-500 cursor-pointer">
-              <option value="Employee" ${profile.Role === 'Employee' ? 'selected' : ''}>Employee</option>
-              <option value="Admin" ${profile.Role === 'Admin' ? 'selected' : ''}>Administrator</option>
-            </select>
-          </td>
-          <td class="px-6 py-3.5 text-right">
-            <button onclick="deleteUserAccount('${profile.Email}')" class="text-rose-600 hover:text-white text-xs font-semibold px-3 py-1.5 hover:bg-rose-600 rounded-xl border border-rose-100 transition-all"><i class="fa-regular fa-trash-can mr-1"></i> Erase</button>
+          <td class="px-6 py-3 font-mono text-slate-700">${profile.Email}</td>
+          <td class="px-6 py-3">${profile.Role}</td>
+          <td class="px-6 py-3 text-right">
+            <button onclick="deleteUserAccount('${profile.Email}')" class="text-rose-600 hover:underline">Erase</button>
           </td>
         `;
         tbody.appendChild(tr);
       });
     }
 
-    function changeUserPage(direction) {
-      currentUserPage += direction;
-      renderUserDirectoryTable();
+    async function deleteUserAccount(email) {
+      if(email.toLowerCase() === currentActiveUserEmail.toLowerCase()) return alert('Self locking drop prevention active.');
+      if(!confirm(`Delete account user entry [${email}]?`)) return;
+      const res = await postToApi({ action: 'deleteUser', email });
+      if(res && res.success) syncSystemState();
     }
 
     function renderGroupsTableList() {
-      if (state.role !== 'Admin') return;
       const container = document.getElementById('groupTableList');
-      container.innerHTML = '';
-
-      if(!state.groups || state.groups.length === 0) {
-        container.innerHTML = '<div class="text-slate-400 text-center p-6 italic">No group links configured.</div>';
-        return;
-      }
-
+      if(!container) return; container.innerHTML = '';
       state.groups.forEach(row => {
-        const rowEl = document.createElement('div');
-        rowEl.className = "p-2 flex justify-between items-center bg-white hover:bg-slate-50 transition-all cursor-pointer";
-        rowEl.setAttribute('onclick', `loadGroupForEditing('${row['Group Name']}')`);
-        rowEl.innerHTML = `
-          <div class="flex items-center gap-2 truncate">
-            <span class="font-bold text-slate-700 bg-indigo-50 border border-indigo-100 text-indigo-700 px-2 py-0.5 rounded-md text-[10px] uppercase tracking-wide shrink-0">${row['Group Name']}</span>
-            <span class="text-slate-600 font-mono text-[11px] truncate">${row['Member Email']}</span>
+        container.innerHTML += `
+          <div class="p-2 flex justify-between items-center bg-white hover:bg-slate-50">
+            <span class="font-bold text-slate-700">${row['Group Name']}</span>
+            <span class="text-slate-400 font-mono">${row['Member Email']}</span>
           </div>
-          <button onclick="event.stopPropagation(); deleteGroupMember('${row['Group Name']}', '${row['Member Email']}')" class="text-slate-300 hover:text-rose-600 cursor-pointer text-xs p-1 transition-all" title="Remove Member"><i class="fa-solid fa-circle-minus"></i></button>
         `;
-        container.appendChild(rowEl);
       });
     }
 
     function renderAuditLogs() {
-      if (state.role !== 'Admin') return;
-      const logContainer = document.getElementById('auditLogs');
-      logContainer.innerHTML = '';
-
-      if(!state.acknowledgements || state.acknowledgements.length === 0) {
-        logContainer.innerHTML = '<div class="text-slate-400 italic p-6 text-center">No monitoring entries.</div>';
-        return;
-      }
-
+      const container = document.getElementById('auditLogs');
+      if(!container) return; container.innerHTML = '';
       state.acknowledgements.forEach(ack => {
-        const notice = state.information.find(i => i.ID === ack['Info ID']);
-        const title = notice ? notice.Title : 'Purged Notice Registry ID';
-        const item = document.createElement('div');
-        item.className = `p-3 rounded-xl border flex flex-col gap-0.5 shadow-xs ${ack.Status === 'Seen' ? 'bg-emerald-50/40 border-emerald-100' : 'bg-amber-50/40 border-amber-100'}`;
-        item.innerHTML = `
-          <div class="flex justify-between items-center font-medium">
-            <span class="text-slate-700 font-mono text-[11px] truncate max-w-[170px]">${ack['Employee Email']}</span>
-            <span class="text-[10px] px-1.5 py-0.5 rounded-md font-bold uppercase tracking-wider ${ack.Status === 'Seen' ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'}">${ack.Status}</span>
+        container.innerHTML += `
+          <div class="p-2 bg-white border rounded mb-1">
+            <div class="flex justify-between font-bold"><span>${ack['Employee Email']}</span><span>${ack.Status}</span></div>
           </div>
-          <div class="text-[11px] text-slate-400 truncate mt-0.5">Notice: "${title}"</div>
-          ${ack.Timestamp ? `<div class="text-[10px] text-slate-400 mt-1 flex items-center gap-1 font-mono"><i class="fa-regular fa-clock text-slate-300"></i> ${ack.Timestamp}</div>` : ''}
         `;
-        logContainer.appendChild(item);
       });
     }
   </script>
