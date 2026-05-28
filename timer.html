@@ -1,0 +1,873 @@
+<!DOCTYPE html>
+<html lang="ne">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>नेपाल संसद् टाइमर प्रणाली (Engine v21.1 - Advanced Dropdown)</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Chivo+Mono:wght=400;700&family=Fjalla+One&family=Inter:wght=400;700&family=Major+Mono+Display&family=Montserrat:wght=500;700&family=Mukta:wght=400;600;700&family=Orbitron:wght=500;700&family=Oswald:wght=500;700&family=Poppins:wght=500;700&family=Share+Tech+Mono&family=Space+Mono:wght=700&display=swap');
+
+        :root {
+            --bg-color: #0f172a;
+            --card-bg: #1e293b;
+            --text-color: #f8fafc;
+            --blue-color: #1e40af;
+            --safe-color: #10b981;
+            --warning-color: #f59e0b;
+            --danger-color: #ef4444;
+            --sidebar-width: 380px;
+        }
+
+        body {
+            font-family: 'Mukta', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 0;
+            display: flex;
+            user-select: none;
+            overflow-x: hidden;
+        }
+
+        .sidebar {
+            width: var(--sidebar-width);
+            background-color: #111827;
+            height: 100vh;
+            position: fixed;
+            top: 0;
+            left: 0;
+            overflow-y: auto;
+            border-right: 1px solid #374151;
+            padding: 20px;
+            box-sizing: border-box;
+            transition: transform 0.3s ease;
+            z-index: 1000;
+        }
+        .sidebar.collapsed { transform: translateX(-100%); }
+
+        .accordion-section {
+            border: 1px solid #374151;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            overflow: hidden;
+            background: #1f2937;
+        }
+        .accordion-header {
+            background-color: #111827;
+            padding: 12px 15px;
+            font-weight: 600;
+            color: #38bdf8;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #374151;
+        }
+        .accordion-content { padding: 15px; background: #111827; display: none; }
+        .accordion-section.active .accordion-content { display: block; }
+        .accordion-header::after { content: '▼'; font-size: 0.8rem; transition: transform 0.2s; color: #94a3b8; }
+        .accordion-section.active .accordion-header::after { transform: rotate(180deg); color: #38bdf8; }
+
+        .main-content {
+            flex: 1;
+            margin-left: var(--sidebar-width);
+            padding: 20px;
+            transition: margin-left 0.3s ease;
+            box-sizing: border-box;
+            width: 100%;
+        }
+        .main-content.expanded { margin-left: 0; }
+
+        .layout {
+            display: grid;
+            grid-template-columns: 1.1fr 0.9fr;
+            gap: 20px;
+            max-width: 1600px;
+            margin: 0 auto;
+        }
+
+        h2, h3, h4 { margin-top: 0; font-weight: 600; color: #f1f5f9; border-bottom: 1px solid #374151; padding-bottom: 5px; }
+        
+        .header-panel {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: linear-gradient(135deg, #1e3a8a, #0f172a);
+            padding: 15px 25px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+            border: 1px solid #334155;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .btn-launch { background-color: #ef4444; color: white; font-weight: bold; padding: 10px 20px; border: none; border-radius: 8px; cursor: pointer; display: flex; align-items: center; gap: 5px; }
+        .btn-toggle-sidebar { background-color: #374151; color: white; border: none; padding: 10px 15px; border-radius: 6px; cursor: pointer; font-weight: bold; }
+
+        .card { background-color: var(--card-bg); padding: 20px; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.3); border: 1px solid #334155; margin-bottom: 20px; }
+
+        .form-group { display: flex; gap: 10px; margin-bottom: 15px; flex-wrap: wrap; align-items: center; }
+        input, select, textarea { padding: 10px 14px; background: #0f172a; border: 1px solid #475569; color: white; border-radius: 8px; font-size: 1rem; font-family: 'Mukta', sans-serif; flex: 1; min-width: 140px; }
+        
+        .btn-general { background-color: var(--blue-color); color: white; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; font-weight: bold; }
+        .btn-danger-action { background-color: #b91c1c; color: white; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; font-weight: bold; }
+        .btn-excel { background-color: #16a34a; color: white; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; font-weight: bold; }
+
+        .setting-card { background: #0f172a; padding: 10px; border-radius: 8px; border: 1px solid #475569; margin-bottom: 12px; }
+        .setting-card label { display: block; font-size: 0.9rem; margin-bottom: 5px; color: #cbd5e1; }
+        
+        .list-container { margin-top: 10px; min-height: 140px; max-height: 280px; overflow-y: auto; background: #0f172a; padding: 10px; border-radius: 8px; border: 2px dashed #334155; }
+        
+        .speaker-item { background: #1e293b; padding: 10px 15px; margin-bottom: 8px; border-radius: 8px; display: flex; justify-content: space-between; align-items: center; border: 1px solid #475569; cursor: grab; flex-wrap: wrap; gap: 10px; }
+        .speaker-item:active { cursor: grabbing; background: #334155; }
+        .editable-field { border-bottom: 1px dashed #38bdf8; padding: 2px 5px; cursor: pointer; }
+        .editable-field:focus { background: #0f172a; border: 1px solid #38bdf8; outline: none; border-radius: 4px; }
+
+        .current-speaker-box { background: radial-gradient(circle, #1e293b 0%, #020617 100%); padding: 25px; border-radius: 12px; text-align: center; margin-bottom: 20px; border: 2px solid #334155; }
+        .preview-clock { font-size: clamp(3rem, 5vw, 5rem); font-weight: 700; color: var(--safe-color); margin: 10px 0; letter-spacing: 2px; font-family: 'Chivo Mono', monospace; }
+
+        .custom-time-container { background: #111827; padding: 12px; border-radius: 8px; border: 1px solid #475569; margin-bottom: 15px; display: none; width: 100%; gap: 10px; }
+
+        .btn-controls { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+        .btn-start { grid-column: span 2; background-color: #10b981; color: white; font-size: 1.3rem; }
+        .btn-finished { grid-column: span 2; background-color: #0284c7; color: white; font-size: 1.2rem; border: 1px solid #38bdf8; margin-bottom: 5px; }
+        .btn-pause { background-color: #f59e0b; color: black; }
+        .btn-reset-t { background-color: #64748b; color: white; }
+        .btn-next { background-color: #3b82f6; color: white; }
+        .btn-ext { background-color: #475569; color: white; }
+        
+        .tag { padding: 4px 10px; border-radius: 4px; font-size: 0.85rem; font-weight: bold; color: white; }
+        .tag-zero { background-color: #ec4899; }
+        .tag-urgent { background-color: #f43f5e; }
+        .tag-debate { background-color: #3b82f6; }
+        .tag-special { background-color: #a855f7; }
+        .tag-countup { background-color: #06b6d4; }
+        .tag-custom { background-color: #e11d48; }
+
+        /* Modal Settings */
+        .modal { display: none; position: fixed; z-index: 2000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.7); }
+        .modal-content { background-color: #1e293b; margin: 10% auto; padding: 25px; border: 1px solid #475569; width: 50%; border-radius: 12px; box-shadow: 0 5px 15px rgba(0,0,0,0.5); }
+
+        @media (max-width: 1024px) {
+            body { flex-direction: column; }
+            .sidebar { width: 100%; height: auto; position: relative; border-right: none; border-bottom: 1px solid #374151; }
+            .sidebar.collapsed { display: none; }
+            .main-content { margin-left: 0; padding: 15px; }
+            .layout { grid-template-columns: 1fr; }
+            .modal-content { width: 90%; margin: 20% auto; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="sidebar" id="systemSidebar">
+    <h3 style="color: #38bdf8; border-bottom: 2px solid #38bdf8; padding-bottom:10px; margin-bottom:15px;">⚙️ प्रणाली सेटिङ प्यानल</h3>
+    
+    <div class="accordion-section active">
+        <div class="accordion-header" onclick="toggleAccordion(this)">🌐 क्लाउड एप्स स्क्रिप्ट र सभा सेटिङ</div>
+        <div class="accordion-content">
+            <div class="setting-card">
+                <label>🏛️ चालु सभा छनौट:</label>
+                <select id="houseTypeSelect" style="width:100%; font-weight:bold; color:#38bdf8;" onchange="savePermanentCloudSettings(); filterMasterDropdownByHouse();">
+                    <option value="संयुक्त सभा">संयुक्त सभा (सबै देखाउनुहोस्)</option>
+                    <option value="प्रतिनिधि सभा">प्रतिनिधि सभा</option>
+                    <option value="राष्ट्रिय सभा">राष्ट्रिय सभा</option>
+                </select>
+            </div>
+            <div class="setting-card">
+                <label>🔗 गुगल एप्स स्क्रिप्ट लिङ्क (Web App URL):</label>
+                <input type="text" id="googleSheetUrlInput" style="width:100%; box-sizing:border-box;" onchange="savePermanentCloudSettings()">
+                <button class="btn-general" style="width:100%; margin-top:8px; background:#0284c7;" onclick="syncDataFromGoogleSheet()">🔄 सिटबाट DATA तान्नुहोस्</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="accordion-section">
+        <div class="accordion-header" onclick="toggleAccordion(this)">🎵 राष्ट्रिय गान नियन्त्रण प्यानल</div>
+        <div class="accordion-content">
+            <div class="setting-card" style="text-align:center;">
+                <audio id="nationalAnthemAudio" src="" controls style="width:100%; margin-bottom:10px;"></audio>
+                <div style="margin-bottom:10px; text-align:left;">
+                    <label style="font-size:0.85rem; color:#cbd5e1; display:block; margin-bottom:4px;">💻 PC बाट धुन लोड गर्नुहोस:</label>
+                    <input type="file" id="anthemLocalFile" accept="audio/*" style="width:100%; font-size:0.85rem;" onchange="loadLocalAnthemFile(this)">
+                </div>
+                <div style="display:flex; gap:5px;">
+                    <button class="btn-general" style="flex:1; background:#10b981;" onclick="document.getElementById('nationalAnthemAudio').play()">बजाउनुहोस्</button>
+                    <button class="btn-danger-action" style="flex:1;" onclick="document.getElementById('nationalAnthemAudio').pause()">रोक्नुहोस्</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="accordion-section">
+        <div class="accordion-header" onclick="toggleAccordion(this)">🔤 घडीको फन्ट डिजाइन (१२ फन्टहरू)</div>
+        <div class="accordion-content">
+            <select id="clockFontSelect" style="width:100%; font-weight:bold;" onchange="saveSystemSettings()">
+                <option value="'Chivo Mono', monospace">१. Chivo Mono</option>
+                <option value="'Share Tech Mono', monospace">२. Share Tech Mono</option>
+                <option value="'Orbitron', sans-serif">३. Orbitron</option>
+                <option value="'Space Mono', monospace">४. Space Mono</option>
+                <option value="'Major Mono Display', monospace">५. Major Mono</option>
+                <option value="'Mukta', sans-serif">६. Mukta</option>
+                <option value="'Inter', sans-serif">७. Inter</option>
+                <option value="'Roboto', sans-serif">८. Roboto</option>
+                <option value="'Montserrat', sans-serif">९. Montserrat</option>
+                <option value="'Poppins', sans-serif">१०. Poppins</option>
+                <option value="'Oswald', sans-serif">११. Oswald</option>
+                <option value="'Fjalla One', sans-serif">१२. Fjalla One</option>
+            </select>
+        </div>
+    </div>
+
+    <div class="accordion-section">
+        <div class="accordion-header" onclick="toggleAccordion(this)">🖥️ टाइमर टेम्पलेट डिजाइनहरू</div>
+        <div class="accordion-content">
+            <select id="screenTemplateSelect" style="width:100%;" onchange="saveSystemSettings()">
+                <option value="style1">टेम्पलेट १ (Standard Classic)</option>
+                <option value="style2">टेम्पलेट २ (Rectangle Board)</option>
+                <option value="style3">टेम्पलेट ३ (Glow Ring - Circle)</option>
+                <option value="style4">टेम्पलेट ४ (Split Dashboard)</option>
+                <option value="style5">टेम्पलेट ५ (Futuristic Box)</option>
+                <option value="style6">टेम्पलेट ६ (Glassmorphism)</option>
+            </select>
+        </div>
+    </div>
+
+    <div class="accordion-section">
+        <div class="accordion-header" onclick="toggleAccordion(this)">⏱️ विधागत कुल समय अवधि</div>
+        <div class="accordion-content">
+            <div class="setting-card"><label>शून्य समय कुल:</label><input type="text" id="dur_zero" style="width:100%;" onchange="saveSystemSettings()"></div>
+            <div class="setting-card"><label>आकस्मिक समय कुल:</label><input type="text" id="dur_urgent" style="width:100%;" onchange="saveSystemSettings()"></div>
+            <div class="setting-card"><label>छलफल समय कुल:</label><input type="text" id="dur_debate" style="width:100%;" onchange="saveSystemSettings()"></div>
+            <div class="setting-card"><label>विशेष समय कुल:</label><input type="text" id="dur_special" style="width:100%;" onchange="saveSystemSettings()"></div>
+        </div>
+    </div>
+</div>
+
+<div class="main-content" id="mainContent">
+    <div class="header-panel">
+        <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
+            <button class="btn-toggle-sidebar" onclick="toggleSidebar()">☰ सेटिङ प्यानल</button>
+            <h2 style="margin:0; border:none; padding:0; font-size: clamp(1.2rem, 2.5vw, 1.8rem);">🏛️ नेपाल संसद् नियन्त्रण प्रणाली</h2>
+        </div>
+        <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
+            <span id="sessionStatusBadge" style="background:#1e293b; border:1px solid #38bdf8; padding:5px 12px; border-radius:6px; font-weight:bold; color:#38bdf8;">संयुक्त सभा</span>
+            <button class="btn-launch" onclick="launchSpeakerDisplay()">🖥️ दोस्रो स्क्रिन खोल्नुहोस्</button>
+        </div>
+    </div>
+
+    <div class="layout">
+        <div>
+            <div class="card">
+                <h3 id="dropdownTitleHouse">🎙️ माननीयको नाम दर्ता गर्ने बक्स</h3>
+                <div class="form-group">
+                    <!-- परिमार्जित ड्रपडाउन: छनौटको ढाँचा नाम (Political Party) रूपमा देखिन्छ -->
+                    <select id="masterNameDropdown" style="flex:2; font-weight:bold; color:#fff;" onchange="syncInputFromNameDropdown()"></select>
+                    <input type="text" id="speakerName" placeholder="नयाँ नाम टाइप गर्नुहोस्">
+                </div>
+                <div class="form-group">
+                    <select id="timePreset" onchange="toggleCustomTimeFields('reg')">
+                        <option value="zero">शून्य समय</option>
+                        <option value="urgent">आकस्मिक समय</option>
+                        <option value="debate">छलफल समय</option>
+                        <option value="special" selected>विशेष समय</option>
+                        <option value="countup">बढ्दो क्रम (Count-Up)</option>
+                        <option value="custom">अन्य समय (Custom Time)</option>
+                    </select>
+                    <button class="btn-general" onclick="addSpeaker()">सूचीमा थप्नुहोस्</button>
+                    <button class="btn-general" style="background:#0284c7;" onclick="openBulkModal()">👥 Bulk Add</button>
+                </div>
+
+                <div class="custom-time-container" id="regCustomTimeBox">
+                    <input type="text" id="customTypeNameReg" placeholder="विधाको नाम (उदा: दलीय समय)">
+                    <input type="text" id="customDurationReg" placeholder="समय (उदा: ७:०० वा ३००)">
+                </div>
+
+                <div class="config-box">
+                    <input type="checkbox" id="showDetailsCheck" checked onchange="toggleCheckboxConfig()">
+                    <label style="cursor:pointer;" for="showDetailsCheck">🖥️ दोस्रो स्क्रिनमा नाम विवरण देखाउने</label>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3>⏳ बोल्न बाँकी सूची (Drag गर्न र नाम/समय थिचेर Edit गर्न मिल्ने)</h3>
+                <div class="list-container" id="pendingList" ondragover="allowDrop(event)" ondrop="handleDrop(event)"></div>
+                <div style="margin-top:10px; display:flex; gap:10px;">
+                    <button class="btn-danger-action" onclick="clearPendingList()">🗑️ सूची सफा गर्ने</button>
+                    <button class="btn-excel" onclick="exportToExcel()">📊 EXCEL मा Export</button>
+                </div>
+                <h3 style="margin-top:20px;">📜 बोलिसकेकाहरूको इतिहास</h3>
+                <div class="list-container" id="historyList"></div>
+            </div>
+        </div>
+
+        <div>
+            <div class="card" style="position: sticky; top: 20px;">
+                <h3>🎙️ हाल रोष्ट्रम नियन्त्रण प्यानल</h3>
+                <div style="background: #0f172a; padding: 12px; border-radius: 8px; margin-bottom: 15px; border: 1px solid #475569;">
+                    <label style="display:block; margin-bottom:5px; font-weight:bold; color:#38bdf8;">⚡ तत्काल विधा छनोट:</label>
+                    <select id="directPresetSelect" style="width: 100%;" onchange="handleDirectPresetChange()">
+                        <option value="">-- विधा छान्नुहोस् --</option>
+                        <option value="zero">शून्य समय</option>
+                        <option value="urgent">आकस्मिक समय</option>
+                        <option value="debate">छलफल समय</option>
+                        <option value="special">विशेष समय</option>
+                        <option value="countup">बढ्दो क्रम</option>
+                        <option value="custom">अन्य समय</option>
+                    </select>
+                </div>
+
+                <div class="custom-time-container" id="directCustomTimeBox" style="margin-bottom:15px;">
+                    <input type="text" id="customTypeNameDirect" placeholder="विधाको नाम">
+                    <input type="text" id="customDurationDirect" placeholder="समय (उदा: ५:००)">
+                    <button class="btn-general" style="padding:5px 10px;" onclick="applyDirectCustomTime()">Apply</button>
+                </div>
+
+                <div class="current-speaker-box">
+                    <div id="currentType" class="tag tag-zero" style="display:inline-block; font-size:1.1rem; padding: 5px 15px;">तयारी अवस्था</div>
+                    <h2 id="currentSpeakerName" style="margin: 15px 0 5px 0; font-size: 2rem; color: #fff;">-</h2>
+                    <div class="preview-clock" id="clerkClock">००:००</div>
+                    <div id="currentStatus" style="font-size: 1.1rem; color: #94a3b8;">कृपया वक्ता रोज्नुहोस्</div>
+                </div>
+
+                <div class="btn-controls">
+                    <button class="btn-finished" onclick="finishCurrentSpeaker()">⏱️ मन्तव्य सकियो (Save)</button>
+                    <button class="btn-start" onclick="startTimer()">▶️ सुरु गर्नुहोस्</button>
+                    <button class="btn-pause" onclick="pauseTimer()">⏸️ रोक्नुहोस्</button>
+                    <button class="btn-reset-t" onclick="resetTimer()">🔄 पुनः सुरु</button>
+                    <button class="btn-next" onclick="loadNextSpeaker()">⏭️ अर्को वक्ता</button>
+                    <button class="btn-ext" onclick="extendTime(60)">➕ १ मिनेट थप्ने</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 👥 Bulk Add Modal -->
+<div id="bulkAddModal" class="modal">
+    <div class="modal-content">
+        <h3 style="color: #38bdf8;">👥 माननीयहरू Bulk मा थप्नुहोस्</h3>
+        <p style="font-size: 0.9rem; color: #cbd5e1; margin-bottom: 10px;">
+            ढाँचा: <b>नाम, समय</b> (प्रत्येक नयाँ लाइनमा एउटा नाम)। <br>
+            उदा:<br>
+            राम बहादुर थापा, ५:००<br>
+            सिता श्रेष्ठ, ३०० <span style="color:#94a3b8;">(सेकेन्डमा)</span><br>
+            हरि शर्मा <span style="color:#94a3b8;">(समय नराखेमा विधाको डिफल्ट समय लाग्नेछ)</span>
+        </p>
+        <textarea id="bulkInputArea" rows="8" style="width: 100%; box-sizing: border-box; font-family: 'Mukta', sans-serif; font-size: 1rem; margin-bottom: 15px;" placeholder="यहाँ टाइप वा पेस्ट गर्नुहोस्..."></textarea>
+        <div style="display: flex; gap: 10px; justify-content: flex-end;">
+            <button class="btn-danger-action" onclick="closeBulkModal()">रद्द गर्नुहोस्</button>
+            <button class="btn-general" style="background: #16a34a;" onclick="processBulkAdd()">सूचीमा अपलोड गर्नुहोस्</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    let timeLeft = 0; let initialTime = 0; let timerInterval = null; 
+    let isRunning = false; let isCountUpMode = false; let activeSpeaker = null; let displayWindow = null;
+    let draggedIdx = null;
+
+    let globalSpeakersDatabase = [];
+
+    const nepaliDigits = ['०', '१', '२', '३', '४', '५', '६', '७', '८', '९'];
+    const nepToEngMap = {'०':0,'१':1,'२':2,'३':3,'४':4,'५':5,'६':6,'७':7,'८':8,'९':9};
+
+    let sysSettings = JSON.parse(localStorage.getItem('parl_v12_settings')) || {
+        dur_zero: "1:00", dur_urgent: "3:00", dur_debate: "3:00", dur_special: "5:00",
+        screenTemplate: "style1", clockFont: "'Chivo Mono', monospace"
+    };
+
+    let permanentCloudSettings = JSON.parse(localStorage.getItem('parl_v14_permanent_cloud')) || {
+        selectedHouse: "संयुक्त सभा", googleSheetUrl: ""
+    };
+
+    let pendingSpeakers = JSON.parse(localStorage.getItem('parl_v12_pending')) || [];
+    let completedSpeakers = JSON.parse(localStorage.getItem('parl_v12_completed')) || [];
+    let showDetailsConfig = localStorage.getItem('parl_v12_showDetails') !== 'false';
+
+    function toggleAccordion(header) {
+        const section = header.parentElement;
+        const isActive = section.classList.contains('active');
+        document.querySelectorAll('.accordion-section').forEach(sec => sec.classList.remove('active'));
+        if (!isActive) section.classList.add('active');
+    }
+
+    function toggleSidebar() {
+        document.getElementById('systemSidebar').classList.toggle('collapsed');
+        document.getElementById('mainContent').classList.toggle('expanded');
+    }
+
+    function parseToSeconds(input) {
+        if(!input) return 0;
+        let str = input.toString().trim(); let cleanStr = "";
+        for(let i=0; i<str.length; i++) { cleanStr += (nepToEngMap[str[i]] !== undefined) ? nepToEngMap[str[i]] : str[i]; }
+        if(cleanStr.includes(':')) {
+            let parts = cleanStr.split(':'); return (parseInt(parts[0]) || 0) * 60 + (parseInt(parts[1]) || 0);
+        }
+        return (parseInt(cleanStr) || 0) * 60;
+    }
+
+    function formatTimeNepali(totalSeconds) { 
+        if(totalSeconds < 0) totalSeconds = 0;
+        const minutes = Math.floor(totalSeconds / 60); 
+        const seconds = totalSeconds % 60; 
+        return `${minutes.toString().padStart(2, '0').split('').map(d=>nepaliDigits[d]).join('')}:${seconds.toString().padStart(2, '0').split('').map(d=>nepaliDigits[d]).join('')}`; 
+    }
+
+    function loadSettingsIntoInputs() {
+        document.getElementById('dur_zero').value = sysSettings.dur_zero;
+        document.getElementById('dur_urgent').value = sysSettings.dur_urgent;
+        document.getElementById('dur_debate').value = sysSettings.dur_debate;
+        document.getElementById('dur_special').value = sysSettings.dur_special;
+        document.getElementById('screenTemplateSelect').value = sysSettings.screenTemplate;
+        document.getElementById('clockFontSelect').value = sysSettings.clockFont;
+        document.getElementById('showDetailsCheck').checked = showDetailsConfig;
+        
+        document.getElementById('houseTypeSelect').value = permanentCloudSettings.selectedHouse;
+        document.getElementById('googleSheetUrlInput').value = permanentCloudSettings.googleSheetUrl;
+        document.getElementById('sessionStatusBadge').innerText = permanentCloudSettings.selectedHouse;
+
+        renderLists(); updateDisplays();
+    }
+
+    function saveSystemSettings() {
+        sysSettings.dur_zero = document.getElementById('dur_zero').value;
+        sysSettings.dur_urgent = document.getElementById('dur_urgent').value;
+        sysSettings.dur_debate = document.getElementById('dur_debate').value;
+        sysSettings.dur_special = document.getElementById('dur_special').value;
+        sysSettings.screenTemplate = document.getElementById('screenTemplateSelect').value;
+        sysSettings.clockFont = document.getElementById('clockFontSelect').value;
+        localStorage.setItem('parl_v12_settings', JSON.stringify(sysSettings));
+        updateDisplays();
+    }
+
+    function savePermanentCloudSettings() {
+        permanentCloudSettings.selectedHouse = document.getElementById('houseTypeSelect').value;
+        permanentCloudSettings.googleSheetUrl = document.getElementById('googleSheetUrlInput').value;
+        localStorage.setItem('parl_v14_permanent_cloud', JSON.stringify(permanentCloudSettings));
+        document.getElementById('sessionStatusBadge').innerText = permanentCloudSettings.selectedHouse;
+    }
+
+    function loadLocalAnthemFile(input) {
+        const file = input.files[0];
+        if (file) { document.getElementById('nationalAnthemAudio').src = URL.createObjectURL(file); }
+    }
+
+    function toggleCustomTimeFields(context) {
+        if(context === 'reg') {
+            const isCustom = document.getElementById('timePreset').value === 'custom';
+            document.getElementById('regCustomTimeBox').style.display = isCustom ? 'flex' : 'none';
+        } else if(context === 'direct') {
+            const isCustom = document.getElementById('directPresetSelect').value === 'custom';
+            document.getElementById('directCustomTimeBox').style.display = isCustom ? 'flex' : 'none';
+        }
+    }
+
+    // 🔄 ड्रपडाउन परिवर्तन हुँदा टेक्स्ट बक्समा नाम (Value) मात्र पास गर्ने संरचना
+    function syncInputFromNameDropdown() {
+        const dp = document.getElementById('masterNameDropdown');
+        if(dp.value) document.getElementById('speakerName').value = dp.value;
+    }
+
+    // 🏛️ ड्रपडाउन बिल्डर: "नाम (Political Party)" को संरचनामा प्रदर्शन गर्ने परिमार्जन
+    function filterMasterDropdownByHouse() {
+        const house = permanentCloudSettings.selectedHouse;
+        const dd = document.getElementById('masterNameDropdown');
+        dd.innerHTML = `<option value="">-- माननीय छनौट गर्नुहोस् (${house}) --</option>`;
+        
+        let filtered = globalSpeakersDatabase;
+        if(house !== "संयुक्त सभा") {
+            filtered = globalSpeakersDatabase.filter(s => s.house === house);
+        }
+        
+        filtered.forEach(s => {
+            let op = document.createElement('option');
+            // Option Value मा नाम मात्र बस्छ, तर अप्सन टेक्स्ट "नाम (Political Party)" को रूपमा देखिन्छ
+            op.value = s.name; 
+            op.innerText = s.party ? `${s.name} (${s.party})` : s.name;
+            dd.appendChild(op);
+        });
+    }
+
+    function findPartyFromDatabase(name) {
+        let match = globalSpeakersDatabase.find(s => s.name === name);
+        return match ? match.party : "";
+    }
+
+    function addSpeaker() {
+        let name = document.getElementById('speakerName').value.trim(); 
+        if(!name) { alert("कृपया माननीय सदस्यको नाम लेख्नुहोस् वा छान्नुहोस्!"); return; }
+        
+        const presetType = document.getElementById('timePreset').value; 
+        let seconds = 0; let typeText = "विशेष समय"; let tagClass = "tag-special"; let isCountUp = false;
+
+        if(presetType === 'custom') {
+            typeText = document.getElementById('customTypeNameReg').value.trim() || "अन्य समय";
+            seconds = parseToSeconds(document.getElementById('customDurationReg').value);
+            tagClass = "tag-custom";
+        } else if (presetType === 'zero') { seconds = parseToSeconds(sysSettings.dur_zero); typeText = "शून्य समय"; tagClass = "tag-zero"; }
+        else if (presetType === 'urgent') { seconds = parseToSeconds(sysSettings.dur_urgent); typeText = "आकस्मिक समय"; tagClass = "tag-urgent"; }
+        else if (presetType === 'debate') { seconds = parseToSeconds(sysSettings.dur_debate); typeText = "छलफल समय"; tagClass = "tag-debate"; }
+        else if (presetType === 'special') { seconds = parseToSeconds(sysSettings.dur_special); typeText = "विशेष समय"; tagClass = "tag-special"; }
+        else if (presetType === 'countup') { seconds = 0; typeText = "बढ्दो क्रम"; tagClass = "tag-countup"; isCountUp = true; }
+
+        let detectedParty = findPartyFromDatabase(name);
+
+        pendingSpeakers.push({ 
+            id: "sp-"+Date.now(), name: name, party: detectedParty, time: seconds, type: typeText, tagClass: tagClass, isCountUp: isCountUp, houseAtRecord: permanentCloudSettings.selectedHouse 
+        });
+
+        localStorage.setItem('parl_v12_pending', JSON.stringify(pendingSpeakers));
+        document.getElementById('speakerName').value = "";
+        // थपिसकेपछि ड्रपडाउनलाई पुनः पहिलो श्रेणीमा फर्काउने
+        document.getElementById('masterNameDropdown').value = "";
+        renderLists();
+    }
+
+    function openBulkModal() { document.getElementById('bulkAddModal').style.display = 'block'; }
+    function closeBulkModal() { document.getElementById('bulkAddModal').style.display = 'none'; document.getElementById('bulkInputArea').value = ''; }
+
+    function processBulkAdd() {
+        let textData = document.getElementById('bulkInputArea').value.trim();
+        if(!textData) { alert("कृपया विवरण भर्नुहोस्!"); return; }
+
+        let lines = textData.split('\n');
+        const presetType = document.getElementById('timePreset').value;
+        
+        let defaultSeconds = 0; let typeText = "विशेष समय"; let tagClass = "tag-special"; let isCountUp = false;
+        if(presetType === 'custom') {
+            typeText = document.getElementById('customTypeNameReg').value.trim() || "अन्य समय";
+            defaultSeconds = parseToSeconds(document.getElementById('customDurationReg').value);
+            tagClass = "tag-custom";
+        } else if (presetType === 'zero') { defaultSeconds = parseToSeconds(sysSettings.dur_zero); typeText = "शून्य समय"; tagClass = "tag-zero"; }
+        else if (presetType === 'urgent') { defaultSeconds = parseToSeconds(sysSettings.dur_urgent); typeText = "आकस्मिक समय"; tagClass = "tag-urgent"; }
+        else if (presetType === 'debate') { defaultSeconds = parseToSeconds(sysSettings.dur_debate); typeText = "छलफल समय"; tagClass = "tag-debate"; }
+        else if (presetType === 'special') { defaultSeconds = parseToSeconds(sysSettings.dur_special); typeText = "विशेष समय"; tagClass = "tag-special"; }
+        else if (presetType === 'countup') { defaultSeconds = 0; typeText = "बढ्दो क्रम"; tagClass = "tag-countup"; isCountUp = true; }
+
+        let addedCount = 0;
+
+        lines.forEach((line) => {
+            if(!line.trim()) return;
+            let currentName = line.trim();
+            let currentSeconds = defaultSeconds;
+
+            if(line.includes(',')) {
+                let parts = line.split(',');
+                currentName = parts[0].trim();
+                let timePart = parts[1].trim();
+                if(timePart) {
+                    currentSeconds = parseToSeconds(timePart);
+                }
+            }
+
+            if(currentName) {
+                let detectedParty = findPartyFromDatabase(currentName);
+                pendingSpeakers.push({
+                    id: "sp-"+Date.now()+"-"+Math.random(),
+                    name: currentName,
+                    party: detectedParty,
+                    time: currentSeconds,
+                    type: typeText,
+                    tagClass: tagClass,
+                    isCountUp: isCountUp,
+                    houseAtRecord: permanentCloudSettings.selectedHouse
+                });
+                addedCount++;
+            }
+        });
+
+        localStorage.setItem('parl_v12_pending', JSON.stringify(pendingSpeakers));
+        renderLists();
+        closeBulkModal();
+        alert(`${addedCount} जना माननीयहरूको नाम र समय सफलतापूर्वक थपियो।`);
+    }
+
+    function renderLists() {
+        document.getElementById('pendingList').innerHTML = pendingSpeakers.map((s, idx) => `
+            <div class="speaker-item" draggable="true" ondragstart="handleDragStart(${idx})" ondragover="handleDragOver(${idx})">
+                <div>
+                    <span class="editable-field" contenteditable="true" onblur="editSpeakerName(${idx}, this)">${s.name}</span> 
+                    ${s.party ? `<span style="color:#94a3b8; font-size:0.9rem;">(${s.party})</span>` : ''}
+                    <span class="tag ${s.tagClass}">${s.type}</span>
+                    <span class="editable-field" style="margin-left:8px; font-family:monospace;" contenteditable="true" onblur="editSpeakerTime(${idx}, this)">${formatTimeNepali(s.time)}</span>
+                </div>
+                <div style="display:flex; gap:5px;">
+                    <button class="btn-general" style="padding:4px 8px; background:#10b981;" onclick="loadSpeakerDirectly(${idx})">🎙️ रोष्ट्रम</button>
+                    <button class="btn-danger-action" style="padding:4px 8px;" onclick="deletePending(${idx})">❌</button>
+                </div>
+            </div>`).join('');
+
+        document.getElementById('historyList').innerHTML = completedSpeakers.map((s, idx) => `
+            <div class="speaker-item" style="cursor:default;">
+                <div><b>${s.name}</b> ${s.party ? `<span style="color:#94a3b8; font-size:0.85rem;">(${s.party})</span>` : ''} <span class="tag ${s.tagClass}">${s.type}</span></div>
+                <div style="display:flex; gap:5px; align-items:center;">
+                    <button class="btn-general" style="padding:4px 8px; background:#f59e0b; color:black; font-size:0.85rem;" onclick="moveHistoryToPending(${idx})">🔄 पुनः बाँकीमा</button>
+                    <span style="color:#10b981; font-weight:bold; font-size:0.9rem;">✓ सेभ्ड</span>
+                </div>
+            </div>`).join('');
+    }
+
+    function moveHistoryToPending(idx) {
+        let speaker = completedSpeakers.splice(idx, 1)[0];
+        localStorage.setItem('parl_v12_completed', JSON.stringify(completedSpeakers));
+        pendingSpeakers.push(speaker);
+        localStorage.setItem('parl_v12_pending', JSON.stringify(pendingSpeakers));
+        renderLists();
+    }
+
+    function handleDragStart(idx) { draggedIdx = idx; }
+    function handleDragOver(idx) { if (draggedIdx === null || draggedIdx === idx) return; const draggedItem = pendingSpeakers.splice(draggedIdx, 1)[0]; pendingSpeakers.splice(idx, 0, draggedItem); draggedIdx = idx; localStorage.setItem('parl_v12_pending', JSON.stringify(pendingSpeakers)); renderLists(); }
+    function allowDrop(e) { e.preventDefault(); }
+    function handleDrop(e) { e.preventDefault(); draggedIdx = null; }
+
+    function editSpeakerName(idx, element) { pendingSpeakers[idx].name = element.innerText.trim(); localStorage.setItem('parl_v12_pending', JSON.stringify(pendingSpeakers)); updateDisplays(); }
+    function editSpeakerTime(idx, element) { pendingSpeakers[idx].time = parseToSeconds(element.innerText.trim()); localStorage.setItem('parl_v12_pending', JSON.stringify(pendingSpeakers)); renderLists(); updateDisplays(); }
+
+    function loadSpeakerDirectly(idx) {
+        clearInterval(timerInterval); isRunning = false;
+        activeSpeaker = pendingSpeakers.splice(idx, 1)[0];
+        localStorage.setItem('parl_v12_pending', JSON.stringify(pendingSpeakers));
+        
+        timeLeft = activeSpeaker.time; initialTime = activeSpeaker.time; isCountUpMode = activeSpeaker.isCountUp;
+        
+        let label = activeSpeaker.party ? `${activeSpeaker.name} (${activeSpeaker.party})` : activeSpeaker.name;
+        document.getElementById('currentSpeakerName').innerText = label;
+        document.getElementById('currentType').innerText = activeSpeaker.type;
+        document.getElementById('currentType').className = `tag ${activeSpeaker.tagClass}`;
+        renderLists(); updateDisplays();
+    }
+
+    function loadNextSpeaker() { if(pendingSpeakers.length > 0) { loadSpeakerDirectly(0); } else { alert("सूचीमा कुनै पनि माननीय सदस्य बैठकमा बाँकी हुनुहुन्न!"); } }
+    function deletePending(idx) { pendingSpeakers.splice(idx, 1); localStorage.setItem('parl_v12_pending', JSON.stringify(pendingSpeakers)); renderLists(); }
+    function clearPendingList() { if(confirm("के तपाईँ बाँकी सूची सबै हटाउन चाहनुहुन्छ?")) { pendingSpeakers = []; localStorage.setItem('parl_v12_pending', JSON.stringify(pendingSpeakers)); renderLists(); } }
+
+    function handleDirectPresetChange() { 
+        const val = document.getElementById('directPresetSelect').value; 
+        toggleCustomTimeFields('direct');
+        if(val && val !== 'custom') loadDirectPresetTime(val); 
+    }
+    
+    function loadDirectPresetTime(val) {
+        clearInterval(timerInterval); isRunning = false; let seconds = 0; let type = "विशेष समय"; let tag = "tag-special"; isCountUpMode = false;
+        if (val === 'zero') { seconds = parseToSeconds(sysSettings.dur_zero); type = "शून्य समय"; tag = "tag-zero"; }
+        else if (val === 'urgent') { seconds = parseToSeconds(sysSettings.dur_urgent); type = "आकस्मिक समय"; tag = "tag-urgent"; }
+        else if (val === 'debate') { seconds = parseToSeconds(sysSettings.dur_debate); type = "छलफल समय"; tag = "tag-debate"; }
+        else if (val === 'special') { seconds = parseToSeconds(sysSettings.dur_special); type = "विशेष समय"; tag = "tag-special"; }
+        else if (val === 'countup') { seconds = 0; type = "बढ्दो क्रम"; tag = "tag-countup"; isCountUpMode = true; }
+        
+        activeSpeaker = { id: "anon-"+Date.now(), name: "माननीय सदस्य", party: "", time: seconds, type: type, tagClass: tag, isCountUp: isCountUpMode, houseAtRecord: permanentCloudSettings.selectedHouse };
+        timeLeft = seconds; initialTime = seconds;
+        document.getElementById('currentSpeakerName').innerText = activeSpeaker.name;
+        document.getElementById('currentType').innerText = activeSpeaker.type;
+        document.getElementById('currentType').className = `tag ${activeSpeaker.tagClass}`;
+        updateDisplays();
+    }
+
+    function applyDirectCustomTime() {
+        clearInterval(timerInterval); isRunning = false;
+        let typeText = document.getElementById('customTypeNameDirect').value.trim() || "अन्य समय";
+        let seconds = parseToSeconds(document.getElementById('customDurationDirect').value);
+        
+        activeSpeaker = { id: "anon-"+Date.now(), name: "माननीय सदस्य", party: "", time: seconds, type: typeText, tagClass: "tag-custom", isCountUp: false, houseAtRecord: permanentCloudSettings.selectedHouse };
+        timeLeft = seconds; initialTime = seconds; isCountUpMode = false;
+        document.getElementById('currentSpeakerName').innerText = activeSpeaker.name;
+        document.getElementById('currentType').innerText = activeSpeaker.type;
+        document.getElementById('currentType').className = "tag tag-custom";
+        updateDisplays();
+    }
+
+    function startTimer() {
+        if (isRunning || !activeSpeaker) return; isRunning = true;
+        timerInterval = setInterval(() => {
+            if (isCountUpMode) { timeLeft++; } 
+            else { timeLeft--; if (timeLeft <= 0) { clearInterval(timerInterval); isRunning = false; } }
+            updateDisplays();
+        }, 1000);
+    }
+    function pauseTimer() { clearInterval(timerInterval); isRunning = false; updateDisplays(); }
+    function resetTimer() { timeLeft = initialTime; updateDisplays(); }
+    function extendTime(s) { if(!isCountUpMode) { timeLeft += s; updateDisplays(); } }
+    
+    function finishCurrentSpeaker() { 
+        if (activeSpeaker) { 
+            completedSpeakers.unshift(activeSpeaker); 
+            localStorage.setItem('parl_v12_completed', JSON.stringify(completedSpeakers));
+            activeSpeaker = null; timeLeft = 0; isRunning = false; clearInterval(timerInterval);
+            document.getElementById('currentSpeakerName').innerText = "-"; 
+            document.getElementById('currentType').innerText = "तयारी अवस्था";
+            document.getElementById('currentType').className = "tag tag-zero";
+            renderLists(); updateDisplays(); 
+        } 
+    }
+
+    function toggleCheckboxConfig() { showDetailsConfig = document.getElementById('showDetailsCheck').checked; localStorage.setItem('parl_v12_showDetails', showDetailsConfig); updateDisplays(); }
+
+    function updateDisplays() {
+        const nepaliTimeStr = formatTimeNepali(timeLeft);
+        let fg = "#10b981"; let bg = "#020617"; let txt = "बोलिरहनुभएको छ";
+
+        if (activeSpeaker && !isCountUpMode) {
+            if (timeLeft <= 0) { fg = "#ef4444"; bg = "#1e0b0b"; txt = "समय समाप्त !"; }
+            else if (timeLeft <= 30) { fg = "#f59e0b"; bg = "#0b0f19"; txt = "मन्तव्य टुङ्ग्याउनुहोस्"; }
+        }
+        if(!activeSpeaker) txt = "घडी तयारी अवस्थामा छ";
+
+        document.getElementById('clerkClock').innerText = nepaliTimeStr;
+        document.getElementById('currentStatus').innerText = txt;
+        document.getElementById('clerkClock').style.color = fg;
+
+        let displayName = "-";
+        if(activeSpeaker) {
+            displayName = activeSpeaker.party ? `${activeSpeaker.name} (${activeSpeaker.party})` : activeSpeaker.name;
+        }
+
+        if (displayWindow && !displayWindow.closed) {
+            displayWindow.postMessage({
+                timeLeft: timeLeft, initialTime: initialTime, isCountUpMode: isCountUpMode,
+                fg: fg, bg: bg, txt: txt, nepaliTimeStr: nepaliTimeStr,
+                nameStr: (activeSpeaker) ? displayName : "संसद् बैठक",
+                typeStr: (activeSpeaker) ? `${activeSpeaker.houseAtRecord || 'संसद्'} - ${activeSpeaker.type}` : "बैठक प्रणाली",
+                fontStyle: sysSettings.clockFont, template: sysSettings.screenTemplate,
+                showDetails: showDetailsConfig
+            }, "*");
+        }
+    }
+
+    function launchSpeakerDisplay() {
+        displayWindow = window.open("", "SpeakerDisplay", "width=1020,height=700");
+        displayWindow.document.write(`
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <title>संसद् प्रर्दशनी स्क्रिन</title>
+                <style>
+                    body, html { margin: 0; padding: 0; height: 100vh; width: 100vw; background-color: #020617; overflow: hidden; color: #fff; font-family: 'Mukta', sans-serif;}
+                    .fullscreen-container { width: 100%; height: 100vh; display: flex; justify-content: center; align-items: center; box-sizing: border-box; text-align: center; padding: 4vh 4vw; }
+                    .dyn-clock-font { font-weight: 700; line-height: 1; margin: 0; padding: 0; }
+                    .style1-wrapper { display: flex; flex-direction: column; justify-content: center; align-items: center; width: 100%; }
+                    .style1-type { font-size: 3.5vw; background: #1e3a8a; padding: 0.4vw 2.5vw; border-radius: 1vw; margin-bottom: 1.5vw; }
+                    .style1-name { font-size: 6.5vw; font-weight: 700; margin-bottom: 1vw; }
+                    .style1-clock { font-size: 32vw; }
+                    .rect-board { width: 90vw; height: 84vh; border-radius: 2.5vw; background: #0b0f19; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 2vw; box-sizing: border-box; max-width: 88%; max-height: 85%; }
+                    .rect-clock { font-size: 20vw; }
+                    .rect-name { font-size: 5.5vw; font-weight: 700; }
+                    .rect-type { font-size: 2.5vw; color: #38bdf8; }
+                    .circle-wrapper { position: relative; width: 80vh; height: 80vh; max-width: 80vw; max-height: 80vh; display: flex; justify-content: center; align-items: center; box-sizing: border-box; padding: 20px; }
+                    .circle-svg { transform: rotate(-90deg); width: 100%; height: 100%; }
+                    .circle-bg { fill: none; stroke: #1e293b; stroke-width: 12; }
+                    .circle-progress { fill: none; stroke-width: 14; stroke-linecap: round; }
+                    .circle-content { position: absolute; text-align: center; width: 85%; height: 85%; display: flex; flex-direction: column; justify-content: center; align-items: center; box-sizing: border-box; padding: 20px; }
+                    .circle-clock { font-size: 11vw; margin: 5px 0; }
+                    .circle-name { font-size: 3.8vw; font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 100%; }
+                    .dash-body { display: grid; grid-template-columns: 45% 55%; width: 100vw; height: 100vh; align-items: center; }
+                    .dash-left { background: linear-gradient(145deg, #0f172a, #1e293b); height: 100vh; display: flex; flex-direction: column; justify-content: center; padding: 4vw; box-sizing: border-box; border-right: 1.5vw solid #3b82f6; text-align: left; }
+                    .dash-type { font-size: 3vw; color: #38bdf8; }
+                    .dash-name { font-size: 6vw; color: #ffffff; font-weight: 700; }
+                    .dash-right { display: flex; justify-content: center; align-items: center; height: 100vh; background: #020617; }
+                    .dash-box { padding: 3vw; border-radius: 2vw; background: #090d16; width: 85%; text-align:center; }
+                    .dash-clock { font-size: 14vw; }
+                    .cyber-box { background: #000; border: 0.5vw solid #334155; width: 88vw; height: 82vh; display: flex; flex-direction: column; justify-content: center; align-items: center; box-sizing: border-box; }
+                    .cyber-clock { font-size: 18vw; }
+                    .glass-card { background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(30px); border-radius: 3vw; width: 88vw; height: 82vh; border: 2px solid rgba(255, 255, 255, 0.1); display: flex; flex-direction: column; justify-content: center; align-items: center; }
+                    .glass-clock { font-size: 19vw; }
+                    .status-subtext { font-size: 2.2vw; margin-top: 1vw; font-weight: 600; }
+                </style>
+                <div id="displayContainer" class="fullscreen-container"></div>
+                <script>
+                    window.addEventListener("message", (e) => {
+                        const p = e.data; document.body.style.backgroundColor = p.bg;
+                        const container = document.getElementById('displayContainer');
+                        let strokeDashoffset = 0;
+                        if (!p.isCountUpMode && p.initialTime > 0) { strokeDashoffset = (2 * Math.PI * 240) * (1 - (p.timeLeft / p.initialTime)); }
+                        
+                        if (p.template === 'style1') {
+                            container.innerHTML = \`<div class="style1-wrapper">\${p.showDetails ? \`<div class="style1-type">\${p.typeStr}</div><div class="style1-name">\${p.nameStr}</div>\` : ''}<div class="style1-clock dyn-clock-font" style="color:\${p.fg}; font-family:\${p.fontStyle};">\${p.nepaliTimeStr}</div><div class="status-subtext" style="color:\text-color">\${p.txt}</div></div>\`;
+                        } else if (p.template === 'style2') {
+                            container.innerHTML = \`<div class="rect-board" style="border: 1.2vw solid \${p.fg};">\${p.showDetails ? \`<div class="rect-type">\${p.typeStr}</div><div class="rect-name">\${p.nameStr}</div>\` : ''}<div class="rect-clock dyn-clock-font" style="color:\${p.fg}; font-family:\${p.fontStyle};">\${p.nepaliTimeStr}</div><div class="status-subtext" style="color:\${p.fg}">\${p.txt}</div></div>\`;
+                        } else if (p.template === 'style3') {
+                            container.innerHTML = \`<div class="circle-wrapper"><svg class="circle-svg" viewBox="0 0 600 600"><circle class="circle-bg" cx="300" cy="300" r="240" /><circle class="circle-progress" cx="300" cy="300" r="240" stroke="\${p.fg}" stroke-dashoffset="\${strokeDashoffset}" stroke-dasharray="\${2 * Math.PI * 240}" /></svg><div class="circle-content">\${p.showDetails ? \`<div class="circle-name">\${p.nameStr}</div><div style="font-size:1.8vw; color:#94a3b8; font-weight:bold;">\${p.typeStr}</div>\` : ''}<div class="circle-clock dyn-clock-font" style="color:\${p.fg}; font-family:\${p.fontStyle};">\${p.nepaliTimeStr}</div><div class="status-subtext" style="color:\${p.fg};">\${p.txt}</div></div></div>\`;
+                        } else if (p.template === 'style4') {
+                            container.innerHTML = p.showDetails ? \`<div class="dash-body"><div class="dash-left"><div class="dash-type">\${p.typeStr}</div><div class="dash-name">\${p.nameStr}</div></div><div class="dash-right"><div class="dash-box"><div class="dash-clock dyn-clock-font" style="color:\${p.fg}; font-family:\${p.fontStyle};">\${p.nepaliTimeStr}</div></div></div></div>\` : \`<div class="dash-box"><div class="dash-clock dyn-clock-font" style="color:\${p.fg}; font-family:\${p.fontStyle};">\${p.nepaliTimeStr}</div></div>\`;
+                        } else if (p.template === 'style5') {
+                            container.innerHTML = \`<div class="cyber-box">\${p.showDetails ? \`<div style="font-size:2.5vw; color:#38bdf8;">\${p.typeStr}</div><div style="font-size:5vw; font-weight:700; color:#fff;">\${p.nameStr}</div>\` : ''}<div class="cyber-clock dyn-clock-font" style="color:\${p.fg}; font-family:\${p.fontStyle};">\${p.nepaliTimeStr}</div><div class="status-subtext" style="color:\text-color">// \${p.txt} //</div></div>\`;
+                        } else if (p.template === 'style6') {
+                            container.innerHTML = \`<div class="glass-card">\${p.showDetails ? \`<div style="font-size:2.5vw; color:#38bdf8;">\${p.typeStr}</div><div style="font-size:5.5vw; font-weight:700; color:#fff;">\${p.nameStr}</div>\` : ''}<div class="glass-clock dyn-clock-font" style="color:\sn-color}; font-family:\${p.fontStyle};">\${p.nepaliTimeStr}</div><div class="status-subtext" style="color:\--safe-color">\${p.txt}</div></div>\`;
+                        }
+                    });
+                <\/script>
+            </body>
+            </html>
+        `);
+        displayWindow.document.close();
+        setTimeout(updateDisplays, 300);
+    }
+
+  function syncDataFromGoogleSheet() {
+    const url = permanentCloudSettings.googleSheetUrl;
+    if(!url) {
+        // डिबग वा टेस्टिङका लागि मात्र (URL नहुँदा चल्ने)
+        globalSpeakersDatabase = [
+            { name: "राम बहादुर थापा", house: "प्रतिनिधि सभा", party: "नेकपा एमाले" },
+            { name: "सिता श्रेष्ठ", house: "प्रतिनिधि सभा", party: "नेपाली कांग्रेस" }
+        ];
+        filterMasterDropdownByHouse();
+        return;
+    }
+
+    fetch(url)
+        .then(res => res.json())
+        .then(data => {
+            if(data && Array.isArray(data)) {
+                // ब्याकइन्डबाट साना अक्षरमा (name, house, party) आउने हुनाले सोही अनुसार म्याप गरिएको:
+                globalSpeakersDatabase = data.map(item => ({
+                    name: item.name || "",
+                    house: item.house || "",
+                    party: item.party || ""
+                }));
+                
+                // सभा अनुसार फिल्टर गरेर ड्रपडाउन भर्ने
+                filterMasterDropdownByHouse();
+                alert("गुगल सिटबाट नयाँ कोलम संरचना अनुसार डेटा सफलतापूवर्क सिङ्क भयो।");
+            }
+        })
+        .catch(err => {
+            alert("डेटा सिङ्क गर्न समस्या भयो! कृपया Web App URL वा कोलम ढाँचा जाँच गर्नुहोस्।");
+        });
+}
+    function exportToExcel() {
+        let htmlTable = `
+            <table border="1">
+                <tr>
+                    <th style="background:#1e3a8a; color:#fff;">क्र.सं.</th>
+                    <th style="background:#1e3a8a; color:#fff;">माननीयको नाम</th>
+                    <th style="background:#1e3a8a; color:#fff;">राजनीतिक दल</th>
+                    <th style="background:#1e3a8a; color:#fff;">समय प्रकार / विधा</th>
+                    <th style="background:#1e3a8a; color:#fff;">छुट्याइएको समय</th>
+                </tr>
+        `;
+        
+        pendingSpeakers.forEach((s, i) => {
+            htmlTable += `<tr><td>${i+1}</td><td>${s.name}</td><td>${s.party || '-'}</td><td>${s.type} (बाँकी)</td><td>${formatTimeNepali(s.time)}</td></tr>`;
+        });
+        completedSpeakers.forEach((s, i) => {
+            htmlTable += `<tr><td>${i+1}</td><td>${s.name}</td><td>${s.party || '-'}</td><td>${s.type} (बोलिसकेको)</td><td>${formatTimeNepali(s.time)}</td></tr>`;
+        });
+        htmlTable += "</table>";
+
+        let blob = new Blob([htmlTable], { type: "application/vnd.ms-excel" });
+        let url = URL.createObjectURL(blob);
+        let a = document.createElement("a");
+        a.href = url;
+        a.download = `Parliament_Speakers_Advanced_Report_${Date.now()}.xls`;
+        a.click();
+    }
+
+    window.onload = function() {
+        loadSettingsIntoInputs();
+        syncDataFromGoogleSheet();
+    };
+</script>
+</body>
+</html>
