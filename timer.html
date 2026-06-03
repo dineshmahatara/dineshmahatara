@@ -435,7 +435,7 @@
 </div>
 
 <script>
-    const CLOUD_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbwlrcArgMraLNZnTjrtnpYTiZ5qALLfKCxOyMggVadDZqsvM-kS8z76G1cY8kxzlUvR/exec";
+    const CLOUD_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbxUZHgjyJrqiKR4mCF0CdzHL2xJKx4Dg8yJdHHlqZRbI-L9b5w2Y5pG0VLx9oNz3lk/exec";
 
     let timeLeft = 0; let initialTime = 0; let currentWarnLimit = 15; let timerInterval = null;
     let isRunning = false; let isCountUpMode = false; let activeSpeaker = null; let secondScreen = null;
@@ -502,7 +502,7 @@
         document.getElementById('sittingDate').value = sysSettings.sittingDate || "२०८३/०२/१६";
         
         loadInputValues();
-        let savedAnthemUrl = localStorage.getItem('parl_v28_anthem_url') || "https://upload.wikimedia.org/wikipedia/commons/4/4a/National_Anthem_of_Nepal_by_US_Navy_Band.ogg";
+        let savedAnthemUrl = localStorage.getItem('parl_v28_anthem_url') || "https://hr.parliament.gov.np/assets/sound/national_song_tone.mpeg";
         document.getElementById('anthemUrlField').value = savedAnthemUrl;
         anthemAudio = new Audio(savedAnthemUrl);
 
