@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>नेपाल संसद् नियन्त्रण प्रणाली - भर्सन २९</title>
+    <title>नेपाल संसद् नियन्त्रण प्रणाली - भर्सन २९ (Unique ID & Template 8 Fixed)</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Chivo+Mono:wght=400;700&family=Inter:wght=400;600;700&family=Mukta:wght=400;600;700&family=Orbitron:wght=500;700&family=Oswald:wght=500;700&family=Poppins:wght=500;700&display=swap');
 
@@ -224,7 +224,7 @@
     <div class="accordion-section active">
         <div class="accordion-header" onclick="toggleAcc(this)">📐 टेम्पलेट र डिजिटल फन्ट आकार</div>
         <div class="accordion-content">
-            <label style="font-size:0.85rem; display:block; margin-bottom:4px;">७ वटा एड्भान्स डिजिटल टेम्पलेटहरू:</label>
+            <label style="font-size:0.85rem; display:block; margin-bottom:4px;">८ वटा एड्भान्स डिजिटल टेम्पलेटहरू:</label>
             <select id="uiTemplate" style="margin-bottom: 12px;" onchange="syncMetaSettings()">
                 <option value="style1">टेम्पलेट १ : Standard Panel (ठुलो)</option>
                 <option value="style2">टेम्पलेट २ : Horizontal Bar (ठुलो)</option>
@@ -233,6 +233,7 @@
                 <option value="style5">टेम्पलेट ५ : Minimalist Box</option>
                 <option value="style6">टेम्पलेट ६ : Neo-Brutalism</option>
                 <option value="style7">टेम्पलेट ७ : मिनेट र सेकेन्ड मात्र (Full Screen Display)</option>
+                <option value="style8">टेम्पलेट ८ : पूर्ण स्क्रिन अत्याधुनिक लेआउट (Fixed)</option>
             </select>
 
             <label style="font-size:0.85rem; display:block; margin-bottom:4px;">दोस्रो स्क्रिन समय फन्ट आकार (Font Size):</label>
@@ -419,6 +420,7 @@
             <table class="h-table">
                 <thead>
                     <tr>
+                        <th>Unique ID</th>
                         <th>मिति / बैठक</th>
                         <th>माननीयको नाम</th>
                         <th>दल (सभा)</th>
@@ -458,15 +460,18 @@
     let activeHouseType = localStorage.getItem('parl_v28_house') || "प्रतिनिधि सभा";
     let globalSpeakersDB = []; let anthemAudio = null;
 
+    // --- UNIQUE ID GENERATOR FUNCTION ---
+    function generateUniqueId() {
+        return 'ID-' + Date.now() + '-' + Math.random().toString(36).substr(2, 5).toUpperCase();
+    }
+
     function toggleAcc(headerElement) { headerElement.parentElement.classList.toggle('active'); }
 
     function verifyCloudLogin() {
-        // Refresh मा लगआउट हुन नदिन localStorage जाँच गर्ने
         if(localStorage.getItem('parl_logged') === 'true') {
             document.getElementById('loginGate').style.display = 'none';
             initializeDashboard();
             
-            // पृष्ठभूमिमा स्पिकर डाटा अपडेट गर्ने
             fetch(CLOUD_WEB_APP_URL).then(res => res.json()).then(data => {
                 globalSpeakersDB = data.speakers || [];
                 switchHouseData();
@@ -485,7 +490,7 @@
             if(userMatch || true) { 
                 document.getElementById('loginGate').style.display = 'none';
                 globalSpeakersDB = data.speakers || [];
-                localStorage.setItem('parl_logged', 'true'); // sessionStorage को सट्टा localStorage प्रयोग गरिएको
+                localStorage.setItem('parl_logged', 'true');
                 initializeDashboard();
             }
         }).catch(() => {
@@ -573,7 +578,9 @@
         else if(cat === 'countup') { sec = 0; warnSec = 0; typeStr = "बढ्दो क्रम"; tagCls = "btn-danger"; isCu = true; }
 
         if(!name) name = `${typeStr} वक्ता`;
-        pendingSpeakers.push({ name, party, house: activeHouseType, time: sec, warnLimit: warnSec, type: typeStr, tagClass: tagCls, isCountUp: isCu, topic: topic, timestamp: Date.now() });
+        
+        // UNIQUE ID थपियो
+        pendingSpeakers.push({ id: generateUniqueId(), name, party, house: activeHouseType, time: sec, warnLimit: warnSec, type: typeStr, tagClass: tagCls, isCountUp: isCu, topic: topic, timestamp: Date.now() });
         localStorage.setItem('parl_v28_pending', JSON.stringify(pendingSpeakers));
         document.getElementById('manualName').value = ""; document.getElementById('manualParty').value = ""; document.getElementById('speechTopic').value = "";
         renderAllLists();
@@ -593,7 +600,9 @@
             let rawTime = parts[2] ? parts[2].trim() : sysSettings.t_special;
             let topic = parts[3] ? parts[3].trim() : "कार्यसूचीमा आधारित";
             let sec = parseInputToSec(rawTime);
-            pendingSpeakers.push({ name, party, house: activeHouseType, time: sec, warnLimit: parseInt(sysSettings.w_special), type: "विशेष समय", tagClass: "btn-blue", isCountUp: false, topic: topic, timestamp: Date.now() });
+            
+            // UNIQUE ID थपियो
+            pendingSpeakers.push({ id: generateUniqueId(), name, party, house: activeHouseType, time: sec, warnLimit: parseInt(sysSettings.w_special), type: "विशेष समय", tagClass: "btn-blue", isCountUp: false, topic: topic, timestamp: Date.now() });
         });
         localStorage.setItem('parl_v28_pending', JSON.stringify(pendingSpeakers));
         document.getElementById('bulkTextArea').value = "";
@@ -644,6 +653,7 @@
                 <div>
                     <b style="color:#f3f4f6; cursor:pointer;" onclick="editPendingField(${i})">${s.name}</b> 
                     <span style="font-size:0.85rem; color:var(--text-muted);">(${s.party})</span>
+                    <br><small style="color:var(--text-muted); font-size:0.75rem;">ID: ${s.id || 'N/A'}</small>
                     <br><small style="color:#38bdf8;">📋 विषय: ${s.topic || '-'}</small>
                 </div>
                 <div style="display:flex; align-items:center; gap:8px;">
@@ -656,7 +666,7 @@
 
         document.getElementById('historyBox').innerHTML = completedSpeakers.map((s, i) => `
             <tr>
-                <td><b>${s.name}</b> <br><small style="color:var(--text-muted);">${s.party} | मिति: ${s.sittingDate || '-'}</small></td>
+                <td><b>${s.name}</b> <br><small style="color:var(--text-muted);">${s.party} | ID: ${s.id || 'N/A'}</small></td>
                 <td><small>${s.topic || '-'}</small><br><span class="btn" style="padding:1px 4px; font-size:0.7rem; background:#334155;">${s.type}</span></td>
                 <td><span style="color:var(--btn-success); font-weight:bold;">${s.consumedTimeStr}</span></td>
                 <td><button class="btn btn-blue" style="padding:2px 6px; font-size:0.75rem; background:#8b5cf6;" onclick="revertHistoryToPending(${i})">↩️ फिर्ता</button></td>
@@ -717,7 +727,9 @@
         let takenSec = isCountUpMode ? timeLeft : (initialTime - timeLeft);
         if(takenSec < 0) takenSec = 0;
 
+        // ID पनि सँगै completedSpeakers मा ब्याकअप राखियो
         completedSpeakers.unshift({
+            id: activeSpeaker.id || generateUniqueId(),
             sessionName: sysSettings.sessionTitle, sittingNo: sysSettings.sittingTitle, sittingDate: sysSettings.sittingDate,
             name: activeSpeaker.name, party: activeSpeaker.party, house: activeSpeaker.house,
             type: activeSpeaker.type, topic: activeSpeaker.topic, startTime: speakerStartTimeStr, endTime: endTimeStr,
@@ -800,6 +812,7 @@
         document.getElementById('reportModal').style.display = 'flex';
         document.getElementById('modalReportRows').innerHTML = completedSpeakers.map(s => `
             <tr>
+                <td><small style="color:var(--text-muted); font-family:monospace;">${s.id || 'N/A'}</small></td>
                 <td><b>${s.sittingDate || '-'}</b><br><small>${s.sessionName} (${s.sittingNo})</small></td>
                 <td><b>${s.name}</b></td>
                 <td>${s.party} (${s.house})</td>
@@ -811,14 +824,14 @@
     }
 
     function syncDataToGoogleSheet() {
-        if(completedSpeakers.length === 0) { alert("सिङ्क गर्न कुनै रेकर्ड छैन!"); return; }
+        if(completedSpeakers.length === 0) { alert("सिङ्क गर्न कुनै रेकرد छैन!"); return; }
         fetch(CLOUD_WEB_APP_URL, { method: "POST", body: JSON.stringify({ action: "save_records", records: completedSpeakers }) })
-        .then(() => alert("☁️ गुगल सिटमा 'मिति' र 'मन्तव्य' सहित सबै रेकर्ड सुरक्षित भयो!")).catch(() => alert("क्लाउड जडान त्रुटि"));
+        .then(() => alert("☁️ गुगल सिटमा Unique ID, मिति र मन्तव्य सहित सबै रेकर्ड सुरक्षित भयो!")).catch(() => alert("क्लाउड जडान त्रुटि"));
     }
 
     function exportDataToLocalExcel() {
-        let csvContent = "data:text/csv;charset=utf-8,क्र.सं.,बैठक मिति,अधिवेशन,बैठक संख्या,माननीयको नाम,राजनीतिक दल,छलफलको विषय/मन्तव्य,विधा,अवधि\n";
-        completedSpeakers.forEach((s, i) => { csvContent += `${i+1},${s.sittingDate || '-'},${s.sessionName},${s.sittingNo},${s.name},${s.party},"${s.topic || '-'}",${s.type},${s.consumedTimeStr}\n`; });
+        let csvContent = "data:text/csv;charset=utf-8,Unique ID,क्र.सं.,बैठक मिति,अधिवेशन,बैठक संख्या,माननीयको नाम,राजनीतिक दल,छलफलको विषय/मन्तव्य,विधा,अवधि\n";
+        completedSpeakers.forEach((s, i) => { csvContent += `"${s.id || ''}",${i+1},${s.sittingDate || '-'},${s.sessionName},${s.sittingNo},${s.name},${s.party},"${s.topic || '-'}",${s.type},${s.consumedTimeStr}\n`; });
         let link = document.createElement("a"); link.setAttribute("href", encodeURI(csvContent));
         link.setAttribute("download", `संसद्_बैठक_रिपोर्ट_${sysSettings.sittingDate}.csv`); document.body.appendChild(link); link.click();
     }
@@ -837,21 +850,10 @@
                 body, html { margin: 0; padding: 0; height: 100vh; width: 100vw; overflow: hidden; color: #fff; background-color: #020617; text-align:center; transition: all 0.2s ease; font-family: 'Mukta', sans-serif; }
                 .view-box { width:100%; height:100vh; display:flex; flex-direction:column; justify-content:center; align-items:center; padding:1vw; box-sizing:border-box; }
                 
-                /* टेम्पलेट ३ (Circular Glow) लाई फुल स्क्रिन र ठुलो बनाइएको */
                 .s3-ring { 
-                    width: 96vh; 
-                    height: 96vh; 
-                    max-width: 96vw;
-                    max-height: 96vh;
-                    display: flex; 
-                    flex-direction: column; 
-                    justify-content: center; 
-                    align-items: center; 
-                    border: 2.5vw solid #1e293b; 
-                    border-radius: 50%; 
-                    box-sizing: border-box; 
-                    transition: all 0.3s; 
-                    padding: 4vw;
+                    width: 96vh; height: 96vh; max-width: 96vw; max-height: 96vh;
+                    display: flex; flex-direction: column; justify-content: center; align-items: center; 
+                    border: 2.5vw solid #1e293b; border-radius: 50%; box-sizing: border-box; transition: all 0.3s; padding: 4vw;
                 }
                 .standard-panel { width: 95%; background: rgba(15,23,42,0.6); padding: 40px; border-radius: 24px; border: 2px solid #334155; }
                 
@@ -861,6 +863,20 @@
                 .st-lbl { font-size: 2.5vw; color: #e2e8f0; margin-top: 10px; font-weight: 600; }
                 
                 .pure-time-only { font-size: 32vw !important; font-weight: bold; line-height: 1; width: 100vw; text-align: center; letter-spacing: -5px; }
+
+                /* === TEMPLATE 8 STYLING (FIXED FULL SCREEN) === */
+                .template-8-wrapper {
+                    width: 100%; height: 100%; display: flex; flex-direction: column;
+                    justify-content: space-between; align-items: center; padding: 4vh 4vw;
+                    box-sizing: border-box; color: #ffffff;
+                }
+                .t8-header { width: 100%; text-align: right; font-size: 1.5rem; font-weight: bold; opacity: 0.8; }
+                .t8-middle-content { width: 100%; text-align: center; flex-grow: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 2vh; }
+                .t8-sambodhan { font-size: 2.5rem; color: #ffd700; text-shadow: 2px 2px 4px rgba(0,0,0,0.5); margin: 0; }
+                .t8-name { font-size: 5.5rem; font-weight: 700; color: #ffffff; text-shadow: 3px 3px 6px rgba(0,0,0,0.6); margin: 0; }
+                .t8-party { font-size: 3rem; color: #00ffcc; background: rgba(0, 0, 0, 0.3); padding: 5px 30px; border-radius: 50px; display: inline-block; margin: 0; }
+                .t8-footer-timer { width: 100%; display: flex; justify-content: center; align-items: center; padding-top: 2vh; border-top: 2px solid rgba(255, 255, 255, 0.2); }
+                .t8-timer-box { font-size: 8rem; font-weight: 700; color: #ff4757; text-shadow: 0px 0px 12px rgba(255, 71, 87, 0.6); background: rgba(0, 0, 0, 0.5); padding: 10px 50px; border-radius: 15px; line-height: 1; }
             </style></head>
             <body>
                 <div id="screenBody" class="view-box"></div>
@@ -875,7 +891,21 @@
                     let partyHtml = d.showParty ? \`<div class="party-lbl">\${d.partyNameStr}</div>\` : '';
                     
                     if(d.template === 'style7') {
-                        b.innerHTML = \`<div class="pure-time-only" style="color:\${d.fg}; font-family:\${d.fontStyle};">\${d.nepaliTimeStr}</div>\`;
+                        b.innerHTML = \`<div class="pure-time-only" style="color:\text-align:center; \${d.fg}; font-family:\${d.fontStyle};">\${d.nepaliTimeStr}</div>\`;
+                    } else if(d.template === 'style8') {
+                        // टेम्पलेट ८ को पूर्ण सुधारिएको फुल स्क्रिन रूप (विवरणहरू देखिने गरी)
+                        document.body.style.background = \`linear-gradient(135deg, \${d.bg} 0%, #020617 100%)\`;
+                        b.innerHTML = \`<div class="template-8-wrapper">
+                            <div class="t8-header" style="color:\${d.fg}; font-family:\${d.fontStyle};">लाइभ स्क्रिन प्यानल</div>
+                            <div class="t8-middle-content">
+                                \${d.showAssembly ? \`<div class="t8-sambodhan">\${d.assemblyStr}</div>\` : ''}
+                                \${d.showMember ? \`<div class="t8-name">\${d.memberNameStr}</div>\` : ''}
+                                \${d.showParty ? \`<div class="t8-party">\${d.partyNameStr}</div>\` : ''}
+                            </div>
+                            <div class="t8-footer-timer">
+                                <div class="t8-timer-box" style="color:\${d.fg}; font-family:\${d.fontStyle}; border: 2px solid \${d.fg};">\${d.nepaliTimeStr}</div>
+                            </div>
+                        </div>\`;
                     } else if(d.template === 'style1' || d.template === 'style2') {
                         b.innerHTML = \`<div class="standard-panel" style="border-color:\${d.fg};">
                             \--
@@ -886,12 +916,12 @@
                             <div class="st-lbl" style="color:\${d.fg}">\${d.txt}</div>
                         </div>\`;
                     } else {
-                        // टेम्पलेट ३ (Circular Glow) - विवरणहरू सर्कल भित्रै अटाउने गरी मिलाइएको
+                        // टेम्पलेट ३ (Circular Glow)
                         b.innerHTML = \`<div class="s3-ring" style="border-color:\${d.fg}; box-shadow: inset 0 0 30px \${d.fg}, 0 0 30px \${d.fg};">
                             \${assemblyHtml}
                             \${memberHtml}
                             \${partyHtml}
-                            <div style="font-size:\--\${d.customFontSize}vw; font-weight:bold; color:\${d.fg}; font-family:\${d.fontStyle}; line-height:1; margin: 10px 0;">\${d.nepaliTimeStr}</div>
+                            <div style="font-size:\${d.customFontSize}vw; font-weight:bold; color:\${d.fg}; font-family:\${d.fontStyle}; line-height:1; margin: 10px 0;">\${d.nepaliTimeStr}</div>
                             <div class="st-lbl" style="color:\${d.fg}">\${d.txt}</div>
                         </div>\`;
                     }
