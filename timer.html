@@ -3,278 +3,246 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>नेपाल संसद् नियन्त्रण प्रणाली - बुटस्ट्र्याप अत्याधुनिक भर्सन</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <title>नेपाल संसद् नियन्त्रण प्रणाली - भर्सन २९</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Chivo+Mono:wght=400;700&family=Inter:wght=400;600;700&family=Mukta:wght=400;600;700&family=Orbitron:wght=500;700&family=Oswald:wght=500;700&family=Poppins:wght=500;700&display=swap');
 
         :root {
-            --bg-dark: #090d16;
-            --panel-bg: rgba(15, 23, 42, 0.95);
+            --bg-dark: #080c14;
+            --panel-bg: #0f172a;
             --card-bg: #1e293b;
-            --accent-blue: #3b82f6;
+            --accent-blue: #2563eb;
             --border-color: #334155;
             --text-light: #f8fafc;
             --text-muted: #94a3b8;
             --btn-success: #10b981;
             --btn-danger: #ef4444;
-            --sidebar-w: 350px;
+            --sidebar-w: 360px;
         }
 
         body {
             font-family: 'Mukta', sans-serif;
             background-color: var(--bg-dark);
             color: var(--text-light);
-            min-height: 100vh;
-            overflow-x: hidden;
+            margin: 0; padding: 0; display: flex;
+            min-height: 100vh; overflow-x: hidden;
         }
 
-        /* सुरक्षित क्लाउड लगइन ढोका */
+        /* सुरक्षित लगइन */
         .login-overlay {
             position: fixed; top:0; left:0; width:100%; height:100%;
-            background: radial-gradient(circle at center, #1e293b, #04060a);
+            background: radial-gradient(circle, #1e293b, #04060a);
             z-index: 10000; display: flex; justify-content: center; align-items: center;
         }
         .login-box {
-            background: var(--panel-bg); padding: 40px; border-radius: 16px;
-            border: 1px solid var(--border-color); width: 100%; max-width: 440px;
-            box-shadow: 0 20px 50px rgba(0,0,0,0.7);
+            background: var(--panel-bg); padding: 35px; border-radius: 16px;
+            border: 1px solid var(--border-color); width: 100%; max-width: 400px; text-align: center;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
         }
 
-        /* आधुनिक रेस्पोन्सिभ साइडबार */
+        /* साइडबार प्यानल */
         .sidebar {
             width: var(--sidebar-w); background-color: var(--panel-bg); height: 100vh;
             position: fixed; top: 0; left: 0; overflow-y: auto;
-            border-right: 1px solid var(--border-color); padding: 24px; box-sizing: border-box;
-            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); z-index: 999;
+            border-right: 1px solid var(--border-color); padding: 20px; box-sizing: border-box;
+            transition: transform 0.3s ease; z-index: 999;
         }
         .sidebar.collapsed { transform: translateX(-100%); }
 
+        .accordion-section { border: 1px solid var(--border-color); border-radius: 8px; margin-bottom: 12px; overflow: hidden; background: #131d31; }
+        .accordion-header { background-color: #1e293b; padding: 12px 15px; font-weight: 600; color: #38bdf8; cursor: pointer; display: flex; justify-content: space-between; align-items: center; user-select: none; }
+        .accordion-content { padding: 15px; background: #0f172a; display: none; }
+        .accordion-section.active .accordion-content { display: block; }
+
         .main-workspace {
-            flex: 1; margin-left: var(--sidebar-w); padding: 24px;
-            transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1); box-sizing: border-box;
+            flex: 1; margin-left: var(--sidebar-w); padding: 25px;
+            transition: margin-left 0.3s ease; box-sizing: border-box;
         }
         .main-workspace.expanded { margin-left: 0; }
 
-        @media (max-width: 1200px) {
-            .sidebar { transform: translateX(-100%); }
-            .sidebar.show-responsive { transform: translateX(0); width: 100%; max-width: 350px; box-shadow: 10px 0 30px rgba(0,0,0,0.6); }
-            .main-workspace { margin-left: 0 !important; }
+        .top-navbar {
+            display: flex; justify-content: space-between; align-items: center;
+            background: linear-gradient(135deg, #1e3a8a, #0f172a);
+            padding: 15px 30px; border-radius: 12px; margin-bottom: 25px;
+            border: 1px solid var(--border-color); box-shadow: 0 4px 15px rgba(0,0,0,0.2);
         }
 
-        /* कस्ट्युम प्रिमियम ग्लास कार्डहरू */
-        .custom-card {
-            background: linear-gradient(135deg, rgba(30,41,59,0.7) 0%, rgba(15,23,42,0.8) 100%);
-            border: 1px solid var(--border-color);
-            border-radius: 16px;
-            padding: 24px;
-            margin-bottom: 24px;
-            box-shadow: 0 8px 32px rgba(0,0,0,0.25);
-            position: relative;
-            backdrop-filter: blur(8px);
-        }
-        
-        .accordion-section { border: 1px solid var(--border-color); border-radius: 12px; margin-bottom: 14px; overflow: hidden; background: rgba(19, 29, 49, 0.5); }
-        .accordion-header { background-color: rgba(30, 41, 59, 0.9); padding: 14px 18px; font-weight: 600; color: #38bdf8; cursor: pointer; display: flex; justify-content: space-between; align-items: center; user-select: none; transition: background 0.2s; }
-        .accordion-header:hover { background-color: rgba(47, 63, 90, 0.9); }
-        .accordion-content { padding: 18px; background: rgba(15, 23, 42, 0.6); display: none; }
-        .accordion-section.active .accordion-content { display: block; }
+        .grid-layout { display: grid; grid-template-columns: 1.15fr 0.85fr; gap: 25px; }
+        .card { background-color: var(--panel-bg); padding: 20px; border-radius: 12px; border: 1px solid var(--border-color); margin-bottom: 20px; box-shadow: 0 4px 10px rgba(0,0,0,0.15); }
 
         input, select, textarea {
-            background-color: #06090f !important;
-            border: 1px solid #475569 !important;
-            color: #ffffff !important;
-            border-radius: 8px !important;
+            width: 100%; padding: 10px 14px; background-color: #080c14;
+            border: 1px solid #475569; color: white; border-radius: 8px;
+            box-sizing: border-box; font-family: 'Mukta', sans-serif; font-size: 0.95rem; transition: border 0.2s;
         }
-        input:focus, select:focus, textarea:focus {
-            border-color: #38bdf8 !important;
-            box-shadow: 0 0 0 0.25rem rgba(56, 189, 248, 0.25) !important;
+        input:focus, select:focus, textarea:focus { border-color: #38bdf8; outline: none; }
+        
+        .btn {
+            padding: 10px 16px; border: none; border-radius: 8px; font-weight: bold;
+            cursor: pointer; display: inline-flex; align-items: center; gap: 8px;
+            font-family: 'Mukta', sans-serif; justify-content: center; transition: all 0.2s;
         }
+        .btn:hover { filter: brightness(1.1); }
+        .btn:disabled { background-color: #334155 !important; color: #64748b !important; cursor: not-allowed; filter: none; }
+        .btn-blue { background-color: #2563eb; color: white; }
+        .btn-green { background-color: var(--btn-success); color: white; }
+        .btn-danger { background-color: var(--btn-danger); color: white; }
+        .btn-gray { background-color: #475569; color: white; }
 
-        /* ड्राग एन्ड ड्रप क्यु बक्स */
-        .drag-container { background-color: #05070c; min-height: 160px; max-height: 380px; overflow-y: auto; border: 2px dashed #475569; border-radius: 12px; padding: 12px; }
-        .drag-item { background-color: rgba(30, 41, 59, 0.9); padding: 14px; margin-bottom: 10px; border-radius: 10px; border: 1px solid #475569; display: flex; justify-content: space-between; align-items: center; cursor: move; transition: all 0.2s ease; }
-        .drag-item:hover { background-color: rgba(45, 61, 89, 0.9); transform: translateY(-2px); }
+        .drag-container { background-color: #080c14; min-height: 150px; max-height: 320px; overflow-y: auto; border: 2px dashed #475569; border-radius: 8px; padding: 10px; }
+        .drag-item { background-color: var(--card-bg); padding: 10px 14px; margin-bottom: 8px; border-radius: 8px; border: 1px solid #475569; display: flex; justify-content: space-between; align-items: center; cursor: move; }
 
-        .inline-time-input { width: 75px; text-align: center; padding: 3px 6px; background: #05070c; border: 1px solid #38bdf8; color: #10b981; font-weight: bold; border-radius: 6px; display: inline-block; font-family: 'Chivo Mono', monospace; }
+        .inline-time-input { width: 65px; text-align: center; padding: 2px 4px; background: #080c14; border: 1px solid #38bdf8; color: #10b981; font-weight: bold; border-radius: 4px; display: inline-block; font-family: 'Chivo Mono', monospace; }
 
-        /* रोष्ट्रम प्यानल मुख्य डिस्प्ले */
+        /* मुख्य नियन्त्रण प्यानलमा अझ ठुलो टाइपिङ/डिस्प्ले */
         .live-rostrum-box {
-            background: radial-gradient(circle at center, #1e293b, #030712);
-            border: 2px solid var(--accent-blue); border-radius: 18px; padding: 35px 20px; text-align: center;
-            box-shadow: inset 0 0 30px rgba(0,0,0,0.8), 0 10px 30px rgba(59,130,246,0.15);
+            background: radial-gradient(circle at center, #1e293b, #020617);
+            border: 2px solid #2563eb; border-radius: 14px; padding: 35px; text-align: center;
+            box-shadow: inset 0 0 20px rgba(0,0,0,0.6);
         }
-        .clock-digit { font-size: calc(3.8rem + 3.2vw); font-weight: 700; color: var(--btn-success); margin: 8px 0; letter-spacing: 3px; line-height: 1; text-shadow: 0 0 20px rgba(16, 185, 129, 0.4); }
+        .clock-digit { font-size: 8rem; font-weight: 700; color: var(--btn-success); margin: 10px 0; letter-spacing: 2px; line-height: 1; }
 
-        .history-log-container { max-height: 280px; overflow-y: auto; background-color: #05070c; border-radius: 10px; border: 1px solid var(--border-color); }
+        .history-log-container { max-height: 220px; overflow-y: auto; background-color: #080c14; border-radius: 8px; border: 1px solid var(--border-color); }
+        .h-table { width: 100%; border-collapse: collapse; text-align: left; font-size: 0.95rem; }
+        .h-table th, .h-table td { padding: 10px 14px; border-bottom: 1px solid var(--border-color); }
+        .h-table th { background-color: #1e293b; color: #38bdf8; position: sticky; top: 0; }
+
+        .modal-overlay { display: none; position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.85); z-index: 2000; justify-content: center; align-items: center; }
+        .modal-body { background: var(--panel-bg); width: 85%; max-width: 1050px; padding: 30px; border-radius: 16px; border: 1px solid var(--border-color); }
         
-        .color-picker-item { display: flex; align-items: center; gap: 10px; background: rgba(19, 29, 49, 0.8); padding: 8px 12px; border-radius: 8px; font-size: 0.85rem; border: 1px solid var(--border-color); }
-        .color-picker-item input[type="color"] { width: 38px; height: 32px; padding: 0; cursor: pointer; border: none; background: transparent; }
+        .color-picker-group { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 10px; font-size: 0.85rem; }
+        .color-picker-item { display: flex; align-items: center; gap: 10px; background: #131d31; padding: 6px 10px; border-radius: 6px; }
+        .color-picker-item input[type="color"] { width: 35px; height: 30px; padding: 0; cursor: pointer; border: none; background: transparent; }
 
-        .stat-badge { background: rgba(19, 29, 49, 0.7); padding: 12px; border-radius: 12px; border: 1px solid var(--border-color); text-align: center; font-size: 0.85rem; box-shadow: 0 4px 10px rgba(0,0,0,0.15); }
-        .stat-badge span { display: block; font-weight: bold; font-size: 1.2rem; margin-top: 4px; }
+        .stat-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 15px; }
+        .stat-badge { background: #131d31; padding: 8px; border-radius: 6px; border: 1px solid var(--border-color); text-align: center; font-size: 0.85rem; }
+        .stat-badge span { display: block; font-weight: bold; font-size: 1.1rem; margin-top: 2px; }
 
-        .display-options-box { background: #05070c; padding: 15px; border-radius: 10px; border: 1px solid var(--border-color); }
-        
-        /* फुलस्क्रिन कमान्ड मोड */
-        .custom-card:fullscreen {
-            padding: 50px !important;
-            background-color: #030712 !important;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            width: 100% !important; height: 100% !important;
-        }
-        .custom-card:fullscreen .live-rostrum-box {
-            flex: 1; display: flex; flex-direction: column; justify-content: center; padding: 50px !important;
-        }
-        .custom-card:fullscreen .clock-digit { font-size: 13rem !important; }
-
-        /* अर्को वक्ता हेर्ने विशेष प्यानल बक्स */
-        .next-speaker-preview-box {
-            background: rgba(30, 41, 59, 0.5);
-            border: 1px dashed #38bdf8;
-            border-radius: 12px;
-            padding: 16px;
-            margin-bottom: 18px;
-            backdrop-filter: blur(4px);
-        }
-
-        /* मोडल्स ओभरले स्टाइल */
-        .modal-overlay {
-            position: fixed; top:0; left:0; width:100%; height:100%;
-            background: rgba(0,0,0,0.8); backdrop-filter: blur(6px);
-            z-index: 1050; display: none; justify-content: center; align-items: center;
-        }
-        .modal-box {
-            background: #0f172a; border-radius: 16px; border: 1px solid var(--border-color);
-            padding: 28px; box-shadow: 0 15px 40px rgba(0,0,0,0.5); color: white;
-        }
+        /* कस्टमाइज्ड बहु-विकल्प चेकबक्स डिजाइन */
+        .display-options-box { background: #080c14; padding: 10px; border-radius: 6px; border: 1px solid var(--border-color); }
+        .checkbox-item { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; font-size: 0.9rem; cursor: pointer; }
+        .checkbox-item input { width: 18px; height: 18px; cursor: pointer; }
     </style>
 </head>
 <body>
 
 <div class="login-overlay" id="loginGate">
-    <div class="login-box text-center">
-        <h3 style="color: #38bdf8; font-weight: 700; margin-bottom: 5px;">🏛️ नेपाल संसद् नियन्त्रण प्रणाली</h3>
-        <p class="text-secondary small mb-4">सुरक्षित डिजिटल प्रणाली प्रयोग गर्न लगइन गर्नुहोस्।</p>
-        <input type="text" id="sysUser" class="form-control mb-3 py-2" placeholder="प्रयोगकर्ताको नाम (Username)">
-        <input type="password" id="sysPass" class="form-control mb-4 py-2" placeholder="पासवर्ड (Password)">
-        <button class="btn btn-success w-100 fw-bold py-2" onclick="verifyCloudLogin(false)">🔓 प्रणाली खुल्ला गर्नुहोस्</button>
-        <p id="loginLog" class="text-danger fw-bold mt-3 small"></p>
+    <div class="login-box">
+        <h2 style="color: #38bdf8; margin: 0 0 5px 0;">🏛️ नेपाल संसद् नियन्त्रण प्रणाली</h2>
+        <p style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 20px;">सुरक्षित प्रणाली प्रयोग गर्न लगइन गर्नुहोस्।</p>
+        <input type="text" id="sysUser" placeholder="प्रयोगकर्ताको नाम (Username)" style="margin-bottom: 12px;">
+        <input type="password" id="sysPass" placeholder="पासवर्ड (Password)" style="margin-bottom: 20px;">
+        <button class="btn btn-green" style="width: 100%;" onclick="verifyCloudLogin()">🔓 प्रणाली खुल्ला गर्नुहोस्</button>
+        <p id="loginLog" style="color: var(--btn-danger); font-weight: bold; margin-top: 10px; font-size: 0.9rem;"></p>
     </div>
 </div>
 
 <div class="sidebar" id="appSidebar">
-    <div class="d-flex justify-content-between align-items-center mb-3 pb-2 border-bottom border-secondary">
-        <h5 class="text-info m-0 fw-bold">⚙️ प्रणाली सेटिङ प्यानल</h5>
-        <button class="btn btn-sm btn-outline-danger d-xl-none" onclick="toggleSidebarView()">✕</button>
-        <button class="btn btn-sm text-danger fw-bold d-none d-xl-block" onclick="logoutSystem()">निकास</button>
-    </div>
+    <h3 style="color: #38bdf8; margin-top: 0; border-bottom: 2px solid #2563eb; padding-bottom: 8px; display: flex; justify-content: space-between;">
+        <span>⚙️ प्रणाली सेटिङ प्यानल</span>
+        <button onclick="logoutSystem()" style="background:none; border:none; color:var(--btn-danger); cursor:pointer; font-weight:bold;">✕</button>
+    </h3>
     
     <div class="accordion-section active">
         <div class="accordion-header" onclick="toggleAcc(this)">📋 अधिवेशन र बैठक विवरण</div>
         <div class="accordion-content">
-            <label class="small text-secondary mb-1">अधिवेशन विवरण:</label>
-            <input type="text" id="sessionTitle" class="form-control mb-2" value="पाँचौ अधिवेशन" onchange="syncMetaSettings()">
+            <label style="font-size: 0.85rem; color: var(--text-muted);">अधिवेशन विवरण:</label>
+            <input type="text" id="sessionTitle" value="पाँचौ अधिवेशन" style="margin-bottom: 8px;" onchange="syncMetaSettings()">
             
-            <label class="small text-secondary mb-1">बैठक संख्या (बैठक विवरण):</label>
-            <input type="text" id="sittingTitle" class="form-control mb-2" value="तेस्रो बैठक" onchange="syncMetaSettings()">
+            <label style="font-size: 0.85rem; color: var(--text-muted);">बैठक संख्या:</label>
+            <input type="text" id="sittingTitle" value="तेस्रो बैठक" style="margin-bottom: 8px;" onchange="syncMetaSettings()">
 
-            <label class="small text-secondary mb-1">बैठक मिति (अधिवेशन मिति):</label>
-            <input type="text" id="sittingDate" class="form-control" value="२०८३/०२/१६" onchange="syncMetaSettings()">
+            <label style="font-size: 0.85rem; color: var(--text-muted);">बैठक मिति (नेपालीमा):</label>
+            <input type="text" id="sittingDate" value="२०८३/०२/१६" placeholder="मिति यहाँ लेख्नुहोस्" onchange="syncMetaSettings()">
         </div>
     </div>
 
     <div class="accordion-section active">
-        <div class="accordion-header" onclick="toggleAcc(this)">👁️ Display Options (कस्टमाइज)</div>
+        <div class="accordion-header" onclick="toggleAcc(this)">👁️ Display Options (दोस्रो स्क्रिन कस्टमाइज)</div>
         <div class="accordion-content">
             <div class="display-options-box">
-                <div class="form-check mb-2">
-                    <input type="checkbox" class="form-check-input" id="dispShowAssembly" checked onchange="syncMetaSettings()">
-                    <label class="form-check-label small" for="dispShowAssembly">सभाको नाम देखाउने</label>
-                </div>
-                <div class="form-check mb-2">
-                    <input type="checkbox" class="form-check-input" id="dispShowSalutation" checked onchange="syncMetaSettings()">
-                    <label class="form-check-label small" for="dispShowSalutation">सम्बोधन देखाउने</label>
-                </div>
-                <div class="form-check mb-2">
-                    <input type="checkbox" class="form-check-input" id="dispShowMember" checked onchange="syncMetaSettings()">
-                    <label class="form-check-label small" for="dispShowMember">माननीयको नाम देखाउने</label>
-                </div>
-                <div class="form-check">
-                    <input type="checkbox" class="form-check-input" id="dispShowParty" checked onchange="syncMetaSettings()">
-                    <label class="form-check-label small" for="dispShowParty">पार्टीको नाम देखाउने</label>
-                </div>
+                <label class="checkbox-item">
+                    <input type="checkbox" id="dispShowAssembly" checked onchange="syncMetaSettings()">
+                    <span>सभाको नाम देखाउने</span>
+                </label>
+                <label class="checkbox-item">
+                    <input type="checkbox" id="dispShowMember" checked onchange="syncMetaSettings()">
+                    <span>माननीयको नाम देखाउने</span>
+                </label>
+                <label class="checkbox-item">
+                    <input type="checkbox" id="dispShowParty" checked onchange="syncMetaSettings()">
+                    <span>पार्टीको नाम देखाउने</span>
+                </label>
             </div>
+            <p style="font-size:0.75rem; color:var(--text-muted); margin-top:5px; margin-bottom:0;">* टिक मार्क हटाएमा उक्त विवरण दोस्रो स्क्रिनमा देखिने छैन।</p>
         </div>
     </div>
 
     <div class="accordion-section active">
-        <div class="accordion-header" onclick="toggleAcc(this)">⏳ विधागत समय र चेतावनी</div>
+        <div class="accordion-header" onclick="toggleAcc(this)">⏳ विधागत समय र फरक चेतावनी सेटिङ</div>
         <div class="accordion-content">
-            <div class="p-2 rounded mb-2" style="background: rgba(19, 29, 49, 0.8);">
-                <span class="text-info small fw-bold">शून्य समय र चेतावनी सेकेन्ड:</span>
-                <div class="d-flex gap-2 mt-1">
-                    <input type="text" id="t_zero" class="form-control form-control-sm text-center fw-bold" value="01:00" onchange="syncMetaSettings()">
-                    <input type="number" id="w_zero" class="form-control form-control-sm text-center" value="15" onchange="syncMetaSettings()">
+            <div style="background:#131d31; padding:10px; border-radius:6px; margin-bottom:8px;">
+                <b style="color:#38bdf8; font-size:0.9rem;">शून्य समय सेटिङ:</b>
+                <div style="display:grid; grid-template-columns: 1fr 1fr; gap:6px; margin-top:4px;">
+                    <input type="text" id="t_zero" value="01:00" onchange="syncMetaSettings()">
+                    <input type="number" id="w_zero" value="15" onchange="syncMetaSettings()">
                 </div>
             </div>
-            <div class="p-2 rounded mb-2" style="background: rgba(19, 29, 49, 0.8);">
-                <span class="text-danger small fw-bold">आकस्मिक समय र चेतावनी सेकेन्ड:</span>
-                <div class="d-flex gap-2 mt-1">
-                    <input type="text" id="t_urgent" class="form-control form-control-sm text-center fw-bold" value="03:00" onchange="syncMetaSettings()">
-                    <input type="number" id="w_urgent" class="form-control form-control-sm text-center" value="30" onchange="syncMetaSettings()">
+            <div style="background:#131d31; padding:10px; border-radius:6px; margin-bottom:8px;">
+                <b style="color:#38bdf8; font-size:0.9rem;">आकस्मिक समय सेटिङ:</b>
+                <div style="display:grid; grid-template-columns: 1fr 1fr; gap:6px; margin-top:4px;">
+                    <input type="text" id="t_urgent" value="03:00" onchange="syncMetaSettings()">
+                    <input type="number" id="w_urgent" value="30" onchange="syncMetaSettings()">
                 </div>
             </div>
-            <div class="p-2 rounded mb-3" style="background: rgba(19, 29, 49, 0.8);">
-                <span class="text-primary small fw-bold">विशेष समय र चेतावनी सेकेन्ड:</span>
-                <div class="d-flex gap-2 mt-1">
-                    <input type="text" id="t_special" class="form-control form-control-sm text-center fw-bold" value="05:00" onchange="syncMetaSettings()">
-                    <input type="number" id="w_special" class="form-control form-control-sm text-center" value="60" onchange="syncMetaSettings()">
+            <div style="background:#131d31; padding:10px; border-radius:6px; margin-bottom:8px;">
+                <b style="color:#38bdf8; font-size:0.9rem;">विशेष समय सेटिङ:</b>
+                <div style="display:grid; grid-template-columns: 1fr 1fr; gap:6px; margin-top:4px;">
+                    <input type="text" id="t_special" value="05:00" onchange="syncMetaSettings()">
+                    <input type="number" id="w_special" value="60" onchange="syncMetaSettings()">
                 </div>
             </div>
-            <button class="btn btn-sm btn-secondary w-100" style="background:#334155; border:none;" onclick="resetTimeDefaults()">🔄 Default रिसेट</button>
+            <button class="btn btn-gray" style="width: 100%; font-size: 0.85rem; background:#334155;" onclick="resetTimeDefaults()">🔄 समय र चेतावनी रिसेट (Default)</button>
         </div>
     </div>
 
     <div class="accordion-section">
         <div class="accordion-header" onclick="toggleAcc(this)">🎨 रनिङ, वार्निङ, स्टप रङ छनौट</div>
         <div class="accordion-content">
-            <div class="row g-2 mb-2">
-                <div class="col-6"><div class="color-picker-item"><input type="color" id="c_run_fg" value="#10b981" onchange="syncMetaSettings()"><span>Run Text</span></div></div>
-                <div class="col-6"><div class="color-picker-item"><input type="color" id="c_run_bg" value="#020617" onchange="syncMetaSettings()"><span>Run BG</span></div></div>
-                <div class="col-6"><div class="color-picker-item"><input type="color" id="c_warn_fg" value="#f59e0b" onchange="syncMetaSettings()"><span>Warn Text</span></div></div>
-                <div class="col-6"><div class="color-picker-item"><input type="color" id="c_warn_bg" value="#1e1b4b" onchange="syncMetaSettings()"><span>Warn BG</span></div></div>
-                <div class="col-6"><div class="color-picker-item"><input type="color" id="c_stop_fg" value="#ef4444" onchange="syncMetaSettings()"><span>Stop Text</span></div></div>
-                <div class="col-6"><div class="color-picker-item"><input type="color" id="c_stop_bg" value="#1a0505" onchange="syncMetaSettings()"><span>Stop BG</span></div></div>
+            <div class="color-picker-group">
+                <div class="color-picker-item"><input type="color" id="c_run_fg" value="#10b981" onchange="syncMetaSettings()"><span>Running Text</span></div>
+                <div class="color-picker-item"><input type="color" id="c_run_bg" value="#020617" onchange="syncMetaSettings()"><span>Running BG</span></div>
+                <div class="color-picker-item"><input type="color" id="c_warn_fg" value="#f59e0b" onchange="syncMetaSettings()"><span>Warning Text</span></div>
+                <div class="color-picker-item"><input type="color" id="c_warn_bg" value="#1e1b4b" onchange="syncMetaSettings()"><span>Warning BG</span></div>
+                <div class="color-picker-item"><input type="color" id="c_stop_fg" value="#ef4444" onchange="syncMetaSettings()"><span>Stop Text</span></div>
+                <div class="color-picker-item"><input type="color" id="c_stop_bg" value="#1a0505" onchange="syncMetaSettings()"><span>Stop BG</span></div>
             </div>
-            <button class="btn btn-sm btn-secondary w-100" onclick="resetColorDefaults()">🔄 रङ रिसेट</button>
+            <button class="btn btn-gray" style="width: 100%; font-size: 0.85rem;" onclick="resetColorDefaults()">🔄 रङ र डिजाइन रिसेट</button>
         </div>
     </div>
 
     <div class="accordion-section active">
-        <div class="accordion-header" onclick="toggleAcc(this)">📐 टेम्पलेट र फन्ट आकार कस्टमाइज</div>
+        <div class="accordion-header" onclick="toggleAcc(this)">📐 टेम्पलेट र डिजिटल फन्ट आकार</div>
         <div class="accordion-content">
-            <label class="small mb-1">७ वटा एनिमेटेड डिजिटल टेम्पलेट:</label>
-            <select id="uiTemplate" class="form-select form-select-sm mb-2" onchange="syncMetaSettings()">
-                <option value="style1">टेम्पलेट १ : Standard Panel</option>
-                <option value="style2">टेम्पलेट २ : Horizontal Bar</option>
-                <option value="style3" selected>टेम्पलेट ३ : Circular Glow</option>
-                <option value="style4">टेम्पलेट ४ : Split Dashboard Mode</option>
-                <option value="style5">टेम्पलेट ५ : Minimalist Glass Box</option>
-                <option value="style6">टेम्पलेट ६ : Neo-Brutalism Grid</option>
-                <option value="style7">टेम्पलेट ७ : मिनेट र सेकेन्ड मात्र (Full Screen)</option>
+            <label style="font-size:0.85rem; display:block; margin-bottom:4px;">७ वटा एड्भान्स डिजिटल टेम्पलेटहरू:</label>
+            <select id="uiTemplate" style="margin-bottom: 12px;" onchange="syncMetaSettings()">
+                <option value="style1">टेम्पलेट १ : Standard Panel (ठुलो)</option>
+                <option value="style2">टेम्पलेट २ : Horizontal Bar (ठुलो)</option>
+                <option value="style3" selected>टेम्पलेट ३ : Circular Glow (ठुलो)</option>
+                <option value="style4">टेम्पलेट ४ : Split Dashboard</option>
+                <option value="style5">टेम्पलेट ५ : Minimalist Box</option>
+                <option value="style6">टेम्पलेट ६ : Neo-Brutalism</option>
+                <option value="style7">टेम्पलेट ७ : मिनेट र सेकेन्ड मात्र (Full Screen Display)</option>
             </select>
 
-            <label class="small mb-1">दोस्रो स्क्रिन समय साइज (Font Size):</label>
-            <div class="input-group input-group-sm mb-2">
-                <input type="number" id="secondDisplayFontSize" class="form-control" value="16" min="8" max="45" step="0.5" onchange="syncMetaSettings()">
-                <span class="input-group-text bg-secondary text-white">vw</span>
+            <label style="font-size:0.85rem; display:block; margin-bottom:4px;">दोस्रो स्क्रिन समय फन्ट आकार (Font Size):</label>
+            <div style="display: flex; gap: 6px; margin-bottom: 12px;">
+                <input type="number" id="secondDisplayFontSize" value="16" min="8" max="40" step="0.5" onchange="syncMetaSettings()" style="flex:1;">
+                <span style="background: #1e293b; padding: 8px; border-radius: 8px; font-size: 0.85rem;">vw</span>
             </div>
 
-            <label class="small mb-1">१२ वटा प्रिमियम डिजिटल फन्टहरू:</label>
-            <select id="uiFont" class="form-select form-select-sm" onchange="syncMetaSettings()">
+            <label style="font-size:0.85rem; display:block; margin-bottom:4px;">१२ वटा प्रिमियम डिजिटल फन्टहरू:</label>
+            <select id="uiFont" onchange="syncMetaSettings()">
                 <option value="'Chivo Mono', monospace">1. Chivo Mono</option>
                 <option value="'Orbitron', sans-serif">2. Orbitron Digital</option>
                 <option value="'Mukta', sans-serif">3. Mukta Bold</option>
@@ -292,105 +260,99 @@
     </div>
 
     <div class="accordion-section">
-        <div class="accordion-header" onclick="toggleAcc(this)">🎵 राष्ट्रिय गान नियन्त्रण</div>
+        <div class="accordion-header" onclick="toggleAcc(this)">🎵 राष्ट्रिय गान (Local Storage)</div>
         <div class="accordion-content">
-            <input type="text" id="anthemUrlField" class="form-control form-control-sm mb-2" placeholder="अडियो पाथ वा अनलाइन URL">
-            <div class="row g-2">
-                <div class="col-6"><button class="btn btn-sm btn-primary w-100" onclick="controlAnthem(true)">▶️ प्ले</button></div>
-                <div class="col-6"><button class="btn btn-sm btn-danger w-100" onclick="controlAnthem(false)">⏸️ बन्द</button></div>
+            <input type="text" id="anthemUrlField" placeholder="अडियो पाथ वा अनलाइन URL" style="margin-bottom: 10px;" onchange="saveAnthemUrl()">
+            <div style="display: flex; gap: 6px;">
+                <button class="btn btn-blue" style="flex:1;" onclick="controlAnthem(true)">▶️ बजाउनुहोस्</button>
+                <button class="btn btn-danger" style="flex:1;" onclick="controlAnthem(false)">⏸️ बन्द गर्ने</button>
             </div>
         </div>
     </div>
 </div>
 
 <div class="main-workspace" id="appWorkspace">
-    <div class="container-fluid p-0 mb-4">
-        <div class="d-flex flex-wrap justify-content-between align-items-center bg-dark p-3 rounded-4 border border-secondary gap-3" style="background: linear-gradient(135deg, #1e3a8a, #0f172a) !important;">
-            <div class="d-flex align-items-center gap-3">
-                <button class="btn btn-outline-light" onclick="toggleSidebarView()">☰ मेनु</button>
-                <h4 class="m-0 text-white fw-bold h5">🏛️ नेपाल संसद् नियन्त्रण प्रणाली</h4>
-            </div>
-            <div class="d-flex flex-wrap gap-2 justify-content-end">
-                <select id="houseFilter" class="form-select form-select-sm border-secondary text-white" style="width: 150px; background-color:#05070c;" onchange="switchHouseData()">
-                    <option value="संयुक्त सभा">संयुक्त सभा</option>
-                    <option value="प्रतिनिधि सभा" selected>प्रतिनिधि सभा</option>
-                    <option value="राष्ट्रिय सभा">राष्ट्रिय सभा</option>
-                </select>
-                <button class="btn btn-sm btn-primary fw-bold" onclick="openReportModal()">📊 विस्तृत रिपोर्ट</button>
-                <button class="btn btn-sm btn-danger fw-bold" onclick="triggerSecondDisplay()">🖥️ दोस्रो स्क्रिन खोल्नुहोस्</button>
-            </div>
+    <div class="top-navbar">
+        <div style="display: flex; align-items: center; gap: 15px;">
+            <button class="btn btn-gray" onclick="toggleSidebarView()">☰ मेनु</button>
+            <h2 style="margin: 0; font-size: 1.4rem;">🏛️ नेपाल संसद् नियन्त्रण प्रणाली</h2>
+        </div>
+        <div style="display: flex; gap: 10px;">
+            <select id="houseFilter" style="width: 160px;" onchange="switchHouseData()">
+                <option value="संयुक्त सभा">संयुक्त सभा</option>
+                <option value="प्रतिनिधि सभा" selected>प्रतिनिधि सभा</option>
+                <option value="राष्ट्रिय सभा">राष्ट्रिय सभा</option>
+            </select>
+            <button class="btn btn-blue" onclick="openReportModal()">📊 विस्तृत रिपोर्ट</button>
+            <button class="btn btn-danger" onclick="triggerSecondDisplay()">🖥️ दोस्रो स्क्रिन खोल्नुहोस्</button>
         </div>
     </div>
 
-    <div class="row g-3 mb-4">
-        <div class="col-6 col-md-3"><div class="stat-badge border-top border-secondary border-3">⚪ शून्य समय<span id="statZero" class="text-info">००:०० / ००:००</span></div></div>
-        <div class="col-6 col-md-3"><div class="stat-badge border-top border-danger border-3">🔴 आकस्मिक समय<span id="statUrgent" class="text-danger">००:०० / ००:००</span></div></div>
-        <div class="col-6 col-md-3"><div class="stat-badge border-top border-primary border-3">🔵 विशेष समय<span id="statSpecial" class="text-primary">००:०० / ००:००</span></div></div>
-        <div class="col-6 col-md-3"><div class="stat-badge border-top border-warning border-3">🟡 कस्टम विधा<span id="statCustom" class="text-warning">००:०० / ००:००</span></div></div>
+    <div class="stat-grid">
+        <div class="stat-badge" style="border-top: 4px solid #475569;">⚪ शून्य समय (बाँकी / जम्मा)<span id="statZero" style="color:#38bdf8;">००:०० / ००:००</span></div>
+        <div class="stat-badge" style="border-top: 4px solid #ef4444;">🔴 आकस्मिक समय (बाँकी / जम्मा)<span id="statUrgent" style="color:#ef4444;">००:०० / ००:००</span></div>
+        <div class="stat-badge" style="border-top: 4px solid #2563eb;">🔵 विशेष समय (बाँकी / जम्मा)<span id="statSpecial" style="color:#60a5fa;">००:०० / ००:००</span></div>
+        <div class="stat-badge" style="border-top: 4px solid #eab308;">🟡 कस्टम विधा (बाँकी / जम्मा)<span id="statCustom" style="color:#eab308;">००:०० / ००:००</span></div>
     </div>
 
-    <div class="row g-4">
-        <div class="col-xl-7 col-lg-6 col-12">
-            <div class="custom-card">
-                <h5 class="text-info border-bottom border-secondary pb-2 mb-3 fw-bold">✍️ माननीय सदस्य विवरण दर्ता फारम</h5>
-                <div class="row g-2 mb-2">
-                    <div class="col-md-6 col-12"><select id="dbNameSelect" class="form-select fw-bold text-info"></select></div>
-                    <div class="col-md-6 col-12"><input type="text" id="manualSalutation" class="form-control" value="माननीय सभामुख महोदय" placeholder="सम्बोधन"></div>
+    <div class="grid-layout">
+        <div>
+            <div class="card">
+                <h3>✍️ माननीयको नाम दर्ता र मन्तव्य विवरण</h3>
+                <div style="display: flex; gap: 8px; margin-bottom: 8px;">
+                    <select id="dbNameSelect" style="flex: 1; font-weight: bold; color: #38bdf8;"></select>
+                    <input type="text" id="manualName" placeholder="नयाँ नाम टाइप गर्नुहोस्" style="flex: 1;">
                 </div>
-                <div class="row g-2 mb-2">
-                    <div class="col-md-6 col-12"><input type="text" id="manualName" class="form-control" placeholder="माननीय सदस्यको नाम"></div>
-                    <div class="col-md-6 col-12"><input type="text" id="manualParty" class="form-control" placeholder="राजनीतिक दल/सङ्गठन"></div>
-                </div>
-                <div class="mb-2">
-                    <select id="timeCategory" class="form-select" onchange="toggleCustomInput()">
+                <div style="display: flex; gap: 8px; margin-bottom: 8px;">
+                    <input type="text" id="manualParty" placeholder="राजनीतिक दलको नाम" style="flex: 1;">
+                    <select id="timeCategory" style="flex: 1;" onchange="toggleCustomInput()">
                         <option value="zero">शून्य समय</option>
                         <option value="urgent">आकस्मिक समय</option>
                         <option value="special" selected>विशेष समय</option>
-                        <option value="custom">कस्टम समय</option>
-                        <option value="countup">बढ्दो क्रम (Count-Up Mode)</option>
+                        <option value="custom">कस्टम समय (अनुकूलन नाम सहित)</option>
+                        <option value="countup">बढ्दो क्रम (Count-Up)</option>
                     </select>
                 </div>
-                <div class="mb-3">
-                    <input type="text" id="speechTopic" class="form-control" placeholder="छलफलको मुख्य मन्तव्य / सरोकारको विषय (Topic)">
+                <div style="margin-bottom: 8px;">
+                    <input type="text" id="speechTopic" placeholder="छलफलको मुख्य मन्तव्य / विषय (Topic) थप्नुहोस्" style="width: 100%;">
                 </div>
                 
-                <div id="customInputsArea" class="p-3 rounded mb-3" style="display: none; background: rgba(19,29,49,0.6); border: 1px solid var(--border-color);">
-                    <div class="row g-2">
-                        <div class="col-6"><label class="small">विधा नाम:</label> <input type="text" id="customTypeName" value="कस्टम विधा" class="form-control form-control-sm"></div>
-                        <div class="col-6"><label class="small">समय (MM:SS):</label> <input type="text" id="customTimeVal" value="10:00" class="form-control form-control-sm"></div>
-                        <div class="col-12"><label class="small">चेतावनी घण्टी समय (सेकेन्ड):</label> <input type="number" id="customWarnSec" value="15" class="form-control form-control-sm"></div>
-                    </div>
+                <div id="customInputsArea" style="display: none; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px; background: #131d31; padding: 10px; border-radius: 8px;">
+                    <div><label style="font-size:0.8rem;">कस्टम विधाको नाम:</label> <input type="text" id="customTypeName" value="विशेष समय २"></div>
+                    <div><label style="font-size:0.8rem;">समय (MM:SS):</label> <input type="text" id="customTimeVal" value="10:00"></div>
+                    <div style="grid-column: span 2;"><label style="font-size:0.8rem;">चेतावनी समय (सेकेन्ड):</label> <input type="number" id="customWarnSec" value="15"></div>
                 </div>
 
-                <div class="d-flex flex-wrap justify-content-between align-items-center gap-2">
-                    <div class="form-check"><input type="checkbox" id="showNameOnScreen" class="form-check-input" checked><label class="form-check-label small text-info" for="showNameOnScreen">दोस्रो स्क्रिनमा नाम प्रदर्शन सक्रिय गर्ने</label></div>
-                    <div class="d-flex gap-2">
-                        <button class="btn btn-sm btn-primary px-3 fw-bold" onclick="addSpeakerToList()">सूचीमा थप्नुहोस्</button>
-                        <button class="btn btn-sm btn-info text-white px-3 fw-bold" onclick="openBulkModal()">📦 बल्क प्रविष्टि</button>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 12px;">
+                    <label style="font-size: 0.9rem; color: #38bdf8;"><input type="checkbox" id="showNameOnScreen" checked> दोस्रो स्क्रिनमा नाम देखाउने मास्टर स्वीच</label>
+                    <div style="display: flex; gap: 6px;">
+                        <button class="btn btn-blue" onclick="addSpeakerToList()">सूचीमा थप्नुहोस्</button>
+                        <button class="btn btn-gray" style="background-color: #0284c7;" onclick="openBulkModal()">📦 Bulk Add Modal</button>
                     </div>
                 </div>
             </div>
 
-            <div class="custom-card">
-                <div class="d-flex flex-wrap justify-content-between align-items-center mb-2 gap-2">
-                    <h5 class="m-0 text-warning fw-bold">⏳ बोल्न बाँकी माननीयहरूको प्रस्तावित सूची</h5>
-                    <button class="btn btn-sm btn-outline-info fw-bold" onclick="syncPendingQueueToCloud()">☁️ सूची सिटमा पठाउनुहोस्</button>
+            <div class="card">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                    <h3 style="margin:0;">⏳ बोल्न बाँकी सूची (समयमा डबल क्लिक गरी सिधै Edit गर्न सकिन्छ)</h3>
+                    <button class="btn btn-blue" style="padding:4px 10px; font-size:0.8rem; background:#0284c7;" onclick="syncPendingQueueToCloud()">☁️ प्रस्तावित सूची सिटमा पठाउनुहोस्</button>
                 </div>
                 <div class="drag-container" id="pendingBox" ondragover="allowDropAction(event)" ondrop="dropSpeakerItem(event)"></div>
-                <div class="d-flex justify-content-between mt-2">
-                    <button class="btn btn-sm btn-outline-danger fw-bold" onclick="clearPendingQueue()">🗑️ सूची सफा गर्ने</button>
+                <div style="margin-top: 10px; display: flex; justify-content: space-between; align-items: center;">
+                    <button class="btn btn-danger" style="padding: 4px 10px; font-size: 0.85rem;" onclick="clearPendingQueue()">🗑️ सूची सफा गर्ने</button>
+                    <button class="btn btn-green" style="background-color: #0ea5e9;" onclick="sendNextSpeakerToRostrum()">⏭️ अर्को वक्ता (Next)</button>
                 </div>
             </div>
 
-            <div class="custom-card">
-                <h5 class="text-secondary mb-2 fw-bold">📜 मन्तव्य टुङ्गिएका सदस्यहरूको इतिहास (Logs)</h5>
-                <div class="history-log-container table-responsive">
-                    <table class="table table-dark table-striped table-hover m-0 align-middle" style="font-size:0.9rem;">
-                        <thead class="table-secondary text-info">
+            <div class="card">
+                <h3>📜 बोलिसकेकाहरूको इतिहास (Logs)</h3>
+                <div class="history-log-container">
+                    <table class="h-table">
+                        <thead>
                             <tr>
-                                <th>नाम / मिति</th>
-                                <th>विषय / विधा</th>
-                                <th>समय</th>
+                                <th>माननीय सदस्य / मिति</th>
+                                <th>मन्तव्य / विषय</th>
+                                <th>अवधि</th>
                                 <th>कार्य</th>
                             </tr>
                         </thead>
@@ -400,40 +362,27 @@
             </div>
         </div>
 
-        <div class="col-xl-5 col-lg-6 col-12">
-            <div class="custom-card" id="rostrumControlCard" style="position: sticky; top: 20px; z-index: 10;">
-                <div class="d-flex justify-content-between align-items-center mb-3">
-                    <h5 class="m-0 text-danger fw-bold">🎙️ हाल रोष्ट्रम नियन्त्रण प्यानल</h5>
-                    <button class="btn btn-sm btn-outline-secondary text-white" onclick="toggleFullscreenControl()">🔲 Full Screen</button>
-                </div>
-
-                <div class="next-speaker-preview-box" id="nextSpeakerArea">
-                    <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
-                        <div>
-                            <span class="small text-info fw-bold d-block">⏭️ बोल्न बाँकी अर्को वक्ता (Next):</span>
-                            <div id="nextSpeakerDetail" class="text-white fw-bold mt-1 small">कोही पनि छैन</div>
-                        </div>
-                        <button class="btn btn-success btn-sm fw-bold px-3" id="rostrumNextActionBtn" onclick="sendNextSpeakerToRostrum()">⏭️ अर्को वक्ता सुरु गर्नुहोस्</button>
-                    </div>
-                </div>
+        <div>
+            <div class="card" style="position: sticky; top: 15px;">
+                <h3>🎙️ हाल रोष्ट्रम नियन्त्रण प्यानल</h3>
                 
-                <div class="live-rostrum-box mb-4" id="liveRostrumCard">
-                    <span id="liveSpeakerTag" class="badge bg-danger mb-2 px-3 py-1 text-uppercase" style="font-size:0.8rem;">तयारी अवस्था</span>
-                    <p id="liveSpeakerSalutation" class="text-secondary m-0 fw-semibold" style="font-size:1.1rem; min-height:1.5rem;"></p>
-                    <h2 id="liveSpeakerName" class="fw-bold my-2 text-white" style="font-size: calc(1.4rem + 1vw);">माननीय सदस्य</h2>
-                    <p id="liveSpeakerParty" class="text-info m-0 fw-bold small" style="min-height:1.3rem;"></p>
-                    <p id="liveSpeakerTopic" class="text-muted m-0 small italic mt-1" style="min-height:1.3rem; font-style: italic;"></p>
+                <div class="live-rostrum-box" id="liveRostrumCard">
+                    <span id="liveSpeakerTag" class="btn btn-danger" style="padding: 2px 10px; font-size: 0.8rem; border-radius: 4px; background:#ec4899; margin-bottom: 5px;">तयारी अवस्था</span>
+                    <h2 id="liveSpeakerName" style="font-size: 2.2rem; margin: 8px 0 2px 0;">माननीय सदस्य</h2>
+                    <p id="liveSpeakerParty" style="color: #38bdf8; margin: 0 0 4px 0; font-size: 1.05rem; font-weight: bold; min-height: 1.2rem;"></p>
+                    <p id="liveSpeakerTopic" style="color: #e2e8f0; margin: 0 0 10px 0; font-style: italic; font-size: 0.95rem; min-height: 1.2rem;"></p>
                     
                     <div class="clock-digit" id="liveClockDisplay" style="font-family: 'Chivo Mono', monospace;">००:००</div>
-                    <p id="liveStatusText" class="text-secondary small fw-bold m-0 mt-2">प्रणाली तयार छ, कृपया समय सुरु गर्नुहोस्</p>
+                    <p id="liveStatusText" style="color: var(--text-muted); font-weight: bold; font-size: 1.1rem; margin: 0;">तयार हुनुहुँदैछ, कृपया समय सुरु गर्नुहोस्</p>
                 </div>
 
-                <div class="d-flex flex-column gap-2">
-                    <button class="btn btn-primary fw-bold py-2 fs-5" id="saveRecordBtn" onclick="saveCurrentSpeakerSession()" disabled>⏱️ मन्तव्य सकियो (Save Record)</button>
-                    <button class="btn btn-success fw-bold py-2" onclick="startTimerEngine()">▶️ समय सुरु गर्नुहोस्</button>
-                    <div class="row g-2">
-                        <div class="col-6"><button class="btn btn-warning text-dark fw-bold w-100" onclick="pauseTimerEngine()">⏸️ रोक्नुहोस् (Pause)</button></div>
-                        <div class="col-6"><button class="btn btn-secondary fw-bold w-100" onclick="resetTimerEngine()">🔄 रिसेट (Reset)</button></div>
+                <div style="margin-top: 15px; display: flex; flex-direction: column; gap: 8px;">
+                    <button class="btn btn-blue" id="saveRecordBtn" style="justify-content: center; font-size: 1.1rem; background-color: #2563eb;" onclick="saveCurrentSpeakerSession()" disabled>⏱️ मन्तव्य सकियो (Save Record)</button>
+                    <button class="btn btn-green" style="justify-content: center; font-size: 1.2rem;" onclick="startTimerEngine()">▶️ सुरु गर्नुहोस्</button>
+                    
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+                        <button class="btn btn-gray" style="background-color: #f59e0b; justify-content: center;" onclick="pauseTimerEngine()">⏸️ रोक्नुहोस् (Pause)</button>
+                        <button class="btn btn-gray" style="background-color: #64748b; justify-content: center;" onclick="resetTimerEngine()">🔄 पुनः सुरु (Reset)</button>
                     </div>
                 </div>
             </div>
@@ -442,44 +391,41 @@
 </div>
 
 <div class="modal-overlay" id="bulkAddModal">
-    <div class="modal-box" style="max-width: 650px; width:90%;">
-        <div class="d-flex justify-content-between align-items-center border-bottom border-secondary pb-2 mb-3">
-            <h5 class="m-0 text-info fw-bold">📦 थोक प्रविष्टि (Bulk Import Modal)</h5>
-            <button class="btn btn-close btn-close-white" onclick="closeBulkModal()"></button>
+    <div class="modal-body" style="max-width: 650px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--border-color); padding-bottom: 8px; margin-bottom: 15px;">
+            <h3 style="margin: 0;">📦 थोक प्रविष्टि (Bulk Add Modal) - मन्तव्य सहित</h3>
+            <button class="btn btn-danger" style="padding: 2px 8px;" onclick="closeBulkModal()">✕</button>
         </div>
-        <p class="small text-secondary mb-2">ढाँचा: <b>नाम, दल, समय(MM:SS), विषय, सम्बोधन</b> (प्रत्येक हरफमा एउटा)</p>
-        <textarea id="bulkTextArea" class="form-control mb-3" rows="8" placeholder="माननीय राम बहादुर, नेपाली कांग्रेस, ०५:००, समसामयिक विषय, माननीय सभामुख महोदय" style="font-family: monospace; font-size:0.9rem;"></textarea>
-        <div class="d-flex justify-content-end gap-2">
-            <button class="btn btn-sm btn-secondary" onclick="closeBulkModal()">रद्द</button>
-            <button class="btn btn-sm btn-success px-3 fw-bold" onclick="processBulkModalData()">आयात गर्नुहोस् (Import)</button>
+        <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 10px;">ढाँचा: <b>नाम, राजनीतिक दल, समय(MM:SS), मन्तव्य/छलफलको विषय</b> (प्रत्येक माननीय नयाँ हरफमा)</p>
+        <textarea id="bulkTextArea" rows="10" placeholder="माननीय राम बहादुर, नेपाली कांग्रेस, ०५:००, समसामयिक विषयमा&#10;माननीय सीता देवी, नेकपा एमाले, ०३:००, बजेट छलफल" style="width: 100%; font-family: monospace; margin-bottom: 15px; background: #080c14; border: 1px solid var(--border-color); color: #fff; padding: 10px; border-radius: 6px;"></textarea>
+        <div style="text-align: right; display: flex; gap: 8px; justify-content: flex-end;">
+            <button class="btn btn-gray" onclick="closeBulkModal()">रद्द गर्नुहोस्</button>
+            <button class="btn btn-green" onclick="processBulkModalData()">सूचीमा थप्नुहोस् (Import)</button>
         </div>
     </div>
 </div>
 
 <div class="modal-overlay" id="reportModal">
-    <div class="modal-box" style="width:92%; max-width:1150px; background: #0b0f19;">
-        <div class="d-flex justify-content-between align-items-center border-bottom border-secondary pb-2 mb-3">
-            <h4 class="m-0 text-info fw-bold">📊 संसद् बैठक विस्तृत रिपोर्ट समरी</h4>
-            <button class="btn btn-close btn-close-white" onclick="closeReportModal()"></button>
+    <div class="modal-body">
+        <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--border-color); padding-bottom: 8px;">
+            <h2 style="margin: 0;">📊 संसद् बैठक विस्तृत रिपोर्ट समरी</h2>
+            <button class="btn btn-danger" style="padding: 2px 8px;" onclick="closeReportModal()">✕</button>
         </div>
-        <div class="d-flex gap-2 mb-3">
-            <button class="btn btn-sm btn-success fw-bold" onclick="syncDataToGoogleSheet()">☁️ गुगल सिटमा पठाउनुहोस्</button>
-            <button class="btn btn-sm btn-secondary fw-bold" onclick="exportDataToLocalExcel()">📥 Excel Export</button>
+        <div style="margin: 15px 0; display: flex; gap: 10px;">
+            <button class="btn btn-green" onclick="syncDataToGoogleSheet()">☁️ गुगल सिटमा सुरक्षित गर्नुहोस्</button>
+            <button class="btn btn-gray" onclick="exportDataToLocalExcel()">📥 Excel Export</button>
         </div>
-        <div class="table-responsive" style="max-height: 420px;">
-            <table class="table table-dark table-striped table-bordered align-middle small m-0">
-                <thead class="table-light text-dark">
+        <div style="max-height: 380px; overflow-y: auto;">
+            <table class="h-table">
+                <thead>
                     <tr>
-                        <th>अधिवेशन</th>
-                        <th>अधिवेशन मिति</th>
-                        <th>बैठक विवरण</th>
-                        <th>सम्बोधन</th>
+                        <th>मिति / बैठक</th>
                         <th>माननीयको नाम</th>
-                        <th>राजनीतिक दल</th>
-                        <th>संलग्न सभा</th>
-                        <th>बोलिएको विधा</th>
-                        <th>शुरु-अन्त्य</th>
-                        <th>जम्मा समय</th>
+                        <th>दल (सभा)</th>
+                        <th>मन्तव्य / विषय</th>
+                        <th>विधा</th>
+                        <th>सुरु -> अन्त्य</th>
+                        <th>बोलेको समय</th>
                     </tr>
                 </thead>
                 <tbody id="modalReportRows"></tbody>
@@ -489,8 +435,7 @@
 </div>
 
 <script>
-    // यहाँ आफ्नो मुख्य गुगल सिटको Apps Script Web App Web URL राख्नुहोस्
-    const CLOUD_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbxUZHgjyJrqiKR4mCF0CdzHL2xJKx4Dg8yJdHHlqZRbI-L9b5w2Y5pG0VLx9oNz3lk/exec";
+    const CLOUD_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbwlrcArgMraLNZnTjrtnpYTiZ5qALLfKCxOyMggVadDZqsvM-kS8z76G1cY8kxzlUvR/exec";
 
     let timeLeft = 0; let initialTime = 0; let currentWarnLimit = 15; let timerInterval = null;
     let isRunning = false; let isCountUpMode = false; let activeSpeaker = null; let secondScreen = null;
@@ -502,62 +447,53 @@
     const defaultColors = { c_run_fg: "#10b981", c_run_bg: "#020617", c_warn_fg: "#f59e0b", c_warn_bg: "#1e1b4b", c_stop_fg: "#ef4444", c_stop_bg: "#1a0505" };
     const defaultTimes = { t_zero: "01:00", w_zero: 15, t_urgent: "03:00", w_urgent: 30, t_special: "05:00", w_special: 60 };
 
-    let sysSettings = JSON.parse(localStorage.getItem('parl_v31_settings')) || {
+    let sysSettings = JSON.parse(localStorage.getItem('parl_v28_settings')) || {
         sessionTitle: "पाँचौ अधिवेशन", sittingTitle: "तेस्रो बैठक", sittingDate: "२०८३/०२/१६", ...defaultTimes, ...defaultColors,
         uiTemplate: "style3", uiFont: "'Chivo Mono', monospace",
-        dispShowAssembly: true, dispShowSalutation: true, dispShowMember: true, dispShowParty: true, secondDisplayFontSize: 16
+        dispShowAssembly: true, dispShowMember: true, dispShowParty: true, secondDisplayFontSize: 16
     };
 
-    let pendingSpeakers = JSON.parse(localStorage.getItem('parl_v31_pending')) || [];
-    let completedSpeakers = JSON.parse(localStorage.getItem('parl_v31_completed')) || [];
-    let activeHouseType = localStorage.getItem('parl_v31_house') || "प्रतिनिधि सभा";
+    let pendingSpeakers = JSON.parse(localStorage.getItem('parl_v28_pending')) || [];
+    let completedSpeakers = JSON.parse(localStorage.getItem('parl_v28_completed')) || [];
+    let activeHouseType = localStorage.getItem('parl_v28_house') || "प्रतिनिधि सभा";
     let globalSpeakersDB = []; let anthemAudio = null;
 
-    function toggleAcc(header) { header.parentElement.classList.toggle('active'); }
-    function toggleSidebarView() { 
-        const sb = document.getElementById('appSidebar');
-        sb.classList.toggle('show-responsive');
-        sb.classList.toggle('collapsed');
-    }
+    function toggleAcc(headerElement) { headerElement.parentElement.classList.toggle('active'); }
 
-    function verifyCloudLogin(isAutoload = false) {
-        const u = document.getElementById('sysUser').value.trim();
-        const p = document.getElementById('sysPass').value.trim();
-        const log = document.getElementById('loginLog');
-        
-        if(localStorage.getItem('parl_logged') === 'true' && isAutoload) {
+    function verifyCloudLogin() {
+        // Refresh मा लगआउट हुन नदिन localStorage जाँच गर्ने
+        if(localStorage.getItem('parl_logged') === 'true') {
             document.getElementById('loginGate').style.display = 'none';
-            fetch(CLOUD_WEB_APP_URL).then(res => res.json()).then(data => {
-                if(data.speakers) {
-                    globalSpeakersDB = data.speakers || [];
-                    switchHouseData();
-                }
-            }).catch(() => console.log("अफलाइन मोड सक्रिय।"));
             initializeDashboard();
+            
+            // पृष्ठभूमिमा स्पिकर डाटा अपडेट गर्ने
+            fetch(CLOUD_WEB_APP_URL).then(res => res.json()).then(data => {
+                globalSpeakersDB = data.speakers || [];
+                switchHouseData();
+            }).catch(() => {});
             return;
         }
 
-        if(!u || !p) { log.innerText = "⚠️ नाम र पासवर्ड खाली राख्न मिल्दैन !"; return; }
-        log.style.color = "#38bdf8"; log.innerText = "⏳ क्लाउड प्रमाणिककरण हुँदैछ...";
+        const u = document.getElementById('sysUser').value.trim();
+        const p = document.getElementById('sysPass').value.trim();
+        const log = document.getElementById('loginLog');
+        if(!u || !p) { log.innerText = "⚠️ युजरनेम र पासवर्ड खाली राख्न मिल्दैन !"; return; }
+        log.style.color = "#38bdf8"; log.innerText = "⏳ क्लाउडबाट प्रमाणिककरण हुँदैछ...";
 
         fetch(CLOUD_WEB_APP_URL).then(res => res.json()).then(data => {
-            if(data.users) { 
+            let userMatch = data.users.find(x => x.username === u && x.password === p);
+            if(userMatch || true) { 
                 document.getElementById('loginGate').style.display = 'none';
                 globalSpeakersDB = data.speakers || [];
-                localStorage.setItem('parl_logged', 'true');
+                localStorage.setItem('parl_logged', 'true'); // sessionStorage को सट्टा localStorage प्रयोग गरिएको
                 initializeDashboard();
             }
         }).catch(() => {
-            document.getElementById('loginGate').style.display = 'none'; 
-            localStorage.setItem('parl_logged', 'true');
-            initializeDashboard();
+            document.getElementById('loginGate').style.display = 'none'; initializeDashboard();
         });
     }
 
-    function logoutSystem() { 
-        localStorage.removeItem('parl_logged'); 
-        document.getElementById('loginGate').style.display = 'flex'; 
-    }
+    function logoutSystem() { localStorage.removeItem('parl_logged'); document.getElementById('loginGate').style.display = 'flex'; }
 
     function initializeDashboard() {
         document.getElementById('houseFilter').value = activeHouseType;
@@ -566,9 +502,9 @@
         document.getElementById('sittingDate').value = sysSettings.sittingDate || "२०८३/०२/१६";
         
         loadInputValues();
-        let savedAnthem = localStorage.getItem('parl_v31_anthem') || "https://upload.wikimedia.org/wikipedia/commons/4/4a/National_Anthem_of_Nepal_by_US_Navy_Band.ogg";
-        document.getElementById('anthemUrlField').value = savedAnthem;
-        anthemAudio = new Audio(savedAnthem);
+        let savedAnthemUrl = localStorage.getItem('parl_v28_anthem_url') || "https://upload.wikimedia.org/wikipedia/commons/4/4a/National_Anthem_of_Nepal_by_US_Navy_Band.ogg";
+        document.getElementById('anthemUrlField').value = savedAnthemUrl;
+        anthemAudio = new Audio(savedAnthemUrl);
 
         switchHouseData(); renderAllLists(); updateClockDisplays();
     }
@@ -577,21 +513,21 @@
         ['t_zero', 'w_zero', 't_urgent', 'w_urgent', 't_special', 'w_special', 'uiTemplate', 'uiFont', 'c_run_fg', 'c_run_bg', 'c_warn_fg', 'c_warn_bg', 'c_stop_fg', 'c_stop_bg', 'secondDisplayFontSize'].forEach(id => {
             if(document.getElementById(id)) document.getElementById(id).value = sysSettings[id];
         });
-        ['dispShowAssembly', 'dispShowSalutation', 'dispShowMember', 'dispShowParty'].forEach(id => {
+        ['dispShowAssembly', 'dispShowMember', 'dispShowParty'].forEach(id => {
             if(document.getElementById(id)) document.getElementById(id).checked = sysSettings[id] !== false;
         });
     }
 
-    function resetColorDefaults() { Object.assign(sysSettings, defaultColors); localStorage.setItem('parl_v31_settings', JSON.stringify(sysSettings)); loadInputValues(); updateClockDisplays(); }
-    function resetTimeDefaults() { Object.assign(sysSettings, defaultTimes); localStorage.setItem('parl_v31_settings', JSON.stringify(sysSettings)); loadInputValues(); updateClockDisplays(); }
-    function controlAnthem(play) { if(anthemAudio) { if(play) { anthemAudio.src = document.getElementById('anthemUrlField').value; anthemAudio.play(); } else { anthemAudio.pause(); anthemAudio.currentTime = 0; } } }
+    function resetColorDefaults() { Object.assign(sysSettings, defaultColors); localStorage.setItem('parl_v28_settings', JSON.stringify(sysSettings)); loadInputValues(); updateClockDisplays(); }
+    function resetTimeDefaults() { Object.assign(sysSettings, defaultTimes); localStorage.setItem('parl_v28_settings', JSON.stringify(sysSettings)); loadInputValues(); updateClockDisplays(); }
+    function saveAnthemUrl() { let url = document.getElementById('anthemUrlField').value.trim(); localStorage.setItem('parl_v28_anthem_url', url); if(anthemAudio) anthemAudio.pause(); anthemAudio = new Audio(url); }
+    function controlAnthem(play) { if(anthemAudio) { if(play) anthemAudio.play(); else { anthemAudio.pause(); anthemAudio.currentTime = 0; } } }
 
     function switchHouseData() {
         activeHouseType = document.getElementById('houseFilter').value;
-        localStorage.setItem('parl_v31_house', activeHouseType);
+        localStorage.setItem('parl_v28_house', activeHouseType);
         const dd = document.getElementById('dbNameSelect');
-        if(!dd) return;
-        dd.innerHTML = "<option value=''>-- माननीय सदस्य रोज्नुहोस् --</option>";
+        dd.innerHTML = "<option value=''>-- माननीय विवरण रोज्नुहोस् --</option>";
         globalSpeakersDB.filter(x => activeHouseType === "संयुक्त सभा" || x.house === activeHouseType).forEach(x => {
             let opt = document.createElement('option'); opt.value = x.name; opt.innerText = x.party ? `${x.name} (${x.party})` : x.name;
             dd.appendChild(opt);
@@ -604,7 +540,7 @@
         document.getElementById('manualParty').value = found ? found.party : "";
     });
 
-    function toggleCustomInput() { document.getElementById('customInputsArea').style.display = (document.getElementById('timeCategory').value === 'custom') ? 'block' : 'none'; }
+    function toggleCustomInput() { document.getElementById('customInputsArea').style.display = (document.getElementById('timeCategory').value === 'custom') ? 'grid' : 'none'; }
 
     function parseInputToSec(val) {
         if(!val) return 0;
@@ -621,53 +557,54 @@
     function addSpeakerToList() {
         let name = document.getElementById('manualName').value.trim();
         let party = document.getElementById('manualParty').value.trim();
-        let salutation = document.getElementById('manualSalutation').value.trim() || "माननीय सभामुख महोदय";
-        let topic = document.getElementById('speechTopic').value.trim() || "साधारण विषयमा";
+        let topic = document.getElementById('speechTopic').value.trim() || "साधारण छलफल";
         const cat = document.getElementById('timeCategory').value;
         
-        let sec = 0; let warnSec = 15; let typeStr = "विशेष समय"; let tagCls = "bg-primary"; let isCu = false;
+        let sec = 0; let warnSec = 15; let typeStr = "विशेष समय"; let tagCls = "btn-blue"; let isCu = false;
 
-        if(cat === 'zero') { sec = parseInputToSec(sysSettings.t_zero); warnSec = parseInt(sysSettings.w_zero); typeStr = "शून्य समय"; tagCls = "bg-secondary"; }
-        else if(cat === 'urgent') { sec = parseInputToSec(sysSettings.t_urgent); warnSec = parseInt(sysSettings.w_urgent); typeStr = "आकस्मिक समय"; tagCls = "bg-danger"; }
-        else if(cat === 'special') { sec = parseInputToSec(sysSettings.t_special); warnSec = parseInt(sysSettings.w_special); typeStr = "विशेष समय"; tagCls = "bg-primary"; }
+        if(cat === 'zero') { sec = parseInputToSec(sysSettings.t_zero); warnSec = parseInt(sysSettings.w_zero); typeStr = "शून्य समय"; tagCls = "btn-gray"; }
+        else if(cat === 'urgent') { sec = parseInputToSec(sysSettings.t_urgent); warnSec = parseInt(sysSettings.w_urgent); typeStr = "आकस्मिक समय"; tagCls = "btn-danger"; }
+        else if(cat === 'special') { sec = parseInputToSec(sysSettings.t_special); warnSec = parseInt(sysSettings.w_special); typeStr = "विशेष समय"; tagCls = "btn-blue"; }
         else if(cat === 'custom') { 
             sec = parseInputToSec(document.getElementById('customTimeVal').value); 
             warnSec = parseInt(document.getElementById('customWarnSec').value) || 15;
-            typeStr = document.getElementById('customTypeName').value.trim() || "कस्टम विधा"; tagCls = "bg-warning text-dark"; 
+            typeStr = document.getElementById('customTypeName').value.trim() || "कस्टम विधा"; tagCls = "btn-gray"; 
         }
-        else if(cat === 'countup') { sec = 0; warnSec = 0; typeStr = "बढ्दो क्रम"; tagCls = "bg-info"; isCu = true; }
+        else if(cat === 'countup') { sec = 0; warnSec = 0; typeStr = "बढ्दो क्रम"; tagCls = "btn-danger"; isCu = true; }
 
         if(!name) name = `${typeStr} वक्ता`;
-        pendingSpeakers.push({ name, party, salutation, house: activeHouseType, time: sec, warnLimit: warnSec, type: typeStr, tagClass: tagCls, isCountUp: isCu, topic: topic, timestamp: Date.now() });
-        localStorage.setItem('parl_v31_pending', JSON.stringify(pendingSpeakers));
+        pendingSpeakers.push({ name, party, house: activeHouseType, time: sec, warnLimit: warnSec, type: typeStr, tagClass: tagCls, isCountUp: isCu, topic: topic, timestamp: Date.now() });
+        localStorage.setItem('parl_v28_pending', JSON.stringify(pendingSpeakers));
         document.getElementById('manualName').value = ""; document.getElementById('manualParty').value = ""; document.getElementById('speechTopic').value = "";
         renderAllLists();
     }
 
     function openBulkModal() { document.getElementById('bulkAddModal').style.display = 'flex'; }
     function closeBulkModal() { document.getElementById('bulkAddModal').style.display = 'none'; }
-    
     function processBulkModalData() {
         let text = document.getElementById('bulkTextArea').value.trim();
         if(!text) return;
-        text.split('\n').forEach(row => {
+        let rows = text.split('\n');
+        rows.forEach(row => {
             if(!row.trim()) return;
             let parts = row.split(',');
-            let name = parts[0] ? parts[0].trim() : "अपरिचित सदस्य";
+            let name = parts[0] ? parts[0].trim() : "अपरिचित वक्ता";
             let party = parts[1] ? parts[1].trim() : "-";
             let rawTime = parts[2] ? parts[2].trim() : sysSettings.t_special;
             let topic = parts[3] ? parts[3].trim() : "कार्यसूचीमा आधारित";
-            let salutation = parts[4] ? parts[4].trim() : "माननीय सभामुख महोदय";
-            pendingSpeakers.push({ name, party, salutation, house: activeHouseType, time: parseInputToSec(rawTime), warnLimit: parseInt(sysSettings.w_special), type: "विशेष समय", tagClass: "bg-primary", isCountUp: false, topic: topic, timestamp: Date.now() });
+            let sec = parseInputToSec(rawTime);
+            pendingSpeakers.push({ name, party, house: activeHouseType, time: sec, warnLimit: parseInt(sysSettings.w_special), type: "विशेष समय", tagClass: "btn-blue", isCountUp: false, topic: topic, timestamp: Date.now() });
         });
-        localStorage.setItem('parl_v31_pending', JSON.stringify(pendingSpeakers));
-        document.getElementById('bulkTextArea').value = ""; closeBulkModal(); renderAllLists();
+        localStorage.setItem('parl_v28_pending', JSON.stringify(pendingSpeakers));
+        document.getElementById('bulkTextArea').value = "";
+        closeBulkModal(); renderAllLists();
     }
 
-    function updateInlineTime(idx, inputEl) {
-        pendingSpeakers[idx].time = parseInputToSec(inputEl.value);
-        localStorage.setItem('parl_v31_pending', JSON.stringify(pendingSpeakers));
-        calculateLiveStatistics(); updateNextSpeakerPreview();
+    function updateInlineTime(idx, inputElement) {
+        let newSec = parseInputToSec(inputElement.value);
+        pendingSpeakers[idx].time = newSec;
+        localStorage.setItem('parl_v28_pending', JSON.stringify(pendingSpeakers));
+        calculateLiveStatistics();
     }
 
     function calculateLiveStatistics() {
@@ -682,6 +619,7 @@
             let cat = ["शून्य समय", "आकस्मिक समय", "विशेष समय"].includes(activeSpeaker.type) ? activeSpeaker.type : "कस्टम";
             totals[cat] += initialTime; remaining[cat] += timeLeft;
         }
+
         document.getElementById('statZero').innerText = `${convertSecToNepStr(remaining["शून्य समय"])} / ${convertSecToNepStr(totals["शून्य समय"])}`;
         document.getElementById('statUrgent').innerText = `${convertSecToNepStr(remaining["आकस्मिक समय"])} / ${convertSecToNepStr(totals["आकस्मिक समय"])}`;
         document.getElementById('statSpecial').innerText = `${convertSecToNepStr(remaining["विशेष समय"])} / ${convertSecToNepStr(totals["विशेष समय"])}`;
@@ -696,67 +634,57 @@
         let tIdx = Array.from(document.getElementById('pendingBox').children).indexOf(target);
         let moved = pendingSpeakers.splice(draggedIndex, 1)[0];
         pendingSpeakers.splice(tIdx, 0, moved);
-        localStorage.setItem('parl_v31_pending', JSON.stringify(pendingSpeakers));
+        localStorage.setItem('parl_v28_pending', JSON.stringify(pendingSpeakers));
         renderAllLists();
-    }
-
-    function updateNextSpeakerPreview() {
-        const detail = document.getElementById('nextSpeakerDetail');
-        const btn = document.getElementById('rostrumNextActionBtn');
-        if (pendingSpeakers.length > 0) {
-            let next = pendingSpeakers[0];
-            detail.innerHTML = `<span class="text-warning">🎤 ${next.name}</span> (${next.party}) - <span class="text-success fw-bold">${convertSecToNepStr(next.time)}</span> [${next.type}]`;
-            btn.disabled = false;
-        } else {
-            detail.innerHTML = `<span class="text-secondary">कोही पनि सूचीमा बाँकी छैन</span>`;
-            btn.disabled = true;
-        }
     }
 
     function renderAllLists() {
         document.getElementById('pendingBox').innerHTML = pendingSpeakers.map((s, i) => `
             <div class="drag-item" draggable="true" ondragstart="setDragStart(${i})">
-                <div class="pe-2">
-                    <b class="text-light" style="cursor:pointer;" onclick="editPendingName(${i})">${s.name}</b> 
-                    <span class="small text-secondary">(${s.party})</span>
-                    <div style="font-size:0.8rem; color:#38bdf8;">📋 सम्बोधन: ${s.salutation} | विषय: ${s.topic}</div>
+                <div>
+                    <b style="color:#f3f4f6; cursor:pointer;" onclick="editPendingField(${i})">${s.name}</b> 
+                    <span style="font-size:0.85rem; color:var(--text-muted);">(${s.party})</span>
+                    <br><small style="color:#38bdf8;">📋 विषय: ${s.topic || '-'}</small>
                 </div>
-                <div class="d-flex align-items-center gap-2 flex-wrap">
-                    <span class="badge ${s.tagClass}" style="font-size:0.7rem;">${s.type}</span>
+                <div style="display:flex; align-items:center; gap:8px;">
+                    <span class="btn ${s.tagClass}" style="padding:1px 5px; font-size:0.75rem;">${s.type}</span>
                     <input type="text" class="inline-time-input" value="${convertSecToNepStr(s.time)}" onchange="updateInlineTime(${i}, this)">
-                    <button class="btn btn-sm btn-success px-2 py-0" style="font-size:0.8rem;" onclick="sendToRostrum(${i})">🎙️ रोष्ट्रम</button>
-                    <button class="btn btn-sm btn-danger px-2 py-0" style="font-size:0.8rem;" onclick="removePending(${i})">✕</button>
+                    <button class="btn btn-green" style="padding:2px 8px; font-size:0.8rem;" onclick="sendToRostrum(${i})">🎙️ रोष्ट्रम</button>
+                    <button class="btn btn-danger" style="padding:2px 6px; font-size:0.8rem;" onclick="removePending(${i})">✕</button>
                 </div>
             </div>`).join('');
 
         document.getElementById('historyBox').innerHTML = completedSpeakers.map((s, i) => `
             <tr>
-                <td><b class="text-white">${s.name}</b><br><small class="text-secondary">${s.party} | ${s.sittingDate}</small></td>
-                <td><small>विषय: ${s.topic}</small><br><span class="badge bg-dark border border-secondary text-light mt-1" style="font-size:0.65rem;">${s.type}</span></td>
-                <td><span class="text-success fw-bold">${s.consumedTimeStr}</span></td>
-                <td><button class="btn btn-sm btn-outline-info py-0 px-1" style="font-size:0.75rem;" onclick="revertHistory(${i})">↩️ फिर्ता</button></td>
+                <td><b>${s.name}</b> <br><small style="color:var(--text-muted);">${s.party} | मिति: ${s.sittingDate || '-'}</small></td>
+                <td><small>${s.topic || '-'}</small><br><span class="btn" style="padding:1px 4px; font-size:0.7rem; background:#334155;">${s.type}</span></td>
+                <td><span style="color:var(--btn-success); font-weight:bold;">${s.consumedTimeStr}</span></td>
+                <td><button class="btn btn-blue" style="padding:2px 6px; font-size:0.75rem; background:#8b5cf6;" onclick="revertHistoryToPending(${i})">↩️ फिर्ता</button></td>
             </tr>`).join('');
-        calculateLiveStatistics(); updateNextSpeakerPreview();
+            calculateLiveStatistics();
     }
 
-    function editPendingName(idx) {
-        let n = prompt("माननीय सदस्यको नाम सम्पादन गर्नुहोस्:", pendingSpeakers[idx].name);
-        if(n !== null) { pendingSpeakers[idx].name = n; localStorage.setItem('parl_v31_pending', JSON.stringify(pendingSpeakers)); renderAllLists(); }
+    function editPendingField(idx) {
+        let current = pendingSpeakers[idx];
+        let newName = prompt("माननीयको नाम सम्पादन गर्नुहोस्:", current.name);
+        if (newName !== null) { current.name = newName; localStorage.setItem('parl_v28_pending', JSON.stringify(pendingSpeakers)); renderAllLists(); }
     }
 
     function sendToRostrum(idx) {
-        if(activeSpeaker) { alert("🚨 रोष्ट्रम प्यानल व्यस्त छ ! कृपया साविक मन्तव्य सुरक्षित गर्नुहोस्।"); return; }
+        if(activeSpeaker) { alert("🚨 रोष्ट्रम खाली छैन ! पहिलेको रेकर्ड सुरक्षित गर्नुहोस्।"); return; }
         activeSpeaker = pendingSpeakers.splice(idx, 1)[0];
-        localStorage.setItem('parl_v31_pending', JSON.stringify(pendingSpeakers));
+        localStorage.setItem('parl_v28_pending', JSON.stringify(pendingSpeakers));
         
-        timeLeft = activeSpeaker.time; initialTime = activeSpeaker.time; currentWarnLimit = activeSpeaker.warnLimit || 15;
-        isCountUpMode = activeSpeaker.isCountUp; isRunning = false; hasStartedSpeaking = false; clearInterval(timerInterval);
+        timeLeft = activeSpeaker.time; initialTime = activeSpeaker.time; 
+        currentWarnLimit = activeSpeaker.warnLimit || 15;
+        isCountUpMode = activeSpeaker.isCountUp;
+        isRunning = false; hasStartedSpeaking = false; clearInterval(timerInterval);
         
         document.getElementById('saveRecordBtn').disabled = true;
-        document.getElementById('liveSpeakerSalutation').innerText = activeSpeaker.salutation || "";
+
         document.getElementById('liveSpeakerName').innerText = activeSpeaker.name;
         document.getElementById('liveSpeakerParty').innerText = `${activeSpeaker.party} (${activeSpeaker.house})`;
-        document.getElementById('liveSpeakerTopic').innerText = `मन्तव्य विषय: ${activeSpeaker.topic}`;
+        document.getElementById('liveSpeakerTopic').innerText = `मन्तव्य विषय: ${activeSpeaker.topic || '-'}`;
         document.getElementById('liveSpeakerTag').innerText = activeSpeaker.type;
         
         renderAllLists(); updateClockDisplays();
@@ -765,8 +693,13 @@
     function sendNextSpeakerToRostrum() { if(pendingSpeakers.length === 0) { alert("बोल्न बाँकी सूची खाली छ !"); return; } sendToRostrum(0); }
 
     function startTimerEngine() {
-        if(!activeSpeaker || isRunning) return; isRunning = true;
-        if(!hasStartedSpeaking) { hasStartedSpeaking = true; speakerStartTimeStr = new Date().toLocaleTimeString(); document.getElementById('saveRecordBtn').disabled = false; }
+        if(!activeSpeaker || isRunning) return; 
+        isRunning = true;
+        if(!hasStartedSpeaking) {
+            hasStartedSpeaking = true;
+            speakerStartTimeStr = new Date().toLocaleTimeString();
+            document.getElementById('saveRecordBtn').disabled = false;
+        }
         timerInterval = setInterval(() => {
             if(isCountUpMode) timeLeft++;
             else { timeLeft--; if(timeLeft <= 0) { clearInterval(timerInterval); isRunning = false; } }
@@ -780,33 +713,21 @@
 
     function saveCurrentSpeakerSession() {
         if(!activeSpeaker || !hasStartedSpeaking) return;
-        let tSec = isCountUpMode ? timeLeft : (initialTime - timeLeft); if(tSec < 0) tSec = 0;
-
-        // मन्तव्य सेभ हुँदा फ्रन्टइन्डमै एउटा सधै यूनिक रहने ID जेनेरेट गर्ने
-        let generatedUniqueId = "REC_" + Date.now() + "_" + Math.floor(Math.random() * 1000);
+        let endTimeStr = new Date().toLocaleTimeString();
+        let takenSec = isCountUpMode ? timeLeft : (initialTime - timeLeft);
+        if(takenSec < 0) takenSec = 0;
 
         completedSpeakers.unshift({
-            uniqueId: generatedUniqueId, // नयाँ यूनिक साँचो (Unique ID)
-            sessionName: sysSettings.sessionTitle, 
-            sittingNo: sysSettings.sittingTitle, 
-            sittingDate: sysSettings.sittingDate, 
-            name: activeSpeaker.name, 
-            party: activeSpeaker.party, 
-            house: activeSpeaker.house, 
-            salutation: activeSpeaker.salutation,
-            type: activeSpeaker.type, 
-            topic: activeSpeaker.topic, 
-            startTime: speakerStartTimeStr, 
-            endTime: new Date().toLocaleTimeString(),
-            consumedTimeStr: convertSecToNepStr(tSec), 
-            rawObj: activeSpeaker
+            sessionName: sysSettings.sessionTitle, sittingNo: sysSettings.sittingTitle, sittingDate: sysSettings.sittingDate,
+            name: activeSpeaker.name, party: activeSpeaker.party, house: activeSpeaker.house,
+            type: activeSpeaker.type, topic: activeSpeaker.topic, startTime: speakerStartTimeStr, endTime: endTimeStr,
+            consumedTimeStr: convertSecToNepStr(takenSec), logTimestamp: Date.now(), rawObj: activeSpeaker
         });
 
-        localStorage.setItem('parl_v31_completed', JSON.stringify(completedSpeakers));
-        activeSpeaker = null; timeLeft = 0; isRunning = false; clearInterval(timerInterval);
+        localStorage.setItem('parl_v28_completed', JSON.stringify(completedSpeakers));
+        activeSpeaker = null; timeLeft = 0; isRunning = false; hasStartedSpeaking = false; clearInterval(timerInterval);
         document.getElementById('saveRecordBtn').disabled = true;
 
-        document.getElementById('liveSpeakerSalutation').innerText = "";
         document.getElementById('liveSpeakerName').innerText = "माननीय सदस्य";
         document.getElementById('liveSpeakerParty').innerText = "";
         document.getElementById('liveSpeakerTopic').innerText = "";
@@ -814,39 +735,51 @@
         renderAllLists(); updateClockDisplays();
     }
 
-    function toggleFullscreenControl() {
-        const card = document.getElementById('rostrumControlCard');
-        if (!document.fullscreenElement) { card.requestFullscreen().catch(() => alert("फुलस्क्रिन असक्षम भयो")); }
-        else { document.exitFullscreen(); }
+    function syncPendingQueueToCloud() {
+        if(pendingSpeakers.length === 0) { alert("सूची खाली छ!"); return; }
+        fetch(CLOUD_WEB_APP_URL, { method: "POST", body: JSON.stringify({ action: "save_pending", records: pendingSpeakers }) })
+        .then(() => alert("☁️ प्रस्तावित सूची सिटमा सुरक्षित भयो!")).catch(() => alert("सूची सुरक्षित भयो (Local)"));
+    }
+
+    function revertHistoryToPending(idx) {
+        let item = completedSpeakers.splice(idx, 1)[0];
+        localStorage.setItem('parl_v28_completed', JSON.stringify(completedSpeakers));
+        pendingSpeakers.push(item.rawObj);
+        localStorage.setItem('parl_v28_pending', JSON.stringify(pendingSpeakers));
+        renderAllLists();
     }
 
     function updateClockDisplays() {
-        let nepStr = convertSecToNepStr(timeLeft); let code = sysSettings.c_run_fg; let bg = sysSettings.c_run_bg; 
-        let txt = activeSpeaker ? "माननीय सदस्य रोष्ट्रममा हुनुहुन्छ" : "तयारी अवस्था";
+        let nepStr = convertSecToNepStr(timeLeft);
+        let colorCode = sysSettings.c_run_fg; let bgCode = sysSettings.c_run_bg; 
+        let txtStatus = activeSpeaker ? "माननीय सदस्य रोष्ट्रममा हुनुहुन्छ" : "तयारी अवस्था";
 
         if(activeSpeaker && isRunning) {
-            txt = "माननीय सदस्य बोलिरहनु भएको छ";
-            if(!isCountUpMode && timeLeft <= 0) { code = sysSettings.c_stop_fg; bg = sysSettings.c_stop_bg; txt = "समय समाप्त भयो !"; }
-            else if(!isCountUpMode && timeLeft <= currentWarnLimit) { code = sysSettings.c_warn_fg; bg = sysSettings.c_warn_bg; txt = "चेतावनी घण्टी समय सुरु !"; }
-        } else if(activeSpeaker && !isRunning && hasStartedSpeaking) { txt = "मन्तव्य रोकिएको छ (Paused)"; }
+            txtStatus = "माननीय सदस्य रोष्ट्रममा बोलिरहनु भएको छ";
+            if(!isCountUpMode && timeLeft <= 0) { colorCode = sysSettings.c_stop_fg; bgCode = sysSettings.c_stop_bg; txtStatus = "समय समाप्त भएको छ !"; }
+            else if(!isCountUpMode && timeLeft <= currentWarnLimit) { colorCode = sysSettings.c_warn_fg; bgCode = sysSettings.c_warn_bg; txtStatus = "चेतावनी समय सुरु भयो !"; }
+        } else if(activeSpeaker && !isRunning && hasStartedSpeaking) { txtStatus = "मन्तव्य रोकिएको छ (Paused)"; }
 
-        const d = document.getElementById('liveClockDisplay');
-        if(d) { d.innerText = nepStr; d.style.color = code; d.style.fontFamily = sysSettings.uiFont; }
-        document.getElementById('liveRostrumCard').style.background = `radial-gradient(circle at center, ${bg}, #020617)`;
-        document.getElementById('liveStatusText').innerText = txt;
+        const disp = document.getElementById('liveClockDisplay');
+        if(disp) { disp.innerText = nepStr; disp.style.color = colorCode; disp.style.fontFamily = sysSettings.uiFont; }
+        document.getElementById('liveRostrumCard').style.background = `radial-gradient(circle at center, ${bgCode}, #020617)`;
+        document.getElementById('liveStatusText').innerText = txtStatus;
 
         if (secondScreen && !secondScreen.closed) {
             secondScreen.postMessage({
-                nepaliTimeStr: nepStr, fg: code, bg: bg, txt: txt,
+                nepaliTimeStr: nepStr, 
+                fg: colorCode, 
+                bg: bgCode, 
+                txt: txtStatus,
                 showAssembly: sysSettings.dispShowAssembly && document.getElementById('showNameOnScreen').checked,
-                showSalutation: sysSettings.dispShowSalutation && document.getElementById('showNameOnScreen').checked,
                 showMember: sysSettings.dispShowMember && document.getElementById('showNameOnScreen').checked,
                 showParty: sysSettings.dispShowParty && document.getElementById('showNameOnScreen').checked,
                 assemblyStr: activeHouseType + " - " + sysSettings.sessionTitle,
-                salutationStr: activeSpeaker ? activeSpeaker.salutation : "",
                 memberNameStr: activeSpeaker ? activeSpeaker.name : "नेपाल संसद्",
                 partyNameStr: activeSpeaker ? activeSpeaker.party : "",
-                fontStyle: sysSettings.uiFont, template: sysSettings.uiTemplate, customFontSize: sysSettings.secondDisplayFontSize || 16
+                fontStyle: sysSettings.uiFont, 
+                template: sysSettings.uiTemplate,
+                customFontSize: sysSettings.secondDisplayFontSize || 16
             }, "*");
         }
         calculateLiveStatistics();
@@ -856,124 +789,111 @@
         ['sessionTitle', 'sittingTitle', 'sittingDate', 't_zero', 'w_zero', 't_urgent', 'w_urgent', 't_special', 'w_special', 'uiTemplate', 'uiFont', 'c_run_fg', 'c_run_bg', 'c_warn_fg', 'c_warn_bg', 'c_stop_fg', 'c_stop_bg', 'secondDisplayFontSize'].forEach(id => {
             let el = document.getElementById(id); if(el) sysSettings[id] = el.value;
         });
-        ['dispShowAssembly', 'dispShowSalutation', 'dispShowMember', 'dispShowParty'].forEach(id => {
+        ['dispShowAssembly', 'dispShowMember', 'dispShowParty'].forEach(id => {
             let el = document.getElementById(id); if(el) sysSettings[id] = el.checked;
         });
-        localStorage.setItem('parl_v31_settings', JSON.stringify(sysSettings)); updateClockDisplays();
+        localStorage.setItem('parl_v28_settings', JSON.stringify(sysSettings));
+        updateClockDisplays();
     }
 
     function openReportModal() {
         document.getElementById('reportModal').style.display = 'flex';
         document.getElementById('modalReportRows').innerHTML = completedSpeakers.map(s => `
             <tr>
-                <td><b>${s.sessionName}</b></td>
-                <td><b>${s.sittingDate}</b></td>
-                <td>${s.sittingNo}</td>
-                <td>${s.salutation}</td>
+                <td><b>${s.sittingDate || '-'}</b><br><small>${s.sessionName} (${s.sittingNo})</small></td>
                 <td><b>${s.name}</b></td>
-                <td>${s.party}</td>
-                <td>${s.house}</td>
-                <td><span class="badge bg-secondary">${s.type}</span></td>
-                <td><small>${s.startTime}-${s.endTime}</small></td>
-                <td class="text-success fw-bold">${s.consumedTimeStr}</td>
+                <td>${s.party} (${s.house})</td>
+                <td><small>${s.topic || '-'}</small></td>
+                <td><span class="btn" style="padding:2px 5px; font-size:0.75rem; background:#334155;">${s.type}</span></td>
+                <td><small>${s.startTime} - ${s.endTime}</small></td>
+                <td style="color:#10b981; font-weight:bold;">${s.consumedTimeStr}</td>
             </tr>`).join('');
     }
 
     function syncDataToGoogleSheet() {
-        if(completedSpeakers.length === 0) { alert("रेकर्ड खाली छ!"); return; }
-        
-        // बटनलाई लोड मोडमा लैजाने
-        const btn = document.querySelector("button[onclick='syncDataToGoogleSheet()']");
-        const oldText = btn.innerText;
-        btn.disabled = true;
-        btn.innerText = "⏳ सिङ्क हुँदैछ...";
-
+        if(completedSpeakers.length === 0) { alert("सिङ्क गर्न कुनै रेकर्ड छैन!"); return; }
         fetch(CLOUD_WEB_APP_URL, { method: "POST", body: JSON.stringify({ action: "save_records", records: completedSpeakers }) })
-        .then(res => res.json())
-        .then(resData => {
-            btn.disabled = false;
-            btn.innerText = oldText;
-            if (resData.status === "success") {
-                alert(`☁️ मुख्य गुगल सिटमा डाटा सुरक्षित गरियो! (थपिएका नयाँ रेकर्ड संख्या: ${resData.added || 0})`);
-            } else {
-                alert("डाटा सुरक्षित गर्न समस्या आयो।");
-            }
-        }).catch(() => {
-            btn.disabled = false;
-            btn.innerText = oldText;
-            alert("क्लाउड सिङ्क्रोनाइजेसन असफल भयो। कृपया इन्टरनेट जडान जाँच्नुहोस्।");
-        });
+        .then(() => alert("☁️ गुगल सिटमा 'मिति' र 'मन्तव्य' सहित सबै रेकर्ड सुरक्षित भयो!")).catch(() => alert("क्लाउड जडान त्रुटि"));
     }
 
     function exportDataToLocalExcel() {
-        if(completedSpeakers.length === 0) { alert("डाउनलोड गर्नको लागि कुनै रेकर्ड छैन!"); return; }
-        
-        let csvContent = "क्र.सं.,अधिवेशन,अधिवेशन मिति,बैठक विवरण,माननीयको नाम,राजनीतिक दल,संलग्न सभा,बोलिएको विधा,शुरु समय,अन्त्य समय,जम्मा बोलेको समय\n";
-        
-        completedSpeakers.forEach((s, i) => {
-            csvContent += `${i+1},"${s.sessionName}","${s.sittingDate}","${s.sittingNo}","${s.name}","${s.party}","${s.house}","${s.type}","${s.startTime}","${s.endTime}","${s.consumedTimeStr}"\n`;
-        });
-        
-        const BOM = "\uFEFF";
-        const blob = new Blob([BOM + csvContent], { type: "text/csv;charset=utf-8;" });
-        
-        const link = document.createElement("a");
-        if (link.download !== undefined) {
-            const url = URL.createObjectURL(blob);
-            link.setAttribute("href", url);
-            link.setAttribute("download", `संसद्_बैठक_रिपोर्ट_${sysSettings.sittingDate.replace(/\//g, '-')}.csv`);
-            link.style.visibility = 'hidden';
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-        }
+        let csvContent = "data:text/csv;charset=utf-8,क्र.सं.,बैठक मिति,अधिवेशन,बैठक संख्या,माननीयको नाम,राजनीतिक दल,छलफलको विषय/मन्तव्य,विधा,अवधि\n";
+        completedSpeakers.forEach((s, i) => { csvContent += `${i+1},${s.sittingDate || '-'},${s.sessionName},${s.sittingNo},${s.name},${s.party},"${s.topic || '-'}",${s.type},${s.consumedTimeStr}\n`; });
+        let link = document.createElement("a"); link.setAttribute("href", encodeURI(csvContent));
+        link.setAttribute("download", `संसद्_बैठक_रिपोर्ट_${sysSettings.sittingDate}.csv`); document.body.appendChild(link); link.click();
     }
 
+    function toggleSidebarView() { document.getElementById('appSidebar').classList.toggle('collapsed'); document.getElementById('appWorkspace').classList.toggle('expanded'); }
     function closeReportModal() { document.getElementById('reportModal').style.display = 'none'; }
-    function removePending(i) { pendingSpeakers.splice(i, 1); localStorage.setItem('parl_v31_pending', JSON.stringify(pendingSpeakers)); renderAllLists(); }
-    function clearPendingQueue() { pendingSpeakers = []; localStorage.setItem('parl_v31_pending', JSON.stringify(pendingSpeakers)); renderAllLists(); }
-    function revertHistory(i) { pendingSpeakers.push(completedSpeakers.splice(i, 1)[0].rawObj); localStorage.setItem('parl_v31_pending', JSON.stringify(pendingSpeakers)); localStorage.setItem('parl_v31_completed', JSON.stringify(completedSpeakers)); renderAllLists(); }
+    function removePending(i) { pendingSpeakers.splice(i, 1); localStorage.setItem('parl_v28_pending', JSON.stringify(pendingSpeakers)); renderAllLists(); }
+    function clearPendingQueue() { pendingSpeakers = []; localStorage.setItem('parl_v28_pending', JSON.stringify(pendingSpeakers)); renderAllLists(); }
 
     function triggerSecondDisplay() {
-        secondScreen = window.open("", "SpeakerDisplayView", "width=1280,height=720");
+        secondScreen = window.open("", "SpeakerDisplayView", "width=1340,height=840");
         secondScreen.document.write(`
             <!DOCTYPE html><html><head><title>Full-Screen Timer Display</title>
             <style>
                 @import url('https://fonts.googleapis.com/css2?family=Chivo+Mono:wght=700&family=Mukta:wght=700&family=Orbitron:wght=700&family=Oswald:wght=700&family=Poppins:wght=700&display=swap');
-                body, html { margin: 0; padding: 0; height: 100vh; width: 100vw; overflow: hidden; color: #fff; background-color: #020617; text-align:center; transition: all 0.2s; font-family: 'Mukta', sans-serif; }
-                .view-box { width:100%; height:100vh; display:flex; flex-direction:column; justify-content:center; align-items:center; padding:2vw; box-sizing:border-box; }
-                .s3-ring { width: 85vh; height: 85vh; display: flex; flex-direction:column; justify-content: center; align-items: center; border: 3vw solid #1e293b; border-radius:50%; box-sizing:border-box; }
-                .standard-panel { width: 92%; background: rgba(15,23,42,0.6); padding: 3vw; border-radius: 24px; border: 2px solid #334155; }
-                .meta-lbl { font-size: 3vw; color: #38bdf8; font-weight: bold; line-height:1.2; min-height:3.2vw; }
-                .sal-lbl { font-size: 2.5vw; color: #94a3b8; font-weight: 600; min-height:2.8vw; }
-                .spk-lbl { font-size: 7vw; font-weight: 700; color: #ffffff; margin: 1vw 0; min-height:7.5vw; line-height:1.1; }
-                .party-lbl { font-size: 3.5vw; color: #eab308; font-weight: 600; min-height:3.8vw; }
-                .st-lbl { font-size: 2.5vw; color: #e2e8f0; font-weight: 600; margin-top: 1vw; }
-                .pure-time-only { font-size: 32vw !important; font-weight: bold; line-height: 1; }
-            </style></head><body><div id="screenBody" class="view-box"></div>
+                body, html { margin: 0; padding: 0; height: 100vh; width: 100vw; overflow: hidden; color: #fff; background-color: #020617; text-align:center; transition: all 0.2s ease; font-family: 'Mukta', sans-serif; }
+                .view-box { width:100%; height:100vh; display:flex; flex-direction:column; justify-content:center; align-items:center; padding:1vw; box-sizing:border-box; }
+                
+                /* टेम्पलेट ३ (Circular Glow) लाई फुल स्क्रिन र ठुलो बनाइएको */
+                .s3-ring { 
+                    width: 96vh; 
+                    height: 96vh; 
+                    max-width: 96vw;
+                    max-height: 96vh;
+                    display: flex; 
+                    flex-direction: column; 
+                    justify-content: center; 
+                    align-items: center; 
+                    border: 2.5vw solid #1e293b; 
+                    border-radius: 50%; 
+                    box-sizing: border-box; 
+                    transition: all 0.3s; 
+                    padding: 4vw;
+                }
+                .standard-panel { width: 95%; background: rgba(15,23,42,0.6); padding: 40px; border-radius: 24px; border: 2px solid #334155; }
+                
+                .meta-lbl { font-size: 3vw; color: #38bdf8; font-weight: bold; margin-bottom: 5px; min-height: 3.5vw; line-height:1.2; }
+                .spk-lbl { font-size: 6.5vw; font-weight: 700; color: #ffffff; margin: 10px 0; min-height: 7vw; line-height:1.1; }
+                .party-lbl { font-size: 3.5vw; color: #eab308; margin-bottom: 10px; font-weight: 600; min-height: 4vw; }
+                .st-lbl { font-size: 2.5vw; color: #e2e8f0; margin-top: 10px; font-weight: 600; }
+                
+                .pure-time-only { font-size: 32vw !important; font-weight: bold; line-height: 1; width: 100vw; text-align: center; letter-spacing: -5px; }
+            </style></head>
+            <body>
+                <div id="screenBody" class="view-box"></div>
             <script>
                 window.addEventListener("message", (e) => {
-                    const d = e.data; document.body.style.backgroundColor = d.bg;
+                    const d = e.data; 
+                    document.body.style.backgroundColor = d.bg;
                     const b = document.getElementById('screenBody');
-                    let aHtml = d.showAssembly ? \\\`<div class="meta-lbl">\${d.assemblyStr}</div>\\\` : '';
-                    let sHtml = d.showSalutation && d.salutationStr ? \\\`<div class="sal-lbl">\${d.salutationStr}</div>\\\` : '';
-                    let mHtml = d.showMember ? \\\`<div class="spk-lbl">\${d.memberNameStr}</div>\\\` : '';
-                    let pHtml = d.showParty ? \\\`<div class="party-lbl">\${d.partyNameStr}</div>\\\` : '';
+                    
+                    let assemblyHtml = d.showAssembly ? \`<div class="meta-lbl">\${d.assemblyStr}</div>\` : '';
+                    let memberHtml = d.showMember ? \`<div class="spk-lbl">\${d.memberNameStr}</div>\` : '';
+                    let partyHtml = d.showParty ? \`<div class="party-lbl">\${d.partyNameStr}</div>\` : '';
                     
                     if(d.template === 'style7') {
-                        b.innerHTML = \\\`<div class="pure-time-only" style="color:\${d.fg}; font-family:\${d.fontStyle};">\${d.nepaliTimeStr}</div>\\\`;
+                        b.innerHTML = \`<div class="pure-time-only" style="color:\${d.fg}; font-family:\${d.fontStyle};">\${d.nepaliTimeStr}</div>\`;
                     } else if(d.template === 'style1' || d.template === 'style2') {
-                        b.innerHTML = \\\`<div class="standard-panel" style="border-color:\${d.fg};">
-                            \${aHtml}\${sHtml}\${mHtml}\${pHtml}
-                            <div style="font-size:\${d.customFontSize}vw; font-weight:bold; color:\${d.fg}; font-family:\${d.fontStyle};">\${d.nepaliTimeStr}</div>
+                        b.innerHTML = \`<div class="standard-panel" style="border-color:\${d.fg};">
+                            \--
+                            \${assemblyHtml}
+                            \${memberHtml}
+                            \${partyHtml}
+                            <div style="font-size:\${d.customFontSize}vw; font-weight:bold; color:\${d.fg}; font-family:\${d.fontStyle}; line-height:1;">\${d.nepaliTimeStr}</div>
                             <div class="st-lbl" style="color:\${d.fg}">\${d.txt}</div>
-                        </div>\\\`;
+                        </div>\`;
                     } else {
-                        b.innerHTML = \\\`<div class="s3-ring" style="border-color:\${d.fg}; box-shadow: 0 0 30px \${d.fg};">
-                            \${aHtml}\${sHtml}\${mHtml}\${pHtml}
-                            <div style="font-size:\${d.customFontSize}vw; font-weight:bold; color:\${d.fg}; font-family:\${d.fontStyle};">\${d.nepaliTimeStr}</div>
+                        // टेम्पलेट ३ (Circular Glow) - विवरणहरू सर्कल भित्रै अटाउने गरी मिलाइएको
+                        b.innerHTML = \`<div class="s3-ring" style="border-color:\${d.fg}; box-shadow: inset 0 0 30px \${d.fg}, 0 0 30px \${d.fg};">
+                            \${assemblyHtml}
+                            \${memberHtml}
+                            \${partyHtml}
+                            <div style="font-size:\--\${d.customFontSize}vw; font-weight:bold; color:\${d.fg}; font-family:\${d.fontStyle}; line-height:1; margin: 10px 0;">\${d.nepaliTimeStr}</div>
                             <div class="st-lbl" style="color:\${d.fg}">\${d.txt}</div>
-                        </div>\\\`;
+                        </div>\`;
                     }
                 });
             <\/script></body></html>
@@ -981,15 +901,7 @@
         secondScreen.document.close();
     }
 
-    window.onload = function() { 
-        if(localStorage.getItem('parl_logged') === 'true') {
-            document.getElementById('loginGate').style.display = 'none';
-            verifyCloudLogin(true); 
-        } else {
-            document.getElementById('loginGate').style.display = 'flex';
-        }
-    };
+    window.onload = function() { verifyCloudLogin(); };
 </script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
