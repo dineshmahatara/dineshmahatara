@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>System Dashboard Center</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+  <!-- SheetJS library for exporting flawlessly to Excel formats -->
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+  <style>
+    :root {
+      --sidebar-width: 260px;
+      --primary-dark: #1e293b;
+      --accent-soft: #f8fafc;
+    }
+    body {
+      background-color: #f1f5f9;
+      font-family: system-ui, -apple-system, sans-serif;
+    }
+    #loginWrapper {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+    }
+    .sidebar {
+      width: var(--sidebar-width);
+      background-color: var(--primary-dark);
+      position: fixed;
+      top: 0;
+      bottom: 0;
+      left: 0;
+      z-index: 100;
+      transition: all 0.3s ease;
+    }
+    .sidebar .nav-link {
+      color: #94a3b8;
+      border-radius: 0.375rem;
+      margin: 0.25rem 1rem;
+    }
+    .sidebar .nav-link:hover, .sidebar .nav-link.active {
+      color: #fff;
+      background-color: rgba(255, 255, 255, 0.1);
+    }
+    .main-content {
+      margin-left: var(--sidebar-width);
+      padding: 2rem;
+      transition: all 0.3s ease;
+    }
+    .card {
+      border: none;
+      border-radius: 0.75rem;
+      box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05), 0 2px 4px -1px rgba(0,0,0,0.03);
+    }
+    .table-responsive {
+      background: #fff;
+      border-radius: 0.75rem;
+    }
+    .badge-high { background-color: #ef4444; }
+    .badge-medium { background-color: #f59e0b; }
+    .badge-low { background-color: #10b981; }
+    @media (max-width: 991.98px) {
+      .sidebar { left: calc(-1 * var(--sidebar-width)); }
+      .sidebar.open { left: 0; }
+      .main-content { margin-left: 0; }
+    }
+    .hidden { display: none !important; }
+  </style>
+</head>
+<body>
+
+  <!-- AUTHENTICATION SCREEN WRAPPER -->
+  <div id="loginWrapper">
+    <div class="card p-4 shadow-lg" style="width: 100%; max-width: 400px;">
+      <div class="text-center mb-4">
+        <i class="bi bi-shield-lock-fill text-primary" style="font-size: 3rem;"></i>
+        <h3 class="mt-2 fw-bold">Sign In</h3>
+        <p class="text-muted small">Enter master password to access system backend</p>
+      </div>
+      <form id="loginForm">
+        <div class="mb-3">
+          <label class="form-label">Password</label>
+          <input type="password" id="authPassword" class="form-control" placeholder="••••••••" required>
+        </div>
+        <button type="submit" class="btn btn-primary w-100 py-2">Authenticate System</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- APPLICATION CORE CONTENT INTERFACE -->
+  <div id="appWrapper" class="hidden">
+    <!-- SIDEBAR NAV COMPONENT -->
+    <nav class="sidebar d-flex flex-column justify-content-between py-3">
+      <div>
+        <div class="px-4 py-3 d-flex align-items-center gap-2 text-white">
+          <i class="bi bi-cpu-fill fs-4 text-info"></i>
+          <span class="fw-bold fs-5 tracking-wide">Core Engine</span>
+        </div>
+        <hr class="text-secondary mx-3">
+        <ul class="nav flex-column gap-1">
+          <li class="nav-item">
+            <a class="nav-link active" href="#"><i class="bi bi-grid-1x2-fill me-2"></i> Tasks Manager</a>
+          </li>
+        </ul>
+      </div>
+      <div class="px-3">
+        <button class="btn btn-outline-danger w-100 d-flex align-items-center justify-content-center gap-2" id="logoutBtn">
+          <i class="bi bi-box-arrow-left"></i> Log Out
+        </button>
+      </div>
+    </nav>
+
+    <!-- CONTENT MODULE VIEWPORT -->
+    <main class="main-content">
+      <div class="container-fluid p-0">
+        
+        <!-- MODULE HEADER ACTIONS BAR -->
+        <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+          <div>
+            <h1 class="h3 fw-bold text-gray-800 m-0">Task Ledger Matrix</h1>
+            <p class="text-muted small m-0">Real-time synchronization with active sheets architecture database</p>
+          </div>
+          <div class="d-flex gap-2">
+            <button class="btn btn-success d-flex align-items-center gap-2" id="exportBtn">
+              <i class="bi bi-file-earmark-excel"></i> Export Excel
+            </button>
+            <button class="btn btn-primary d-flex align-items-center gap-2" data-bs-toggle="modal" data-bs-target="#taskModal" onclick="clearTaskForm()">
+              <i class="bi bi-plus-circle"></i> Create Entry
+            </button>
+          </div>
+        </div>
+
+        <!-- SEARCH FILTERS AND SORT MECHANICS CONTROLS -->
+        <div class="card p-3 mb-4">
+          <div class="row g-3">
+            <div class="col-md-4">
+              <div class="input-group">
+                <span class="input-group-text bg-white border-end-0"><i class="bi bi-search text-muted"></i></span>
+                <input type="text" id="searchFilter" class="form-control border-start-0" placeholder="Search tasks...">
+              </div>
+            </div>
+            <div class="col-6 col-md-2">
+              <select id="priorityFilter" class="form-select">
+                <option value="">All Priorities</option>
+                <option value="High">High</option>
+                <option value="Medium">Medium</option>
+                <option value="Low">Low</option>
+              </select>
+            </div>
+            <div class="col-6 col-md-2">
+              <select id="statusFilter" class="form-select">
+                <option value="">All Statuses</option>
+                <option value="Pending">Pending</option>
+                <option value="Active">Active</option>
+                <option value="Completed">Completed</option>
+              </select>
+            </div>
+            <div class="col-md-4">
+              <div class="input-group">
+                <span class="input-group-text bg-light text-muted small">Sort By</span>
+                <select id="sortBy" class="form-select">
+                  <option value="targetDate-asc">Target Date (Nearest)</option>
+                  <option value="targetDate-desc">Target Date (Furthest)</option>
+                  <option value="title-asc">Title (A-Z)</option>
+                  <option value="priority-high">Priority (High-Low)</option>
+                </select>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- PRIMARY DATA SHEET CONTAINER -->
+        <div class="card p-0 overflow-hidden">
+          <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+              <thead class="table-light text-uppercase font-monospace small">
+                <tr>
+                  <th class="ps-4">Task ID</th>
+                  <th>Title Parameters</th>
+                  <th>Category</th>
+                  <th>Priority</th>
+                  <th>Assign / Target Dates</th>
+                  <th>Status</th>
+                  <th class="text-end pe-4">Controls</th>
+                </tr>
+              </thead>
+              <tbody id="taskTableBody">
+                <!-- Rows injected dynamically via engine runtime execution -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+      </div>
+    </main>
+  </div>
+
+  <!-- INTERACTIVE CRUD MODAL DIALOG COMPONENT -->
+  <div class="modal fade" id="taskModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content shadow-lg border-0">
+        <div class="modal-header border-0 pb-0">
+          <h5 class="modal-title fw-bold" id="modalTitle">Configure Ledger Entry</h5>
+          <button type="button" class="btn-close" data-bs-shadow="none" data-bs-zip="close" data-bs-dismiss="modal"></button>
+        </div>
+        <form id="taskForm">
+          <input type="hidden" id="taskId">
+          <div class="modal-body py-3">
+            <div class="mb-3">
+              <label class="form-label small fw-bold">Task Title</label>
+              <input type="text" id="taskTitle" class="form-control" required placeholder="Describe transaction parameters...">
+            </div>
+            <div class="row g-3 mb-3">
+              <div class="col-6">
+                <label class="form-label small fw-bold">Category Scope</label>
+                <input type="text" id="taskCategory" class="form-control" placeholder="e.g. Finance, Core">
+              </div>
+              <div class="col-6">
+                <label class="form-label small fw-bold">Priority Factor</label>
+                <select id="taskPriority" class="form-select">
+                  <option value="Low">Low</option>
+                  <option value="Medium" selected>Medium</option>
+                  <option value="High">High</option>
+                </select>
+              </div>
+            </div>
+            <div class="row g-3 mb-3">
+              <div class="col-6">
+                <label class="form-label small fw-bold">Assign Date</label>
+                <input type="date" id="taskAssignDate" class="form-control">
+              </div>
+              <div class="col-6">
+                <label class="form-label small fw-bold">Target Deadline</label>
+                <input type="date" id="taskTargetDate" class="form-control">
+              </div>
+            </div>
+            <div class="mb-2">
+              <label class="form-label small fw-bold">Status Vector</label>
+              <select id="taskStatus" class="form-select">
+                <option value="Pending">Pending</option>
+                <option value="Active">Active</option>
+                <option value="Completed">Completed</option>
+              </select>
+            </div>
+          </div>
+          <div class="modal-footer border-0 pt-0">
+            <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
+            <button type="submit" class="btn btn-primary" id="saveBtn">Commit Parameters</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    // --- API & SYSTEM GLOBAL INITIALIZATION TARGET ---
+    // Paste your deployed Google Apps Script Web App URL exactly inside this variable string:
+    const API_URL = "https://script.google.com/macros/s/AKfycby_NV8EUea3FOzqEFE6MNfaCXEh-85f-09uGEy-2aflvxKPsbu8T1E-ioJwLx2G7cdfsg/exec";
+
+    let dataset = [];
+    const bootstrapModal = new bootstrap.Modal(document.getElementById('taskModal'));
+
+    // --- SESSION STATE STORAGE INTEGRITY ROUTINES ---
+    document.addEventListener("DOMContentLoaded", () => {
+      const activeSessionToken = localStorage.getItem("session_auth_token");
+      if (activeSessionToken) {
+        showApplicationDashboard();
+      } else {
+        showAuthenticationWindow();
+      }
+    });
+
+    function showApplicationDashboard() {
+      document.getElementById("loginWrapper").classList.add("hidden");
+      document.getElementById("appWrapper").classList.remove("hidden");
+      syncBackendData();
+    }
+
+    function showAuthenticationWindow() {
+      document.getElementById("appWrapper").classList.add("hidden");
+      document.getElementById("loginWrapper").classList.remove("hidden");
+    }
+
+    // --- NETWORK COMMITS PLATFORM LAYER ---
+    async function executeApiRequest(action, payload = {}) {
+      const token = localStorage.getItem("session_auth_token");
+      try {
+        const response = await fetch(API_URL, {
+          method: "POST",
+          mode: "cors",
+          headers: { "Content-Type": "text/plain;charset=utf-8" },
+          body: JSON.stringify({ action, token, payload })
+        });
+        const result = await response.json();
+        if (!result.success) throw new Error(result.error || "Execution fault encountered.");
+        return result.data;
+      } catch (err) {
+        alert("System Sync Failure: " + err.message);
+        if (err.message.includes("Unauthorized") || err.message.includes("session")) {
+          performSystemLogout();
+        }
+        throw err;
+      }
+    }
+
+    // --- LOGIN/LOGOUT ACTIONS ENGINE ---
+    document.getElementById("loginForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const password = document.getElementById("authPassword").value;
+      try {
+        const response = await executeApiRequest("login", { password });
+        if(response.token) {
+          localStorage.setItem("session_auth_token", response.token);
+          showApplicationDashboard();
+        }
+      } catch (err) {
+        alert("Authentication failed. Access Denied.");
+      }
+    });
+
+    document.getElementById("logoutBtn").addEventListener("click", performSystemLogout);
+    function performSystemLogout() {
+      localStorage.removeItem("session_auth_token");
+      document.getElementById("authPassword").value = "";
+      showAuthenticationWindow();
+    }
+
+    // --- REFRESH AND SYNC PIPELINES ---
+    async function syncBackendData() {
+      document.getElementById("taskTableBody").innerHTML = `<tr><td colspan="7" class="text-center py-4"><div class="spinner-border text-primary spinner-border-sm" role="status"></div> Polling operational arrays...</td></tr>`;
+      try {
+        dataset = await executeApiRequest("read");
+        renderDataViewMatrix();
+      } catch(e) {
+        document.getElementById("taskTableBody").innerHTML = `<tr><td colspan="7" class="text-center text-danger py-4">Database link offline. Check deployment configuration.</td></tr>`;
+      }
+    }
+
+    // --- DATAVIEW RENDERING & FILTER/SORT PIPELINES ---
+    const searchFilter = document.getElementById("searchFilter");
+    const priorityFilter = document.getElementById("priorityFilter");
+    const statusFilter = document.getElementById("statusFilter");
+    const sortBy = document.getElementById("sortBy");
+
+    [searchFilter, priorityFilter, statusFilter, sortBy].forEach(el => el.addEventListener("input", renderDataViewMatrix));
+
+    function renderDataViewMatrix() {
+      const searchVal = searchFilter.value.toLowerCase();
+      const prioVal = priorityFilter.value;
+      const statVal = statusFilter.value;
+      const sortVal = sortBy.value;
+
+      let processed = dataset.filter(item => {
+        const matchesSearch = item.title.toLowerCase().includes(searchVal) || item.id.toLowerCase().includes(searchVal) || item.category.toLowerCase().includes(searchVal);
+        const matchesPriority = prioVal === "" || item.priority === prioVal;
+        const matchesStatus = statVal === "" || item.status === statVal;
+        return matchesSearch && matchesPriority && matchesStatus;
+      });
+
+      // Sorting Algorithm
+      processed.sort((a, b) => {
+        if (sortVal === "title-asc") return a.title.localeCompare(b.title);
+        if (sortVal === "targetDate-asc") return new Date(a.targetDate || '9999-12-31') - new Date(b.targetDate || '9999-12-31');
+        if (sortVal === "targetDate-desc") return new Date(b.targetDate || '0001-01-01') - new Date(a.targetDate || '0001-01-01');
+        if (sortVal === "priority-high") {
+          const priorityWeights = { High: 3, Medium: 2, Low: 1 };
+          return (priorityWeights[b.priority] || 0) - (priorityWeights[a.priority] || 0);
+        }
+        return 0;
+      });
+
+      const tbody = document.getElementById("taskTableBody");
+      if(processed.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="7" class="text-center text-muted py-4">No data nodes matching criteria variables found.</td></tr>`;
+        return;
+      }
+
+      tbody.innerHTML = processed.map(item => `
+        <tr>
+          <td class="ps-4 font-monospace text-muted small">${item.id}</td>
+          <td><div class="fw-bold text-dark">${item.title}</div></td>
+          <td><span class="text-secondary small bg-light px-2 py-1 rounded">${item.category || 'General'}</span></td>
+          <td><span class="badge badge-${item.priority.toLowerCase()}">${item.priority}</span></td>
+          <td>
+            <div class="small text-dark"><i class="bi bi-calendar-check text-muted me-1"></i>${item.assignDate || '-'}</div>
+            <div class="small text-danger fw-semibold"><i class="bi bi-calendar-x text-muted me-1"></i>${item.targetDate || 'No Deadline'}</div>
+          </td>
+          <td><span class="badge border bg-white ${item.status === 'Completed' ? 'text-success border-success' : item.status === 'Active' ? 'text-primary border-primary' : 'text-warning border-warning'}">${item.status}</span></td>
+          <td class="text-end pe-4">
+            <div class="btn-group">
+              <button class="btn btn-sm btn-outline-secondary" onclick="initializeUpdateOperation('${item.id}')"><i class="bi bi-pencil"></i></button>
+              <button class="btn btn-sm btn-outline-danger" onclick="executeDeleteOperation('${item.id}')"><i class="bi bi-trash"></i></button>
+            </div>
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    // --- MUTATION HANDLING (CRUD CONTEXT) ---
+    function clearTaskForm() {
+      document.getElementById("taskId").value = "";
+      document.getElementById("taskForm").reset();
+      document.getElementById("taskAssignDate").value = new Date().toISOString().split('T')[0];
+      document.getElementById("modalTitle").innerText = "Create New Matrix Node";
+    }
+
+    function initializeUpdateOperation(id) {
+      const target = dataset.find(x => x.id === id);
+      if(!target) return;
+      document.getElementById("taskId").value = target.id;
+      document.getElementById("taskTitle").value = target.title;
+      document.getElementById("taskCategory").value = target.category;
+      document.getElementById("taskPriority").value = target.priority;
+      document.getElementById("taskAssignDate").value = target.assignDate;
+      document.getElementById("taskTargetDate").value = target.targetDate;
+      document.getElementById("taskStatus").value = target.status;
+      document.getElementById("modalTitle").innerText = `Update Parameter Stream [${id}]`;
+      bootstrapModal.show();
+    }
+
+    document.getElementById("taskForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const id = document.getElementById("taskId").value;
+      const payload = {
+        title: document.getElementById("taskTitle").value,
+        category: document.getElementById("taskCategory").value,
+        priority: document.getElementById("taskPriority").value,
+        assignDate: document.getElementById("taskAssignDate").value,
+        targetDate: document.getElementById("taskTargetDate").value,
+        status: document.getElementById("taskStatus").value
+      };
+
+      const action = id ? "update" : "create";
+      if(id) payload.id = id;
+
+      document.getElementById("saveBtn").disabled = true;
+      document.getElementById("saveBtn").innerText = "Committing transaction...";
+      
+      try {
+        await executeApiRequest(action, payload);
+        bootstrapModal.hide();
+        await syncBackendData();
+      } finally {
+        document.getElementById("saveBtn").disabled = false;
+        document.getElementById("saveBtn").innerText = "Commit Parameters";
+      }
+    });
+
+    async function executeDeleteOperation(id) {
+      if(confirm(`Confirm drop transaction array payload target: [${id}]?`)) {
+        await executeApiRequest("delete", { id });
+        await syncBackendData();
+      }
+    }
+
+    // --- INTEGRATED DATA EXTRACTION (EXCEL EXPORT) ---
+    document.getElementById("exportBtn").addEventListener("click", () => {
+      if(dataset.length === 0) return alert("Zero payload arrays inside local system memory context.");
+      const worksheet = XLSX.utils.json_to_sheet(dataset);
+      const workbook = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(workbook, worksheet, "Task Register Log");
+      XLSX.writeFile(workbook, `System_Task_Ledger_${new Date().toISOString().substring(0,10)}.xlsx`);
+    });
+  </script>
+</body>
+</html>
