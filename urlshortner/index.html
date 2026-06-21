@@ -2,42 +2,34 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>DineshMC Link Shortener Platform</title>
+  <title>DineshMC Advanced Link Hub</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
   <style>
-    body { background-color: #f4f6f9; font-family: system-ui, -apple-system, sans-serif; }
+    body { background-color: #f4f6f9; font-family: system-ui, sans-serif; }
     .auth-card { max-width: 420px; margin: 80px auto; border: none; border-radius: 16px; box-shadow: 0 10px 30px rgba(0,0,0,0.08); }
     .dashboard-view { display: none; }
     .qr-thumb { width: 38px; height: 38px; cursor: pointer; border: 1px solid #ddd; padding: 2px; border-radius: 4px; }
-    .loading-overlay { position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(255,255,255,0.8); display:flex; justify-content:center; align-items:center; z-index:9999; display:none; }
+    .loading-overlay { position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(255,255,255,0.8); display:flex; justify-content:center; align-items:center; z-index:9999; }
   </style>
 </head>
 <body>
 
   <div id="loader" class="loading-overlay"><div class="spinner-border text-primary"></div></div>
 
-  <div id="authView" class="container">
+  <div id="authView" class="container" style="display: none;">
     <div class="card auth-card p-4 bg-white">
       <div class="text-center mb-4">
-        <h3 class="fw-bold text-primary"><i class="bi bi-link-45deg"></i> dineshmc.com</h3>
-        <p class="text-muted small">Link Hub Authorization Engine</p>
+        <h3 class="fw-bold text-primary"><i class="bi bi-link-45deg"></i> dineshmc.com.np</h3>
+        <p class="text-muted small">Link Hub Security Gateway</p>
       </div>
-      
-      <ul class="nav nav-pills nav-justified mb-3" id="authTabs">
-        <li class="nav-item"><button class="nav-link active" onclick="switchAuthTab('login')">Sign In</button></li>
-        <li class="nav-item"><button class="nav-link" onclick="switchAuthTab('register')">Register</button></li>
+      <ul class="nav nav-pills nav-justified mb-3">
+        <li class="nav-item"><button id="tab-login" class="nav-link active" onclick="switchAuthMode('login')">Sign In</button></li>
+        <li class="nav-item"><button id="tab-register" class="nav-link" onclick="switchAuthMode('register')">Register</button></li>
       </ul>
-
-      <form id="authForm">
-        <div class="mb-3">
-          <label class="form-label">Account User Email</label>
-          <input type="email" id="authEmail" class="form-control" placeholder="you@dineshmc.com" required>
-        </div>
-        <div class="mb-3">
-          <label class="form-label">Password</label>
-          <input type="password" id="authPassword" class="form-control" placeholder="••••••••" required>
-        </div>
+      <form id="authForm" onsubmit="handleAuth(event)">
+        <div class="mb-3"><label class="form-label">Email</label><input type="email" id="authEmail" class="form-control" required></div>
+        <div class="mb-3"><label class="form-label">Password</label><input type="password" id="authPassword" class="form-control" required></div>
         <button type="submit" id="authSubmitBtn" class="btn btn-primary w-100 py-2">Authenticate</button>
       </form>
     </div>
@@ -49,65 +41,59 @@
         <a class="navbar-brand fw-bold" href="#"><i class="bi bi-lightning-charge-fill text-warning me-2"></i>Link Engine</a>
         <div class="d-flex align-items-center">
           <span class="navbar-text text-white me-3" id="sessionIdentity"></span>
-          <button class="btn btn-sm btn-outline-danger" onclick="logout()">Logout</button>
+          <button class="btn btn-sm btn-outline-danger" onclick="logout()">Sign Out</button>
         </div>
       </div>
     </nav>
 
     <div class="container my-4">
       <div id="adminAnalyticsSection" class="row g-3 mb-4 d-none">
-        <div class="col-md-6">
-          <div class="card p-3 bg-primary text-white">
-            <h6 class="text-uppercase font-monospace text-white-50 small mb-1">Global System Wide Deployments</h6>
-            <h2 class="mb-0 fw-bold" id="statGlobalLinks">0</h2>
-          </div>
-        </div>
-        <div class="col-md-6">
-          <div class="card p-3 bg-dark text-white">
-            <h6 class="text-uppercase font-monospace text-warning small mb-1">Global Redirect Clicks</h6>
-            <h2 class="mb-0 fw-bold text-warning" id="statGlobalClicks">0</h2>
-          </div>
-        </div>
+        <div class="col-md-6"><div class="card p-3 bg-primary text-white"><h6>Global Active Links</h6><h2 class="mb-0 fw-bold" id="statGlobalLinks">0</h2></div></div>
+        <div class="col-md-6"><div class="card p-3 bg-dark text-white"><h6>Global Trafficked Clicks</h6><h2 class="mb-0 fw-bold text-warning" id="statGlobalClicks">0</h2></div></div>
       </div>
 
       <div class="row g-4">
         <div class="col-lg-4">
-          <div class="card p-4 bg-white shadow-sm">
-            <h4 class="fw-bold mb-3 text-dark">Build New Redirect</h4>
-            <form id="linkForm" onsubmit="createNewLink(event)">
+          <div class="card p-4 bg-white shadow-sm mb-4">
+            <h5 class="fw-bold mb-3">Deploy Short Redirect</h5>
+            <form onsubmit="createNewLink(event)">
               <div class="mb-3">
-                <label class="form-label fw-semibold">Target Alias Short Code</label>
-                <input type="text" id="shortCode" class="form-control" placeholder="e.g., portfolio" required>
+                <label class="form-label small fw-bold">Short Code (e.g., onlinekhabar)</label>
+                <input type="text" id="shortCode" class="form-control" required>
               </div>
               <div class="mb-3">
-                <label class="form-label fw-semibold">Destination Long URL</label>
-                <input type="url" id="longUrl" class="form-control" placeholder="https://google.com" required>
+                <label class="form-label small fw-bold">Destination Long URL</label>
+                <input type="url" id="longUrl" class="form-control" placeholder="https://..." required>
               </div>
-              <div class="mb-3">
-                <label class="form-label fw-semibold">Routing Pipeline Level</label>
-                <select id="linkTier" class="form-select">
-                  <option value="Free">Standard Free Routing</option>
-                  <option value="Premium">Accelerated Premium</option>
-                </select>
+              <button type="submit" class="btn btn-success w-100">Deploy Live Link</button>
+            </form>
+          </div>
+
+          <div class="card p-4 bg-white shadow-sm mb-4">
+            <h5 class="fw-bold mb-3">Account Workspace Controls</h5>
+            <div class="mb-3">
+              <label class="small fw-bold d-block mb-1">Subscription Class</label>
+              <div class="d-flex justify-content-between align-items-center border p-2 rounded bg-light">
+                <span id="currentTierText" class="fw-bold text-uppercase">Free Tier</span>
+                <button id="upgradeBtn" class="btn btn-sm btn-warning fw-bold" onclick="upgradeSubscription()">Upgrade to Premium</button>
               </div>
-              <button type="submit" class="btn btn-success w-100 py-2">Deploy Live Endpoint</button>
+            </div>
+            <hr>
+            <h6 class="fw-bold text-muted mb-2">Modify Security Credentials</h6>
+            <form onsubmit="changePassword(event)">
+              <div class="mb-2"><input type="password" id="newPassword" class="form-control form-control-sm" placeholder="New Secret Password" required></div>
+              <button type="submit" class="btn btn-sm btn-outline-primary w-100">Apply New Password</button>
             </form>
           </div>
         </div>
 
         <div class="col-lg-8">
           <div class="card p-4 bg-white shadow-sm">
-            <h4 class="fw-bold mb-3 text-dark">Active Cluster Endpoints</h4>
+            <h5 class="fw-bold mb-3">Active Cluster Endpoints</h5>
             <div class="table-responsive">
               <table class="table table-hover align-middle">
                 <thead class="table-light">
-                  <tr>
-                    <th>Dynamic URL Pointer</th>
-                    <th>Clicks</th>
-                    <th>User Identity</th>
-                    <th>QR Asset</th>
-                    <th class="text-end">Purge Actions</th>
-                  </tr>
+                  <tr><th>Pointer Location</th><th>Tracking</th><th>QR</th><th class="text-end">Purge</th></tr>
                 </thead>
                 <tbody id="linksTableBody"></tbody>
               </table>
@@ -121,7 +107,6 @@
   <div class="modal fade" id="qrModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-sm">
       <div class="modal-content text-center p-4">
-        <h6 class="modal-title mb-3 fw-bold">Scan QR Code</h6>
         <img id="modalQrImg" src="" class="img-fluid rounded mb-3">
         <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal">Close</button>
       </div>
@@ -130,109 +115,90 @@
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
   <script>
-    // 1. INSERT YOUR GOOGLE APPS SCRIPT EXECUTION API URL HERE
-    const APPS_SCRIPT_API = "https://script.google.com/macros/s/AKfycbxO69-2A8UG_7FsrGGDBPMOtOatpXNgDBpm5StPXFX_7hPwbLMKpiDQocDL1mTcD5NE/exec";
+    const APPS_SCRIPT_API = "https://script.google.com/macros/s/AKfycbwYOUR_SCRIPT_ID_HERE/exec";
+    let AUTH_MODE = 'login';
 
-    let SESSION = { email: null, tier: null, mode: 'login' };
+    // Core Lifecycle Loop: Checks LocalStorage for active sessions on load
+    document.addEventListener("DOMContentLoaded", () => {
+      const cachedUser = localStorage.getItem("dineshmc_session");
+      if (cachedUser) {
+        establishSession(JSON.parse(cachedUser));
+      } else {
+        showLoader(false);
+        document.getElementById('authView').style.display = 'block';
+      }
+    });
 
     function showLoader(visible) { document.getElementById('loader').style.display = visible ? 'flex' : 'none'; }
-
-    function switchAuthTab(targetMode) {
-      SESSION.mode = targetMode;
-      document.querySelectorAll('#authTabs .nav-link').forEach(el => el.classList.remove('active'));
-      event.target.classList.add('active');
-      document.getElementById('authSubmitBtn').innerText = targetMode === 'login' ? 'Authenticate' : 'Register';
+    
+    function switchAuthMode(mode) {
+      AUTH_MODE = mode;
+      document.getElementById('tab-login').classList.toggle('active', mode === 'login');
+      document.getElementById('tab-register').classList.toggle('active', mode === 'register');
+      document.getElementById('authSubmitBtn').innerText = mode === 'login' ? 'Authenticate' : 'Register';
     }
 
-    // Modernized API Fetch Request Bridge
-    async function callBackend(action, payload = {}) {
-      const url = `${APPS_SCRIPT_API}?action=${action}&` + new URLSearchParams(payload).toString();
-      
-      // Using JSONP style or standard fetch depending on CORS configuration fallback
-      const response = await fetch(url, { method: 'POST', mode: 'no-cors' });
-      // Because Apps Script macro shifts states via no-cors, we rely on secondary GET loops for state sync
-    }
-
-    // Advanced Cross-Origin JSONP fetcher for robust data delivery
-    function runGas(functionName, args, successCallback, failureCallback) {
-      const callbackName = 'gas_callback_' + Math.round(100000 * Math.random());
+    // Cross-Domain Safe Messaging Framework 
+    function runGas(functionName, args, success, failure) {
+      const callbackName = 'gas_cb_' + Math.round(100000 * Math.random());
       window[callbackName] = function(data) {
         delete window[callbackName];
         document.getElementById(callbackName).remove();
-        if (data && data.error) {
-          if (failureCallback) failureCallback(data.error);
-        } else {
-          if (successCallback) successCallback(data);
-        }
+        if (data && data.error) { if (failure) failure(data.error); } else { if (success) success(data); }
       };
-
       const src = `${APPS_SCRIPT_API}?callback=${callbackName}&function=${functionName}&args=${encodeURIComponent(JSON.stringify(args))}`;
-      const script = document.createElement('script');
-      script.id = callbackName;
-      script.src = src;
+      const script = document.createElement('script'); script.id = callbackName; script.src = src;
       document.body.appendChild(script);
     }
 
-    document.getElementById('authForm').addEventListener('submit', function(e) {
+    function handleAuth(e) {
       e.preventDefault();
       showLoader(true);
       const email = document.getElementById('authEmail').value;
       const pass = document.getElementById('authPassword').value;
+      const func = AUTH_MODE === 'login' ? 'loginUser' : 'registerUser';
 
-      const func = SESSION.mode === 'login' ? 'loginUser' : 'registerUser';
-      
       runGas(func, [email, pass], (user) => {
+        localStorage.setItem("dineshmc_session", JSON.stringify(user)); // Store session persistence state
         establishSession(user);
-      }, (err) => {
-        showLoader(false);
-        alert("Auth Error: " + err);
-      });
-    });
-
-    function establishSession(user) {
-      SESSION.email = user.email;
-      SESSION.tier = user.tier;
-      
-      document.getElementById('authView').style.display = 'none';
-      document.getElementById('dashboardView').style.display = 'block';
-      document.getElementById('sessionIdentity').innerHTML = `<i class="bi bi-person-badge-fill text-info me-1"></i> ${SESSION.email}`;
-      
-      if (SESSION.tier === 'Admin') {
-        document.getElementById('adminAnalyticsSection').classList.remove('d-none');
-      }
-      fetchRenderWorkspace();
+      }, (err) => { showLoader(false); alert("Auth Failure: " + err); });
     }
 
-    function fetchRenderWorkspace() {
+    function establishSession(user) {
+      document.getElementById('authView').style.display = 'none';
+      document.getElementById('dashboardView').style.display = 'block';
+      document.getElementById('sessionIdentity').innerHTML = `<i class="bi bi-person-circle text-info me-1"></i> ${user.email}`;
+      document.getElementById('currentTierText').innerText = `${user.tier} Tier`;
+      
+      // Hide upgrade tools if context is already Premium or Administrator
+      if (user.tier !== 'Free') document.getElementById('upgradeBtn').style.display = 'none';
+      if (user.tier === 'Admin') document.getElementById('adminAnalyticsSection').classList.remove('d-none');
+      
+      fetchRenderWorkspace(user);
+    }
+
+    function fetchRenderWorkspace(user) {
       showLoader(true);
-      runGas('getDashboardData', [SESSION.email, SESSION.tier], (data) => {
-        if(SESSION.tier === 'Admin') {
+      runGas('getDashboardData', [user.email, user.tier], (data) => {
+        if(user.tier === 'Admin') {
           document.getElementById('statGlobalLinks').innerText = data.adminStats.globalLinks;
           document.getElementById('statGlobalClicks').innerText = data.adminStats.globalClicks;
         }
-
         const tbody = document.getElementById('linksTableBody');
         tbody.innerHTML = '';
-
-        if(data.links.length === 0) {
-          tbody.innerHTML = `<tr><td colspan="5" class="text-center text-muted py-3">No paths configured.</td></tr>`;
-        } else {
-          data.links.forEach(link => {
-            tbody.innerHTML += `
-              <tr>
-                <td>
-                  <a href="${link.shortUrl}" target="_blank" class="fw-bold text-decoration-none">/${link.shortCode}</a>
-                  <div class="text-muted text-truncate small" style="max-width: 250px;">${link.longUrl}</div>
-                </td>
-                <td><span class="badge bg-light text-dark border"><i class="bi bi-graph-up text-success me-1"></i>${link.clicks} clicks</span></td>
-                <td class="small text-muted">${link.createdBy}</td>
-                <td><img src="${link.qrUrl}" class="qr-thumb" onclick="openQrModal('${link.qrUrl}')"></td>
-                <td class="text-end">
-                  <button class="btn btn-sm btn-outline-danger" onclick="purgeLink('${link.shortCode}')"><i class="bi bi-trash3"></i></button>
-                </td>
-              </tr>`;
-          });
-        }
+        
+        data.links.forEach(link => {
+          tbody.innerHTML += `
+            <tr>
+              <td>
+                <a href="${link.shortUrl}" target="_blank" class="fw-bold text-decoration-none">${link.domainPointer}</a>
+                <div class="text-muted text-truncate small" style="max-width: 320px;">${link.longUrl}</div>
+              </td>
+              <td><span class="badge bg-light text-dark border"><i class="bi bi-graph-up text-success me-1"></i>${link.clicks} clicks</span></td>
+              <td><img src="${link.qrUrl}" class="qr-thumb" onclick="openQrModal('${link.qrUrl}')"></td>
+              <td class="text-end"><button class="btn btn-sm btn-outline-danger" onclick="purgeLink('${link.shortCode}')"><i class="bi bi-trash"></i></button></td>
+            </tr>`;
+        });
         showLoader(false);
       });
     }
@@ -240,21 +206,47 @@
     function createNewLink(e) {
       e.preventDefault();
       showLoader(true);
+      const user = JSON.parse(localStorage.getItem("dineshmc_session"));
       const code = document.getElementById('shortCode').value;
       const longUrl = document.getElementById('longUrl').value;
-      const tier = document.getElementById('linkTier').value;
 
-      runGas('saveLink', [code, longUrl, tier, SESSION.email], () => {
+      runGas('saveLink', [code, longUrl, user.tier, user.email], () => {
         document.getElementById('shortCode').value = '';
         document.getElementById('longUrl').value = '';
-        fetchRenderWorkspace();
+        fetchRenderWorkspace(user);
+      }, (err) => { showLoader(false); alert("Error creating link: " + err); });
+    }
+
+    function changePassword(e) {
+      e.preventDefault();
+      showLoader(true);
+      const user = JSON.parse(localStorage.getItem("dineshmc_session"));
+      const newPass = document.getElementById('newPassword').value;
+
+      runGas('updatePassword', [user.email, newPass], () => {
+        showLoader(false);
+        document.getElementById('newPassword').value = '';
+        alert("Password updated securely across database cluster nodes.");
       }, (err) => { showLoader(false); alert(err); });
     }
 
-    function purgeLink(code) {
-      if(confirm(`Purge routing key: [/${code}]?`)) {
+    function upgradeSubscription() {
+      if(confirm("Confirm upgrading account deployment profile to Premium status tier?")) {
         showLoader(true);
-        runGas('deleteLink', [code, SESSION.email, SESSION.tier], () => { fetchRenderWorkspace(); });
+        const user = JSON.parse(localStorage.getItem("dineshmc_session"));
+        runGas('upgradeToPremium', [user.email], (updatedUser) => {
+          localStorage.setItem("dineshmc_session", JSON.stringify(updatedUser));
+          establishSession(updatedUser);
+          alert("Account updated successfully!");
+        });
+      }
+    }
+
+    function purgeLink(code) {
+      if(confirm("Purge endpoint validation routing index?")) {
+        showLoader(true);
+        const user = JSON.parse(localStorage.getItem("dineshmc_session"));
+        runGas('deleteLink', [code, user.email, user.tier], () => { fetchRenderWorkspace(user); });
       }
     }
 
@@ -264,9 +256,8 @@
     }
 
     function logout() {
-      SESSION = { email: null, tier: null, mode: 'login' };
-      document.getElementById('dashboardView').style.display = 'none';
-      document.getElementById('authView').style.display = 'block';
+      localStorage.removeItem("dineshmc_session");
+      window.location.reload();
     }
   </script>
 </body>
