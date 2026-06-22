@@ -1,723 +1,965 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-bs-theme="dark">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Premium Link Asset Analytics Engine</title>
+  <title>URL Shortener & Analytics Dashboard</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.2/font/bootstrap-icons.css" rel="stylesheet">
   <style>
-    :root { --b-navy: #0c101d; --b-orange: #ee6123; --b-blue: #2a5bd7; --b-bg: #f8f9fc; }
-    body { background-color: var(--b-bg); font-family: 'Segoe UI', system-ui, sans-serif; color: var(--b-navy); }
-    .bitly-nav { background-color: var(--b-navy); padding: 16px 0; border-bottom: 4px solid var(--b-orange); }
-    .creation-canvas { background: #fff; border-radius: 14px; box-shadow: 0 10px 30px rgba(12,16,29,0.04); padding: 32px; margin-top: -20px; border: 1px solid #e2e8f0; }
-    .metric-card { background: #fff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 24px; position: relative; overflow: hidden; transition: transform 0.2s; }
-    .metric-card:hover { transform: translateY(-2px); }
-    .metric-card::before { content: ''; position: absolute; top:0; left:0; width:5px; height:100%; background: var(--b-blue); }
-    .dashboard-view { display: none; }
-    .link-row-card { background: #fff; border: 1px solid #e2e8f0; border-radius: 10px; margin-bottom: 16px; padding: 20px; box-shadow: 0 2px 6px rgba(0,0,0,0.01); }
-    .tag-badge { background-color: #e0e7ff; color: var(--b-blue); font-size: 0.75rem; font-weight: 700; padding: 4px 12px; border-radius: 6px; text-transform: uppercase; }
-    .qr-thumb { width: 48px; height: 48px; cursor: pointer; border: 1px solid #cbd5e1; padding: 2px; border-radius: 8px; background: white; transition: opacity 0.2s; }
-    .qr-thumb:hover { opacity: 0.8; }
-    .loading-overlay { position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(248,249,252,0.9); display:flex; justify-content:center; align-items:center; z-index:9999; }
-    .edit-drawer { background-color: #f1f5f9; border-radius: 8px; padding: 18px; margin-top: 14px; display: none; border: 1px dashed #cbd5e1; }
+    [data-bs-theme="dark"] {
+      --bg-primary: #0a0e1a;
+      --bg-surface: #121829;
+      --bg-surface-hover: #1b233d;
+      --border-color: #1e2942;
+      --text-muted: #7c8ba1;
+      --card-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+    }
     
-    /* Interactive Package Comparison Matrix styling */
-    .pricing-header { text-align: center; margin-bottom: 30px; }
-    .price-card { background: #fff; border: 1px solid #e2e8f0; border-radius: 14px; padding: 30px; text-align: center; position: relative; transition: all 0.3s ease; height: 100%; }
-    .price-card.featured { border: 2px solid var(--b-blue); box-shadow: 0 10px 25px rgba(42,91,215,0.1); }
-    .price-card.featured .popular-tag { position: absolute; top: -13px; left: 50%; transform: translateX(-50%); background: var(--b-blue); color: #fff; padding: 4px 14px; font-size: 0.75rem; font-weight: 700; border-radius: 20px; letter-spacing: 0.5px; }
-    .price-amount { font-size: 2.25rem; font-weight: 800; color: var(--b-navy); margin: 15px 0; }
-    .price-amount span { font-size: 0.9rem; color: #64748b; font-weight: 400; }
-    .feature-list { list-style: none; padding: 0; margin: 25px 0; text-align: left; font-size: 0.9rem; }
-    .feature-list li { padding: 8px 0; color: #475569; display: flex; align-items: center; }
-    .feature-list li i { color: #10b981; margin-right: 10px; font-size: 1.1rem; }
-    .feature-list li.disabled { color: #94a3b8; text-decoration: line-through; }
-    .feature-list li.disabled i { color: #cbd5e1; }
-    .ad-preview-thumb { width: 70px; height: 40px; object-fit: cover; border-radius: 4px; border: 1px solid #cbd5e1; }
+    [data-bs-theme="light"] {
+      --bg-primary: #f4f6fa;
+      --bg-surface: #ffffff;
+      --bg-surface-hover: #f1f3f9;
+      --border-color: #dbe2ef;
+      --text-muted: #6c757d;
+      --card-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+    }
+
+    body {
+      background-color: var(--bg-primary);
+      color: var(--bs-body-color);
+      font-family: system-ui, -apple-system, sans-serif;
+      overflow-x: hidden;
+      transition: background-color 0.3s ease, color 0.3s ease;
+    }
+
+    .app-container {
+      display: flex;
+      min-height: 100vh;
+      width: 100vw;
+    }
+
+    #sidebar {
+      width: 260px;
+      min-width: 260px;
+      background-color: var(--bg-surface);
+      border-right: 1px solid var(--border-color);
+      display: flex;
+      flex-direction: column;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      z-index: 1050;
+    }
+
+    #sidebar.collapsed { margin-left: -260px; }
+
+    .sidebar-header {
+      padding: 1.5rem;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .menu-item {
+      color: var(--text-muted);
+      padding: 0.75rem 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      text-decoration: none;
+      transition: all 0.2s ease;
+      font-weight: 500;
+      border-left: 3px solid transparent;
+    }
+
+    .menu-item:hover, .menu-item.active {
+      color: var(--bs-body-text);
+      background-color: var(--bg-surface-hover);
+    }
+
+    .menu-item.active {
+      border-left-color: #2563eb;
+      background-color: var(--bg-surface-hover);
+    }
+
+    #main-content {
+      flex-grow: 1;
+      display: flex;
+      flex-direction: column;
+      min-width: 0;
+    }
+
+    .top-navbar {
+      background-color: var(--bg-surface);
+      border-bottom: 1px solid var(--border-color);
+      height: 70px;
+      padding: 0 1.5rem;
+    }
+
+    .content-body {
+      padding: 2rem;
+      flex-grow: 1;
+      overflow-y: auto;
+    }
+
+    .glass-card {
+      background-color: var(--bg-surface);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+      box-shadow: var(--card-shadow);
+    }
+
+    .table-responsive-wrapper {
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      overflow: hidden;
+    }
+
+    .table-custom th {
+      background-color: var(--bg-surface-hover) !important;
+      color: var(--text-muted);
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      padding: 1rem;
+    }
+
+    .table-custom td {
+      padding: 1rem;
+      vertical-align: middle;
+    }
+
+    @media (max-width: 991.98px) {
+      #sidebar { position: fixed; height: 100vh; margin-left: -260px; }
+      #sidebar.active { margin-left: 0; }
+    }
   </style>
 </head>
 <body>
 
-  <!-- LOADING ANIMATION SCREEN -->
-  <div id="loader" class="loading-overlay">
-    <div class="text-center">
-      <div class="spinner-border text-primary mb-2" style="width: 3rem; height: 3rem;"></div>
-      <p class="text-muted small fw-bold font-monospace">Synchronizing Ledger Rows...</p>
-    </div>
-  </div>
-
-  <!-- HEADER NAVIGATION HERO -->
-  <nav class="navbar navbar-expand-lg navbar-dark bitly-nav">
-    <div class="container">
-      <a class="navbar-brand fw-bold text-white fs-4" href="#" onclick="goHome()"><i class="bi bi-box-arrow-up-right text-warning me-2"></i>Bitly<span class="text-warning">Hub</span></a>
-      <div class="d-flex align-items-center">
-        <div id="navAuthSection">
-          <button class="btn btn-sm text-white fw-medium me-3" onclick="showAuthPage('login')">Sign In</button>
-          <button class="btn btn-sm btn-warning fw-bold px-4 py-2 rounded-pill shadow-sm" onclick="showAuthPage('register')">Get Started Free</button>
-        </div>
-        <div id="navUserSection" style="display: none;">
-          <span class="navbar-text text-white fw-medium me-4 font-monospace" id="sessionIdentity"></span>
-          <button class="btn btn-sm btn-outline-danger px-3 py-1.5 rounded-pill border-2 fw-bold" onclick="logout()"><i class="bi bi-power me-1"></i>Sign Out</button>
-        </div>
+  <div class="app-container">
+    <aside id="sidebar">
+      <div class="sidebar-header d-flex align-items-center justify-content-between">
+        <h4 class="m-0 fw-bold text-primary"><i class="bi bi-bezier2 me-2"></i>LinkEngine</h4>
+        <button class="btn btn-sm d-lg-none p-0" id="closeSidebar"><i class="bi bi-x-lg"></i></button>
       </div>
-    </div>
-  </nav>
+      <nav class="nav-menu py-3">
+        <a href="#" class="menu-item active" data-view="view-dashboard"><i class="bi bi-grid-1x2-fill"></i> Dashboard</a>
+        <a href="#" class="menu-item" data-view="view-links"><i class="bi bi-link-45deg"></i> Link Registry</a>
+        <a href="#" class="menu-item admin-feature d-none" data-view="view-ads"><i class="bi bi-badge-ad-fill"></i> Ad Manager</a>
+        <a href="#" class="menu-item admin-feature d-none" data-view="view-whitelist"><i class="bi bi-shield-check"></i> Firewall Domains</a>
+        <a href="#" class="menu-item admin-feature d-none" data-view="view-users"><i class="bi bi-people-fill"></i> System Users</a>
+        <hr class="mx-3 my-3">
+        <a href="#" class="menu-item text-danger" id="action-logout"><i class="bi bi-box-arrow-left"></i> Sign Out</a>
+      </nav>
+    </aside>
 
-  <div class="container pb-5">
-    
-    <!-- CENTRAL INPUT INTERFACE AREA -->
-    <div class="card creation-canvas">
-      <h5 class="fw-bold mb-3"><i class="bi bi-link-45deg text-primary"></i> Create short URLs cleanly</h5>
-      <form onsubmit="createNewLink(event)">
-        <div class="row g-3">
-          <div class="col-lg-6"><input type="url" id="longUrl" class="form-control form-control-lg bg-light border-0 shadow-none fs-6" placeholder="Paste your target long destination URL here..." required></div>
-          <div class="col-lg-3"><input type="text" id="shortCode" class="form-control form-control-lg bg-light border-0 shadow-none fs-6 font-monospace" placeholder="Custom alias (optional)"></div>
-          <div class="col-lg-3"><button type="submit" class="btn btn-primary btn-lg w-100 fw-bold fs-6 shadow">Shorten Address</button></div>
-        </div>
-      </form>
-      <div id="anonSuccessResult" class="mt-4 p-3 bg-light rounded-3 border border-primary d-none">
-        <span class="text-primary fw-bold d-block small mb-1"><i class="bi bi-check-circle-fill me-1"></i> Shortlink generated successfully:</span>
-        <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
-          <a id="anonShortLink" href="#" target="_blank" class="fw-bold fs-5 text-dark font-monospace text-decoration-none"></a>
-          <button class="btn btn-sm btn-dark px-4 fw-bold shadow-sm" onclick="copyAnonLink()">Copy Link</button>
-        </div>
-      </div>
-    </div>
-
-    <!-- ACCESS CONTROL IDENTIFICATION BLOCK -->
-    <div id="authView" class="card mx-auto mt-5 p-4 bg-white border-0 shadow-lg" style="max-width: 440px; display: none; border-radius: 16px;">
-      <ul class="nav nav-pills nav-justified mb-4 bg-light p-1 rounded-pill">
-        <li class="nav-item"><button id="tab-login" class="nav-link active rounded-pill fw-bold" onclick="switchAuthMode('login')">Login</button></li>
-        <li class="nav-item"><button id="tab-register" class="nav-link rounded-pill fw-bold" onclick="switchAuthMode('register')">Register</button></li>
-      </ul>
-      <form onsubmit="handleAuth(event)">
-        <div class="mb-3"><label class="form-label small fw-bold text-secondary">Email Account String</label><input type="email" id="authEmail" class="form-control form-control-lg fs-6" required></div>
-        <div class="mb-4"><label class="form-label small fw-bold text-secondary">Access Private Key</label><input type="password" id="authPassword" class="form-control form-control-lg fs-6" required></div>
-        <button type="submit" id="authSubmitBtn" class="btn btn-primary btn-lg w-100 fw-bold fs-6 shadow-sm">Continue Access</button>
-      </form>
-    </div>
-
-    <!-- COMPREHENSIVE CONTROL DASHBOARD INTERACTIVE CONTAINER -->
-    <div id="dashboardView" class="dashboard-view mt-5">
-      <div class="row g-4 mb-5">
-        <div class="col-md-4"><div class="metric-card"><h6>Account Tier State</h6><h3 class="mb-0 fw-bold text-primary font-monospace" id="currentTierText">Free Tier</h3></div></div>
-        <div class="col-md-4"><div class="metric-card"><h6>Tracked Active Mappings</h6><h3 class="mb-0 fw-bold font-monospace" id="statGlobalLinks">0</h3></div></div>
-        <div class="col-md-4"><div class="metric-card"><h6>Redirect Verification Engine</h6><h3 class="mb-0 fw-bold text-success font-monospace">Operational</h3></div></div>
-      </div>
-
-      <!-- SYSTEM OPERATIONS ADMINISTRATION BOARD -->
-      <div id="adminApprovalQueueCard" class="card p-4 border-0 mb-5 d-none bg-white shadow-sm" style="border-radius: 16px; border-left: 6px solid #ffc107 !important;">
+    <main id="main-content">
+      <header class="top-navbar d-flex align-items-center justify-content-between">
+        <button class="btn btn-outline-secondary" id="toggleSidebar"><i class="bi bi-list"></i></button>
         
-        <!-- SYSTEM USER MANAGEMENT DYNAMIC CONTAINER CONTROLLER -->
-        <h5 class="fw-bold text-dark mb-1"><i class="bi bi-people-fill text-primary me-2"></i>System Accounts Discovery Control Registry</h5>
-        <p class="text-muted small mb-3">View platform profiles, purge database records, or manually mutate user subcription plans inline instantly.</p>
-        <div class="table-responsive mb-5 border rounded-3 bg-white">
-          <table class="table table-hover align-middle mb-0 small">
-            <thead class="table-light text-secondary">
-              <tr>
-                <th class="ps-3">User Profile Identity Suffix</th>
-                <th>Registration Date Cell</th>
-                <th>Assigned Access Membership Matrix</th>
-                <th class="text-center" style="width: 140px;">Operations Anchor</th>
-              </tr>
-            </thead>
-            <tbody id="adminUserManagementTableBody">
-              <tr><td colspan="4" class="text-center py-4 text-muted font-monospace">Locating rows...</td></tr>
-            </tbody>
-          </table>
-        </div>
-
-        <!-- SPONSORED ADVERTISEMENT MODULE CONTROL INTERFACE (NEW CRUD ADDITION) -->
-        <h5 class="fw-bold text-dark mb-1 border-top pt-4"><i class="bi bi-images text-danger me-2"></i>Platform Interstitial Ad Campaign Matrix (CRUD)</h5>
-        <p class="text-muted small">Configure global banners shown randomly on Free tier user redirections. Premium users bypass this automatically.</p>
-        
-        <form onsubmit="createNewAdvertisement(event)" class="card p-3 bg-light border-0 mb-3 rounded-3 shadow-none">
-          <div class="row g-2">
-            <div class="col-md-5"><input type="url" id="adTargetUrlInput" class="form-control form-control-sm" placeholder="Ad Banner Destination Link (Target URL)" required></div>
-            <div class="col-md-5"><input type="url" id="adImageUrlInput" class="form-control form-control-sm" placeholder="Ad Image Graphics Asset Link (Image URL)" required></div>
-            <div class="col-md-2"><button type="submit" class="btn btn-sm btn-danger w-100 fw-bold"><i class="bi bi-cloud-arrow-up"></i> Inject New Ad</button></div>
+        <div class="d-flex align-items-center gap-3">
+          <div class="dropdown" id="themeDropdownContainer">
+            <button class="btn btn-outline-secondary dropdown-toggle d-flex align-items-center gap-2" type="button" id="themeSelectorBtn" data-bs-toggle="dropdown">
+              <i class="bi bi-circle-half"></i> <span class="d-none d-sm-inline">Theme</span>
+            </button>
+            <ul class="dropdown-menu dropdown-menu-end">
+              <li><button class="dropdown-item d-flex align-items-center gap-2" data-theme="light"><i class="bi bi-sun-fill text-warning"></i> White</button></li>
+              <li><button class="dropdown-item d-flex align-items-center gap-2" data-theme="dark"><i class="bi bi-moon-stars-fill text-primary"></i> Black</button></li>
+              <li><button class="dropdown-item d-flex align-items-center gap-2" data-theme="system"><i class="bi bi-laptop"></i> System</button></li>
+            </ul>
           </div>
-        </form>
+          <span class="badge bg-secondary px-3 py-2 rounded-pill" id="currentProfileBadge">Guest Access</span>
+        </div>
+      </header>
 
-        <div class="table-responsive mb-5 border rounded-3 bg-white">
-          <table class="table align-middle table-hover mb-0 small">
-            <thead class="table-light text-secondary">
-              <tr>
-                <th class="ps-3" style="width:110px;">ID Code</th>
-                <th style="width:100px;">Asset View</th>
-                <th>Routing Config / Parameters</th>
-                <th style="width:140px;">State Toggle</th>
-                <th class="text-center" style="width:160px;">Actions Matrix</th>
-              </tr>
-            </thead>
-            <tbody id="adminAdsManagementTableBody">
-              <tr><td colspan="5" class="text-center py-3 text-muted">No advertisements registered.</td></tr>
-            </tbody>
-          </table>
+      <div class="content-body">
+        <div id="view-auth" class="app-view mx-auto" style="max-width: 400px; margin-top: 4rem;">
+          <div class="glass-card text-center">
+            <h3 class="fw-bold mb-4" id="authInterfaceTitle">Account Login</h3>
+            <div class="mb-3"><input type="email" id="inputAuthEmail" class="form-control" placeholder="Email identity"></div>
+            <div class="mb-4"><input type="password" id="inputAuthPassword" class="form-control" placeholder="Password security key"></div>
+            <button class="btn btn-primary w-100 fw-bold mb-3 py-2" id="triggerAuthAction">Authenticate</button>
+            <p class="text-muted small m-0" id="toggleAuthLayout">New operator? <a href="#" id="linkToggleFormMode" class="text-primary text-decoration-none">Create Credentials</a></p>
+          </div>
         </div>
 
-        <!-- PAYMENT VERIFICATION PIPELINE BOARD -->
-        <h5 class="fw-bold text-dark mb-3 pt-3 border-top"><i class="bi bi-wallet2 text-warning me-2"></i>Pending Subscription Verification Desk Queue</h5>
-        <div class="table-responsive mb-5">
-          <table class="table align-middle table-bordered small bg-white rounded">
-            <thead class="table-light"><tr><th>Account Email</th><th>Plan Target</th><th>Transaction Code Ref</th><th>Settlement Date</th><th class="text-end pe-3">Actions Execution</th></tr></thead>
-            <tbody id="adminQueueTableBody"></tbody>
-          </table>
-        </div>
-
-        <!-- DOMAIN FRAUD WHITE LIST ENGINE OPERATIONS CORE -->
-        <h5 class="fw-bold text-dark mb-1 border-top pt-3"><i class="bi bi-shield-lock-fill text-success me-2"></i>Anti-Spam Allowed Domain Routing Directives</h5>
-        <p class="text-muted small">Manage allowed target rules. Add plain comma groupings for nested routing arrays safely.</p>
-        
-        <form onsubmit="addNewDomainToWhitelist(event)" class="row g-2 mb-3">
-          <div class="col-md-9"><input type="text" id="whitelistInput" class="form-control form-control-sm" placeholder="Add domain references (e.g. apple.com, microsoft.com)" required></div>
-          <div class="col-md-3"><button type="submit" class="btn btn-sm btn-success w-100 fw-bold"><i class="bi bi-plus-circle"></i> Inject Domain Rule</button></div>
-        </form>
-        
-        <div class="table-responsive">
-          <table class="table table-bordered table-sm align-middle bg-light font-monospace small">
-            <thead><tr class="table-dark"><th>Allowed Active String Suffix</th><th class="text-center" style="width: 200px;">Actions</th></tr></thead>
-            <tbody id="whitelistCrudTableBody"></tbody>
-          </table>
-        </div>
-      </div>
-
-      <!-- INTERACTIVE BITLY-STYLE MATRIX PACKAGE PRESENTATION BLOCK -->
-      <div id="pricingPlanCard" class="mb-5">
-        <div class="pricing-header">
-          <span class="badge bg-primary-subtle text-primary font-monospace px-3 py-2 rounded-pill fw-bold mb-2">Upgrade Account Metrics</span>
-          <h2 class="fw-bold text-dark">Bitly Premium Tier Structures</h2>
-          <p class="text-muted mx-auto" style="max-width: 550px;">Scale your visibility options instantly. Review capabilities and submit automated verification references to activate capabilities.</p>
-        </div>
-        
-        <div class="row g-4 align-items-stretch mb-4">
-          <!-- Free Plan -->
-          <div class="col-lg-4">
-            <div class="price-card">
-              <h5 class="fw-bold text-secondary text-uppercase small tracking-wider">Free Starter Tier</h5>
-              <div class="price-amount">$0<span>/forever</span></div>
-              <p class="text-muted small">Fundamental utility package for single link management setups.</p>
-              <ul class="feature-list">
-                <li><i class="bi bi-check-circle-fill"></i> Standard Link Generation</li>
-                <li class="text-danger fw-bold"><i class="bi bi-exclamation-triangle-fill text-danger"></i> Ads Displayed Before Redirection</li>
-                <li class="disabled"><i class="bi bi-x-circle"></i> Custom Branded Suffix Mapping</li>
-                <li class="disabled"><i class="bi bi-x-circle"></i> Bulk Link Automation Vectoring</li>
-                <li class="disabled"><i class="bi bi-x-circle"></i> Extended Domain Whitelist Pass</li>
-              </ul>
-              <button class="btn btn-outline-secondary w-100 rounded-pill fw-bold py-2 disabled">Current Structure State</button>
+        <div id="view-dashboard" class="app-view d-none">
+          <div class="row g-3 mb-4">
+            <div class="col-md-4">
+              <div class="glass-card d-flex align-items-center gap-3 m-0">
+                <div class="bg-primary bg-opacity-10 text-primary p-3 rounded-3 fs-3"><i class="bi bi-box-arrow-up-right"></i></div>
+                <div><h3 class="fw-bold m-0" id="cardMetricLinks">0</h3><p class="text-muted small m-0">Shortened Routes</p></div>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="glass-card d-flex align-items-center gap-3 m-0">
+                <div class="bg-success bg-opacity-10 text-success p-3 rounded-3 fs-3"><i class="bi bi-activity"></i></div>
+                <div><h3 class="fw-bold m-0" id="cardMetricClicks">0</h3><p class="text-muted small m-0">Global Impressions</p></div>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="glass-card d-flex align-items-center gap-3 m-0">
+                <div class="bg-warning bg-opacity-10 text-warning p-3 rounded-3 fs-3"><i class="bi bi-award"></i></div>
+                <div><h3 class="fw-bold m-0" id="cardMetricTier">Free</h3><p class="text-muted small m-0">Privilege Profile Tier</p></div>
+              </div>
             </div>
           </div>
-          <!-- Monthly Plan -->
-          <div class="col-lg-4">
-            <div class="price-card featured">
-              <div class="popular-tag">RECOMMENDED</div>
-              <h5 class="fw-bold text-primary text-uppercase small tracking-wider">Premium Monthly</h5>
-              <div class="price-amount">$9<span>/month</span></div>
-              <p class="text-muted small">Advanced capabilities for digital tracking optimization across modern applications.</p>
-              <ul class="feature-list">
-                <li class="text-success fw-bold"><i class="bi bi-shield-check text-success"></i> 100% Ad-Free Redirect Pipeline Links</li>
-                <li><i class="bi bi-check-circle-fill"></i> Uncapped Premium Shortcodes</li>
-                <li><i class="bi bi-check-circle-fill"></i> Rapid Dynamic Link Adjustments</li>
-                <li><i class="bi bi-check-circle-fill"></i> Interactive Realtime QR Modules</li>
-                <li class="disabled"><i class="bi bi-x-circle"></i> Annual Payment Ledger Rebate</li>
-              </ul>
-              <button class="btn btn-primary w-100 rounded-pill fw-bold py-2 shadow-sm" onclick="focusCheckoutPlan('Monthly ($9/mo)')">Select Monthly Metric</button>
+
+          <div class="glass-card">
+            <h5 class="fw-bold mb-3"><i class="bi bi-plus-circle-fill text-primary me-2"></i>Generate Dynamic Redirection Endpoint</h5>
+            <div class="row g-3">
+              <div class="col-md-4"><input type="text" id="linkShortSlug" class="form-control" placeholder="Custom Alias Slug (e.g., testslug)"></div>
+              <div class="col-md-6"><input type="url" id="linkLongUrl" class="form-control" placeholder="Long Target Destination URL (https://...)"></div>
+              <div class="col-md-2"><button class="btn btn-primary w-100 fw-bold" id="actionSaveLink">Deploy Path</button></div>
             </div>
-          </div>
-          <!-- Yearly Plan -->
-          <div class="col-lg-4">
-            <div class="price-card">
-              <h5 class="fw-bold text-success text-uppercase small tracking-wider">Premium Elite Annual</h5>
-              <div class="price-amount">$89<span>/year</span></div>
-              <p class="text-muted small">Maximized value matrix tailored towards enterprise developers requiring high stability links.</p>
-              <ul class="feature-list">
-                <li class="text-success fw-bold"><i class="bi bi-shield-check text-success"></i> 100% Ad-Free Redirect Pipeline Links</li>
-                <li><i class="bi bi-check-circle-fill"></i> Everything included in Monthly Tier</li>
-                <li><i class="bi bi-check-circle-fill"></i> 17% Structural Price Discount Option</li>
-                <li><i class="bi bi-check-circle-fill"></i> Dedicated Priority Server Query Lines</li>
-                <li><i class="bi bi-check-circle-fill"></i> Advanced API Callback Hooks</li>
-              </ul>
-              <button class="btn btn-dark w-100 rounded-pill fw-bold py-2" onclick="focusCheckoutPlan('Yearly ($89/yr)')">Select Elite Annual</button>
+
+            <div id="generationSuccessDesk" class="mt-4 p-3 border rounded-3 bg-body-tertiary d-none">
+              <div class="d-flex flex-wrap align-items-center justify-content-between gap-3">
+                <div>
+                  <span class="text-success small fw-bold d-block mb-1"><i class="bi bi-check-circle-fill me-1"></i> Path Successfully Deployed</span>
+                  <span id="outputShortenedUrlText" class="fw-bold fs-5 text-primary"></span>
+                </div>
+                <div class="d-flex gap-2" id="outputUtilityActionRack">
+                  </div>
+              </div>
             </div>
           </div>
         </div>
 
-        <!-- FORM CAPTURE VERIFICATION CHECKS -->
-        <div id="checkoutFormAnchorCard" class="card p-4 border-0 shadow-sm mx-auto bg-white" style="max-width: 600px; border-radius: 14px; display: none;">
-          <div class="d-flex justify-content-between align-items-center border-bottom pb-2 mb-3">
-            <h6 class="fw-bold m-0 text-primary text-uppercase small"><i class="bi bi-send-check-fill me-1"></i> Submit Payment Proof Verification</h6>
-            <button type="button" class="btn-close small" onclick="document.getElementById('checkoutFormAnchorCard').style.display='none'"></button>
-          </div>
-          <form onsubmit="submitCheckoutDetails(event)">
-            <div class="row g-2">
-              <div class="col-md-6">
-                <label class="form-label small fw-bold text-secondary mb-1">Target Package Plan Choice</label>
-                <select id="checkoutPlan" class="form-select form-select-sm font-monospace fw-bold text-primary" required>
-                  <option value="Monthly ($9/mo)">Monthly ($9/mo)</option>
-                  <option value="Yearly ($89/yr)">Yearly ($89/yr)</option>
+        <div id="view-links" class="app-view d-none">
+          <div class="glass-card">
+            <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-4">
+              <h5 class="fw-bold m-0">Active Redirection Pipelines</h5>
+              <div class="d-flex gap-2">
+                <button class="btn btn-sm btn-outline-secondary" onclick="processExportEngine('csv')"><i class="bi bi-filetype-csv"></i> CSV</button>
+                <button class="btn btn-sm btn-outline-secondary" onclick="processExportEngine('json')"><i class="bi bi-filetype-json"></i> JSON</button>
+              </div>
+            </div>
+
+            <div class="row g-3 mb-3">
+              <div class="col-md-4"><input type="text" id="searchFilterBox" class="form-control" placeholder="Filter by slug or target..."></div>
+              <div class="col-md-3">
+                <select id="statusFilterBox" class="form-select">
+                  <option value="All">All Route Conditions</option>
+                  <option value="Active">Active Intersections</option>
+                  <option value="Inactive">Deactivated State Vectors</option>
                 </select>
               </div>
-              <div class="col-md-6">
-                <label class="form-label small fw-bold text-secondary mb-1">Transaction Ref Identification String</label>
-                <input type="text" id="checkoutTxCode" class="form-control form-control-sm font-monospace fw-bold" placeholder="e.g. TXN-789324" required>
+              <div class="col-md-3">
+                <select id="sortRuleBox" class="form-select">
+                  <option value="date-desc">Registered (Newest First)</option>
+                  <option value="date-asc">Registered (Oldest First)</option>
+                  <option value="slug-asc">Slug Name Grouping (A-Z)</option>
+                </select>
               </div>
-              <div class="col-12 mt-2">
-                <label class="form-label small fw-bold text-secondary mb-1">Payment Settlement Date Reference</label>
-                <input type="date" id="checkoutPayDate" class="form-control form-control-sm" required>
+              <div class="col-md-2">
+                <select id="paginationSizeBox" class="form-select">
+                  <option value="5">5 Rows</option>
+                  <option value="10">10 Rows</option>
+                  <option value="25">25 Rows</option>
+                </select>
               </div>
             </div>
-            <button type="submit" class="btn btn-sm btn-success w-100 fw-bold py-2 mt-3 shadow-sm">Submit Premium Activation Request</button>
-          </form>
+
+            <div class="table-responsive-wrapper">
+              <table class="table table-custom align-middle m-0">
+                <thead>
+                  <tr>
+                    <th>Short Slug Alias</th>
+                    <th>Destination URL Target Path</th>
+                    <th>Sharing Vectors & QR Actions</th>
+                    <th>State</th>
+                    <th class="text-end">Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="registryTableOutputBody"></tbody>
+              </table>
+            </div>
+
+            <div class="d-flex flex-wrap align-items-center justify-content-between mt-3 gap-2">
+              <div class="text-muted small" id="paginationStatusSummary">Calculating pipeline coordinates...</div>
+              <nav><ul class="pagination pagination-sm m-0" id="paginationUINodeController"></ul></nav>
+            </div>
+          </div>
         </div>
+
+        <div id="view-ads" class="app-view d-none">
+          <div class="glass-card">
+            <h5 class="fw-bold mb-3">Interstitial Ad Network Inventory</h5>
+            <div class="row g-3 mb-4 p-3 border rounded-3 bg-body-tertiary">
+              <div class="col-md-4"><input type="url" id="adRedirectLink" class="form-control" placeholder="Promotional Destination Target Link"></div>
+              <div class="col-md-5"><input type="url" id="adGraphicLink" class="form-control" placeholder="Creative Banner Image CDN URL"></div>
+              <div class="col-md-3"><button class="btn btn-success w-100 fw-bold" id="actionCreateAd"><i class="bi bi-cloud-plus-fill me-1"></i> Register Ad</button></div>
+            </div>
+            <div class="table-responsive-wrapper">
+              <table class="table table-custom m-0">
+                <thead>
+                  <tr>
+                    <th>System Ad ID</th>
+                    <th>Marketing Destination URL</th>
+                    <th>Asset Banner Preview</th>
+                    <th>Status</th>
+                    <th class="text-end">Operations</th>
+                  </tr>
+                </thead>
+                <tbody id="adManagerTableBody"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <div id="view-whitelist" class="app-view d-none">
+          <div class="glass-card">
+            <h5 class="fw-bold mb-3">Gateway Security Allowed Whitelist</h5>
+            <div class="input-group mb-4">
+              <input type="text" id="whitelistDomainInput" class="form-control" placeholder="domain.com, sub.domain.org (Comma split parameters support)">
+              <button class="btn btn-primary fw-bold" id="actionAddDomains">Commit Security Entry</button>
+            </div>
+            <div class="list-group list-group-flush border rounded-3" id="whitelistOutputListBody"></div>
+          </div>
+        </div>
+
+        <div id="view-users" class="app-view d-none">
+          <div class="glass-card">
+            <h5 class="fw-bold mb-3">Platform User Matrix Rows</h5>
+            <div class="table-responsive-wrapper">
+              <table class="table table-custom m-0">
+                <thead>
+                  <tr>
+                    <th>User Profile Identifier Signature Email</th>
+                    <th>System Privilege Tier</th>
+                    <th>Account Sync Context Timestamp</th>
+                    <th class="text-end">Modifications Matrix</th>
+                  </tr>
+                </thead>
+                <tbody id="userMatrixTableBody"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
       </div>
+    </main>
+  </div>
 
-      <!-- CORE DISPLAY WORKSPACE INTERFACES -->
-      <div class="row g-4">
-        <!-- PASSWORD MANAGEMENT CONTAINER CARD -->
-        <div class="col-lg-4 order-lg-2">
-          <div class="card p-4 bg-white border-0 shadow-sm" style="border-radius: 12px;">
-            <h6 class="fw-bold text-uppercase small text-muted border-bottom pb-2 mb-3"><i class="bi bi-key me-1"></i> Change Security Pass</h6>
-            <form onsubmit="changePassword(event)">
-              <input type="password" id="newPassword" class="form-control form-control-sm mb-3 font-monospace" placeholder="Enter new custom secret token string" required>
-              <button type="submit" class="btn btn-sm btn-dark w-100 fw-bold py-2 shadow-sm">Update Password Token</button>
-            </form>
-          </div>
+  <div class="modal fade" id="globalCrudUpdateModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title fw-bold" id="crudModalTitle">Modify Entry Context</h5>
+          <button class="btn-close" type="button" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
-
-        <!-- SHORTLINK GRID ITERATOR FEED DISPLAY -->
-        <div class="col-lg-8 order-lg-1">
-          <div class="d-flex justify-content-between align-items-center mb-4">
-            <h5 class="fw-bold m-0 text-dark"><i class="bi bi-collection-play text-primary me-1"></i> Managed Mapping Pipelines</h5>
-            <span class="badge bg-white text-dark border font-monospace px-3 py-2 rounded-pill fw-medium shadow-sm" id="totalLinksCounterSummary">0 Links Found</span>
-          </div>
-          
-          <div id="linksFeedContainer"></div>
-
-          <!-- NATIVE PAGINATION CONTROLLER PANEL -->
-          <nav class="mt-4 d-flex justify-content-between align-items-center bg-white p-2 rounded-3 border">
-            <button id="btnPrevPage" class="btn btn-sm btn-outline-secondary px-3 py-1 fw-bold" onclick="changePage(-1)"><i class="bi bi-chevron-left"></i> Prev</button>
-            <span id="paginationInfoLabel" class="small fw-bold text-secondary font-monospace">Page 1 of 1</span>
-            <button id="btnNextPage" class="btn btn-sm btn-outline-secondary px-3 py-1 fw-bold" onclick="changePage(1)">Next <i class="bi bi-chevron-right"></i></button>
-          </nav>
+        <div class="modal-body" id="crudModalDynamicBodyFields"></div>
+        <div class="modal-footer">
+          <button class="btn btn-secondary" type="button" data-bs-dismiss="modal">Dismiss</button>
+          <button class="btn btn-primary fw-bold" id="crudModalSubmitActionBtn">Save Mutations</button>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- QR EXPAND OVERLAY BLOCK LAYOUT -->
-  <div class="modal fade" id="qrModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered modal-sm">
-      <div class="modal-content text-center p-4 border-0 shadow-lg" style="border-radius: 16px;">
-        <h6 class="fw-bold text-muted mb-3 small text-uppercase tracking-wider">Asset QR Vector Output</h6>
-        <div class="bg-light p-3 rounded-3 mb-3 border">
-          <img id="modalQrImg" src="" class="img-fluid rounded shadow-sm bg-white">
+  <div class="modal fade" id="qrPresentationModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-sm modal-dialog-centered">
+      <div class="modal-content text-center">
+        <div class="modal-header border-0 pb-0">
+          <button class="btn-close ms-auto" type="button" data-bs-dismiss="modal"></button>
         </div>
-        <button type="button" class="btn btn-sm btn-secondary w-100 fw-bold py-2 rounded-pill" data-bs-dismiss="modal">Dismiss View</button>
+        <div class="modal-body">
+          <h5 class="fw-bold mb-3" id="qrTitleLabel">Dynamic Routing QR Code</h5>
+          <div class="p-3 bg-white d-inline-block rounded-3 mb-3 border">
+            <img id="qrRenderDestinationImg" src="" alt="QR Engine Syncing" class="img-fluid" style="width: 200px; height: 200px;">
+          </div>
+          <button class="btn btn-primary w-100 fw-bold" id="qrDownloadModalBtn"><i class="bi bi-download me-2"></i>Download QR Code Image</button>
+        </div>
       </div>
     </div>
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
   <script>
-    const APPS_SCRIPT_API = "https://script.google.com/macros/s/AKfycbwnjkWwJm-u6dufwCJ5mApY2CniO41gZe8dv4jCD6v9GkK9Ovw_uMLT5HVlaXlc5SpV/exec";
-    
-    let AUTH_MODE = 'login';
-    let CURRENT_PAGE = 1;
-    const ITEMS_PER_PAGE = 5;
-    let TOTAL_PAGES = 1;
+    const BACKEND_GATEWAY_URL = "https://script.google.com/macros/s/AKfycbwnjkWwJm-u6dufwCJ5mApY2CniO41gZe8dv4jCD6v9GkK9Ovw_uMLT5HVlaXlc5SpV/exec";
+    // Derived base redirect address link matching deployment paths parameters
+    const ENGINE_REDIRECT_BASE = BACKEND_GATEWAY_URL.includes("exec") ? BACKEND_GATEWAY_URL.split("/exec")[0] + "/exec?id=" : "https://yourdomain.com/";
+
+    let sessionStateToken = JSON.parse(localStorage.getItem('shortener_session')) || null;
+    let localCacheStore = { links: [], systemAds: [], whitelistedDomains: [], systemUsers: [], pagination: {} };
+    let registrationFlowMode = false;
+    let activeNavigationGridPage = 1;
+    let dynamicBootstrapModalRef = null;
+    let qrModalEngineRef = null;
 
     document.addEventListener("DOMContentLoaded", () => {
-      const cachedUser = localStorage.getItem("dineshmc_session");
-      if (cachedUser) { establishSession(JSON.parse(cachedUser)); } else { showLoader(false); }
+      dynamicBootstrapModalRef = new bootstrap.Modal(document.getElementById('globalCrudUpdateModal'));
+      qrModalEngineRef = new bootstrap.Modal(document.getElementById('qrPresentationModal'));
+      initializeThemeModuleEngine();
+      configureGlobalEventBridges();
+      evaluateGlobalAccessState();
     });
 
-    function showLoader(visible) { document.getElementById('loader').style.display = visible ? 'flex' : 'none'; }
-    function goHome() { window.location.reload(); }
-    function focusCheckoutPlan(planString) {
-      document.getElementById('checkoutFormAnchorCard').style.display = 'block';
-      document.getElementById('checkoutPlan').value = planString;
-      document.getElementById('checkoutFormAnchorCard').scrollIntoView({ behavior: 'smooth' });
-    }
-    function showAuthPage(mode) { document.getElementById('dashboardView').style.display = 'none'; document.getElementById('authView').style.display = 'block'; switchAuthMode(mode); }
-    function switchAuthMode(mode) { AUTH_MODE = mode; document.getElementById('tab-login').classList.toggle('active', mode === 'login'); document.getElementById('tab-register').classList.toggle('active', mode === 'register'); document.getElementById('authSubmitBtn').innerText = mode === 'login' ? 'Sign In to Workspace' : 'Register Secure Profile'; }
+    function initializeThemeModuleEngine() {
+      const targetCachedThemePreference = localStorage.getItem('system_theme_mode') || 'system';
+      applySelectedThemeStateValue(targetCachedThemePreference);
 
-    function runGas(functionName, args, success, failure) {
-      const callbackName = 'gas_cb_' + Math.round(100000 * Math.random());
-      window[callbackName] = function(data) {
-        delete window[window[callbackName]]; document.getElementById(callbackName).remove();
-        if (data && data.error) { if (failure) failure(data.error); else alert(data.error); } else { if (success) success(data); }
-      };
-      const src = `${APPS_SCRIPT_API}?callback=${callbackName}&function=${functionName}&args=${encodeURIComponent(JSON.stringify(args))}`;
-      const script = document.createElement('script'); script.id = callbackName; script.src = src;
-      document.body.appendChild(script);
-    }
-
-    function handleAuth(event) {
-      event.preventDefault(); showLoader(true);
-      const email = document.getElementById('authEmail').value;
-      const pass = document.getElementById('authPassword').value;
-      const func = AUTH_MODE === 'login' ? 'loginUser' : 'registerUser';
-      runGas(func, [email, pass], (user) => { localStorage.setItem("dineshmc_session", JSON.stringify(user)); establishSession(user); }, (err) => { showLoader(false); alert(err); });
-    }
-
-    function establishSession(user) {
-      document.getElementById('authView').style.display = 'none';
-      document.getElementById('navAuthSection').style.display = 'none';
-      document.getElementById('navUserSection').style.display = 'block';
-      document.getElementById('dashboardView').style.display = 'block';
-      document.getElementById('sessionIdentity').innerHTML = `<i class="bi bi-person-circle text-warning me-1"></i> ${user.email}`;
-      document.getElementById('currentTierText').innerText = user.tier;
-      
-      if(user.tier !== 'Free') { document.getElementById('pricingPlanCard').style.display = 'none'; }
-      if(user.tier === 'Admin') { document.getElementById('adminApprovalQueueCard').classList.remove('d-none'); }
-      fetchRenderWorkspace();
-    }
-
-    function fetchRenderWorkspace() {
-      showLoader(true);
-      const user = JSON.parse(localStorage.getItem("dineshmc_session"));
-      
-      runGas('getDashboardData', [user.email, user.tier, CURRENT_PAGE, ITEMS_PER_PAGE], (data) => {
-        document.getElementById('statGlobalLinks').innerText = data.adminStats.globalLinks;
-        document.getElementById('totalLinksCounterSummary').innerText = `${data.pagination.totalItems} Mapped Tracks`;
-
-        TOTAL_PAGES = data.pagination.totalPages || 1;
-        document.getElementById('paginationInfoLabel').innerText = `Page ${CURRENT_PAGE} of ${TOTAL_PAGES}`;
-        document.getElementById('btnPrevPage').disabled = (CURRENT_PAGE <= 1);
-        document.getElementById('btnNextPage').disabled = (CURRENT_PAGE >= TOTAL_PAGES);
-
-        if (user.tier === 'Admin') {
-          // USER RENDERING CORE
-          const uBody = document.getElementById('adminUserManagementTableBody');
-          uBody.innerHTML = !data.systemUsers || data.systemUsers.length === 0 ? '<tr><td colspan="4" class="text-center text-muted py-3 font-monospace">No active profiles discovered in directory.</td></tr>' : '';
-          if(data.systemUsers) {
-            data.systemUsers.forEach((sysUser) => {
-              const isSelf = (sysUser.email === user.email);
-              const isMonthly = sysUser.tier.toLowerCase().includes('monthly');
-              const isYearly = sysUser.tier.toLowerCase().includes('yearly');
-              const isFree = sysUser.tier === 'Free';
-              const isAdmin = sysUser.tier === 'Admin';
-
-              uBody.innerHTML += `<tr>
-                <td class="ps-3 fw-bold text-dark font-monospace small">${sysUser.email} ${isSelf ? '<span class="badge bg-secondary ms-1">You</span>' : ''}</td>
-                <td class="text-secondary font-monospace small">${sysUser.joined}</td>
-                <td>
-                  <select class="form-select form-select-sm font-monospace p-1 fw-bold text-dark border-secondary-subtle" style="max-width:230px; font-size:0.8rem;" 
-                          onchange="modifyUserTierByAdmin('${sysUser.email}', this.value)" ${isSelf ? 'disabled' : ''}>
-                    <option value="Free" ${isFree ? 'selected' : ''}>Free Starter Tier</option>
-                    <option value="Premium (Monthly ($9/mo))" ${isMonthly ? 'selected' : ''}>Premium (Monthly ($9/mo))</option>
-                    <option value="Premium (Yearly ($89/yr))" ${isYearly ? 'selected' : ''}>Premium (Yearly ($89/yr))</option>
-                    <option value="Admin" ${isAdmin ? 'selected' : ''}>Admin Root Access</option>
-                  </select>
-                </td>
-                <td class="text-center">
-                  <button class="btn btn-sm btn-outline-danger py-0 px-2 small fw-bold text-uppercase" style="font-size:0.75rem;" 
-                          onclick="purgeUserAccountByAdmin('${sysUser.email}')" ${isSelf ? 'disabled' : ''}>
-                    <i class="bi bi-person-x-fill"></i> Purge
-                  </button>
-                </td>
-              </tr>`;
-            });
-          }
-
-          // DYNAMIC AD DATA INLINE CRUD ROW RENDERER ENGINE
-          const adBody = document.getElementById('adminAdsManagementTableBody');
-          adBody.innerHTML = !data.systemAds || data.systemAds.length === 0 ? '<tr><td colspan="5" class="text-center text-muted py-3 font-monospace">No advertisements registered.</td></tr>' : '';
-          if (data.systemAds) {
-            data.systemAds.forEach((ad, idx) => {
-              const isActive = (ad.status === 'Active');
-              adBody.innerHTML += `
-                <tr>
-                  <td class="ps-3 font-monospace fw-bold text-secondary small">${ad.adId}</td>
-                  <td><a href="${ad.imageUrl}" target="_blank"><img src="${ad.imageUrl}" class="ad-preview-thumb shadow-sm"></a></td>
-                  <td>
-                    <div id="ad-view-panel-${idx}">
-                      <div class="text-dark fw-bold text-truncate" style="max-width:280px; font-size:0.85rem;">Target: ${ad.targetUrl}</div>
-                      <div class="text-muted text-truncate font-monospace small" style="max-width:280px; font-size:0.75rem;">Image: ${ad.imageUrl}</div>
-                    </div>
-                    <div id="ad-edit-panel-${idx}" class="d-none">
-                      <input type="url" id="ad-edit-target-${idx}" class="form-control form-control-sm mb-1 font-monospace" value="${ad.targetUrl}">
-                      <input type="url" id="ad-edit-image-${idx}" class="form-control form-control-sm font-monospace" value="${ad.imageUrl}">
-                    </div>
-                  </td>
-                  <td>
-                    <select id="ad-edit-status-${idx}" class="form-select form-select-sm font-monospace p-1 border-secondary-subtle fw-bold ${isActive ? 'text-success':'text-danger'}" 
-                            style="font-size:0.8rem; max-width:120px;" onchange="saveAdInlineUpdates(${idx}, '${ad.adId}')">
-                      <option value="Active" ${isActive ? 'selected' : ''}>Active</option>
-                      <option value="Inactive" ${!isActive ? 'selected' : ''}>Paused</option>
-                    </select>
-                  </td>
-                  <td class="text-center">
-                    <div id="ad-actions-view-${idx}">
-                      <button class="btn btn-sm btn-outline-primary py-0 px-2 fw-medium me-1" onclick="toggleAdEditMode(${idx}, true)"><i class="bi bi-pencil"></i> Edit</button>
-                      <button class="btn btn-sm btn-outline-danger py-0 px-2 border-0" onclick="purgeAdEntry('${ad.adId}')"><i class="bi bi-trash"></i></button>
-                    </div>
-                    <div id="ad-actions-edit-${idx}" class="d-none">
-                      <button class="btn btn-sm btn-success py-0 px-2 me-1" onclick="saveAdInlineUpdates(${idx}, '${ad.adId}')">Save</button>
-                      <button class="btn btn-sm btn-light border py-0 px-2" onclick="toggleAdEditMode(${idx}, false)">Cancel</button>
-                    </div>
-                  </td>
-                </tr>`;
-            });
-          }
-
-          // Render Payment Queue Array
-          const qBody = document.getElementById('adminQueueTableBody');
-          qBody.innerHTML = !data.pendingRequests || data.pendingRequests.length === 0 ? '<tr><td colspan="5" class="text-center text-muted small py-3 font-monospace">Payment request verify ledger desk is currently clean.</td></tr>' : '';
-          if(data.pendingRequests) {
-            data.pendingRequests.forEach(req => {
-              qBody.innerHTML += `<tr>
-                <td class="fw-bold text-dark font-monospace small">${req.email}</td>
-                <td><span class="badge bg-primary px-2 font-monospace">${req.planType}</span></td>
-                <td><code class="text-dark fw-bold font-monospace bg-light p-1 border rounded">${req.txCode}</code></td>
-                <td class="text-secondary small font-monospace">${req.payDate}</td>
-                <td class="text-end pe-3">
-                  <button class="btn btn-sm btn-success py-0 px-2 fw-bold me-1" style="font-size:0.75rem;" onclick="processAdminQueueAction('${req.email}','Approve')">Approve</button>
-                  <button class="btn btn-sm btn-outline-danger py-0 px-2 fw-bold" style="font-size:0.75rem;" onclick="processAdminQueueAction('${req.email}','Reject')">Reject</button>
-                </td>
-              </tr>`;
-            });
-          }
-
-          // Whitelist Rule Generation Loader Interface
-          const tBody = document.getElementById('whitelistCrudTableBody');
-          tBody.innerHTML = !data.whitelistedDomains || data.whitelistedDomains.length === 0 ? '<tr><td colspan="2" class="text-center text-muted py-2">No whitelisted routing configurations enforced.</td></tr>' : '';
-          if (data.whitelistedDomains) {
-            data.whitelistedDomains.forEach((dom, index) => {
-              tBody.innerHTML += `
-                <tr>
-                  <td class="ps-3">
-                    <span id="view-dom-${index}" class="fw-bold text-dark">${dom}</span>
-                    <input type="text" id="edit-dom-input-${index}" class="form-control form-control-sm d-none font-monospace p-1" value="${dom}">
-                  </td>
-                  <td class="text-center">
-                    <div id="actions-view-${index}">
-                      <button class="btn btn-sm btn-outline-primary py-0 px-2 me-1" onclick="switchToDomainEditMode(${index})"><i class="bi bi-pencil"></i> Edit</button>
-                      <button class="btn btn-sm btn-outline-danger py-0 px-2" onclick="deleteDomainFromWhitelist('${dom}')"><i class="bi bi-trash"></i></button>
-                    </div>
-                    <div id="actions-edit-${index}" class="d-none">
-                      <button class="btn btn-sm btn-success py-0 px-2 me-1" onclick="saveDomainInlineEdits(${index}, '${dom}')">Save</button>
-                      <button class="btn btn-sm btn-light border py-0 px-2" onclick="cancelDomainInlineEdit(${index})">Cancel</button>
-                    </div>
-                  </td>
-                </tr>`;
-            });
-          }
-        }
-
-        const feed = document.getElementById('linksFeedContainer');
-        feed.innerHTML = data.links.length === 0 ? '<div class="p-5 text-center bg-white border rounded-3 text-muted font-monospace small">No mapping channels discoverable inside this viewport frame.</div>' : '';
-        
-        data.links.forEach((link) => {
-          const cleanStatusStr = (link.status && link.status !== 'undefined') ? link.status : 'Active';
-          const isInactive = (cleanStatusStr === "Inactive");
-          const statusBadge = isInactive ? 'bg-danger-subtle text-danger border border-danger-subtle' : 'bg-success-subtle text-success border border-success-subtle';
-          const toggleIcon = isInactive ? 'bi-play-fill' : 'bi-pause-fill';
-          const toggleText = isInactive ? 'Activate' : 'Pause';
-          const toggleBtnClass = isInactive ? 'btn-outline-success' : 'btn-outline-warning';
-
-          feed.innerHTML += `
-            <div class="link-row-card shadow-sm">
-              <div class="d-flex justify-content-between align-items-start flex-wrap gap-2">
-                <div style="max-width: 70%;">
-                  <div class="d-flex align-items-center gap-2 mb-2 flex-wrap">
-                    <span class="tag-badge"><i class="bi bi-tag-fill me-1"></i>${link.tier}</span>
-                    <span class="badge ${statusBadge} font-monospace px-2 py-1 rounded small">${cleanStatusStr}</span>
-                    <span class="text-muted font-monospace small" style="font-size: 0.75rem;"><i class="bi bi-calendar3 me-1"></i>${link.date}</span>
-                  </div>
-                  <h5 class="fw-bold mb-1"><a href="${link.shortUrl}" target="_blank" class="text-decoration-none text-primary font-monospace text-break">/urlshortner/${link.shortCode}</a></h5>
-                  <div class="text-secondary small text-truncate font-monospace text-muted" style="max-width:450px;">${link.longUrl}</div>
-                </div>
-                <div class="d-flex align-items-center gap-2 ms-auto pt-1">
-                  <img src="${link.qrUrl}" class="qr-thumb border" title="Click to enlarge" onclick="openQrModal('${link.qrUrl}')">
-                  <button class="btn btn-sm btn-outline-primary fw-medium" onclick="toggleEditDrawer('${link.shortCode}')"><i class="bi bi-pencil"></i> Modify</button>
-                  <button class="btn btn-sm ${toggleBtnClass} fw-medium" onclick="toggleLinkStatus('${link.shortCode}', '${link.longUrl}', '${cleanStatusStr}')"><i class="bi ${toggleIcon}"></i> ${toggleText}</button>
-                  <button class="btn btn-sm btn-outline-danger border-0" onclick="purgeLink('${link.shortCode}')"><i class="bi bi-trash"></i></button>
-                </div>
-              </div>
-              
-              <div class="edit-drawer" id="drawer-${link.shortCode}">
-                <div class="row g-2">
-                  <div class="col-md-4">
-                    <label class="form-label small fw-bold text-secondary mb-1">Link Routing Custom Slug</label>
-                    <input type="text" class="form-control form-control-sm font-monospace fw-bold" id="input-edit-short-${link.shortCode}" value="${link.shortCode}">
-                  </div>
-                  <div class="col-md-8">
-                    <label class="form-label small fw-bold text-secondary mb-1">Destination Target Long Link Route</label>
-                    <input type="url" class="form-control form-control-sm" id="input-edit-long-${link.shortCode}" value="${link.longUrl}">
-                  </div>
-                  <div class="col-12 d-flex gap-2 justify-content-end mt-2">
-                    <button class="btn btn-sm btn-light border font-medium px-3" onclick="toggleEditDrawer('${link.shortCode}')">Cancel</button>
-                    <button class="btn btn-sm btn-success fw-bold px-4 shadow-sm" onclick="saveLinkEdits('${link.shortCode}', '${cleanStatusStr}')">Save Update</button>
-                  </div>
-                </div>
-              </div>
-            </div>`;
+      document.querySelectorAll('[data-theme]').forEach(themeTriggerItem => {
+        themeTriggerItem.addEventListener('click', () => {
+          const targetedModeVal = themeTriggerItem.getAttribute('data-theme');
+          localStorage.setItem('system_theme_mode', targetedModeVal);
+          applySelectedThemeStateValue(targetedModeVal);
         });
-        showLoader(false);
       });
     }
 
-    // FRONTEND INTERACTION FUNCTIONS FOR INTERSTITIAL AD ENGINE CRUD
-    function createNewAdvertisement(e) {
-      e.preventDefault(); showLoader(true);
-      const user = JSON.parse(localStorage.getItem("dineshmc_session"));
-      const tUrl = document.getElementById('adTargetUrlInput').value;
-      const iUrl = document.getElementById('adImageUrlInput').value;
+    function applySelectedThemeStateValue(themeValue) {
+      const documentRootDOMNode = document.documentElement;
+      if (themeValue === 'system') {
+        const structuralSystemPrefersDarkMatch = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        documentRootDOMNode.setAttribute('data-bs-theme', structuralSystemPrefersDarkMatch ? 'dark' : 'light');
+      } else {
+        documentRootDOMNode.setAttribute('data-bs-theme', themeValue);
+      }
+    }
+
+    function configureGlobalEventBridges() {
+      document.getElementById('toggleSidebar').addEventListener('click', () => {
+        document.getElementById('sidebar').classList.toggle('collapsed');
+        document.getElementById('sidebar').classList.toggle('active');
+      });
+      document.getElementById('closeSidebar').addEventListener('click', () => {
+        document.getElementById('sidebar').classList.remove('active');
+      });
+
+      document.querySelectorAll('.menu-item[data-view]').forEach(tabItem => {
+        tabItem.addEventListener('click', (e) => {
+          e.preventDefault();
+          document.querySelectorAll('.menu-item').forEach(m => m.classList.remove('active'));
+          tabItem.classList.add('active');
+          navigateSubWorkspaceView(tabItem.getAttribute('data-view'));
+          if (window.innerWidth < 992) document.getElementById('sidebar').classList.remove('active');
+        });
+      });
+
+      document.getElementById('linkToggleFormMode').addEventListener('click', (e) => {
+        e.preventDefault();
+        registrationFlowMode = !registrationFlowMode;
+        document.getElementById('authInterfaceTitle').innerText = registrationFlowMode ? "Create Access Account" : "Account Login";
+        document.getElementById('toggleAuthLayout').innerHTML = registrationFlowMode ? 
+          `Registered? <a href="#" id="linkToggleFormMode" class="text-primary text-decoration-none">Log In</a>` : 
+          `New? <a href="#" id="linkToggleFormMode" class="text-primary text-decoration-none">Create Credentials</a>`;
+        configureGlobalEventBridges();
+      });
+
+      document.getElementById('triggerAuthAction').addEventListener('click', processAuthFormSubmission);
+      document.getElementById('action-logout').addEventListener('click', executeTerminalSignOutSequence);
+      document.getElementById('actionSaveLink').addEventListener('click', processDeployLinkRequestAction);
+      document.getElementById('actionCreateAd').addEventListener('click', processInsertAdUnitRequestAction);
+      document.getElementById('actionAddDomains').addEventListener('click', processAppendWhitelistDomainsRequestAction);
+
+      document.getElementById('searchFilterBox').addEventListener('input', () => { activeNavigationGridPage = 1; buildClientMutatedDataViewGrid(); });
+      document.getElementById('statusFilterBox').addEventListener('change', () => { activeNavigationGridPage = 1; buildClientMutatedDataViewGrid(); });
+      document.getElementById('sortRuleBox').addEventListener('change', buildClientMutatedDataViewGrid);
+      document.getElementById('paginationSizeBox').addEventListener('change', () => { activeNavigationGridPage = 1; syncDashboardRemotePipelineData(); });
+    }
+
+    function evaluateGlobalAccessState() {
+      if(!sessionStateToken) {
+        document.getElementById('sidebar').classList.add('collapsed');
+        document.getElementById('toggleSidebar').classList.add('d-none');
+        navigateSubWorkspaceView('view-auth');
+      } else {
+        document.getElementById('sidebar').classList.remove('collapsed');
+        document.getElementById('toggleSidebar').classList.remove('d-none');
+        document.getElementById('currentProfileBadge').innerText = `${sessionStateToken.email} [${sessionStateToken.tier}]`;
+        
+        if (sessionStateToken.tier === 'Admin') {
+          document.querySelectorAll('.admin-feature').forEach(nodeItem => nodeItem.classList.remove('d-none'));
+        }
+        navigateSubWorkspaceView('view-dashboard');
+        syncDashboardRemotePipelineData();
+      }
+    }
+
+    function navigateSubWorkspaceView(viewDOMId) {
+      document.querySelectorAll('.app-view').forEach(viewElement => viewElement.classList.add('d-none'));
+      document.getElementById(viewDOMId).classList.remove('d-none');
+    }
+
+    function executeRemoteGatewayCall(backendFunctionName, argumentParameterPayloadArray, resolveCallbackRoutine) {
+      const synchronousUniqueTokenId = "gateway_rpc_" + Math.round(Math.random() * 1000000);
+      window[synchronousUniqueTokenId] = function(jsonResultPayload) {
+        delete window[synchronousUniqueTokenId];
+        document.getElementById(synchronousUniqueTokenId).remove();
+        if(jsonResultPayload && jsonResultPayload.error) {
+          alert(`Target Exception Pipeline Alert: ${jsonResultPayload.error}`);
+        } else {
+          resolveCallbackRoutine(jsonResultPayload);
+        }
+      };
+
+      const structuredQueryParametersString = 
+        `?callback=${synchronousUniqueTokenId}` + 
+        `&function=${encodeURIComponent(backendFunctionName)}` + 
+        `&args=${encodeURIComponent(JSON.stringify(argumentParameterPayloadArray))}`;
       
-      runGas('createNewAdRecord', [user.tier, tUrl, iUrl], () => {
-        document.getElementById('adTargetUrlInput').value = '';
-        document.getElementById('adImageUrlInput').value = '';
-        fetchRenderWorkspace();
-      }, (err) => { showLoader(false); alert(err); });
+      const backgroundDOMScriptLoadingTag = document.createElement('script');
+      backgroundDOMScriptLoadingTag.id = synchronousUniqueTokenId;
+      backgroundDOMScriptLoadingTag.src = BACKEND_GATEWAY_URL + structuredQueryParametersString;
+      document.body.appendChild(backgroundDOMScriptLoadingTag);
     }
 
-    function toggleAdEditMode(idx, editing) {
-      document.getElementById(`ad-view-panel-${idx}`).classList.toggle('d-none', editing);
-      document.getElementById(`ad-actions-view-${idx}`).classList.toggle('d-none', editing);
-      document.getElementById(`ad-edit-panel-${idx}`).classList.toggle('d-none', !editing);
-      document.getElementById(`ad-actions-edit-${idx}`).classList.toggle('d-none', !editing);
-    }
-
-    function saveAdInlineUpdates(idx, adId) {
-      showLoader(true);
-      const user = JSON.parse(localStorage.getItem("dineshmc_session"));
-      const targetUrl = document.getElementById(`ad-edit-target-${idx}`).value;
-      const imageUrl = document.getElementById(`ad-edit-image-${idx}`).value;
-      const status = document.getElementById(`ad-edit-status-${idx}`).value;
+    function processAuthFormSubmission() {
+      const accountEmail = document.getElementById('inputAuthEmail').value;
+      const accountPassKey = document.getElementById('inputAuthPassword').value;
+      if(!accountEmail || !accountPassKey) return alert("Verify input credentials parameters completely.");
       
-      runGas('updateAdRecord', [user.tier, adId, targetUrl, imageUrl, status], () => { fetchRenderWorkspace(); }, (err) => { showLoader(false); alert(err); });
+      const mappedGatewayFunctionName = registrationFlowMode ? "registerUser" : "loginUser";
+      executeRemoteGatewayCall(mappedGatewayFunctionName, [accountEmail, accountPassKey], (profileDataPayload) => {
+        if(profileDataPayload && profileDataPayload.email) {
+          sessionStateToken = profileDataPayload;
+          localStorage.setItem('shortener_session', JSON.stringify(sessionStateToken));
+          evaluateGlobalAccessState();
+        }
+      });
     }
 
-    function purgeAdEntry(adId) {
-      if (confirm(`Are you certain you want to erase Advertisement Campaign row reference code: ${adId}?`)) {
-        showLoader(true);
-        const user = JSON.parse(localStorage.getItem("dineshmc_session"));
-        runGas('removeAdRecord', [user.tier, adId], () => { fetchRenderWorkspace(); }, (err) => { showLoader(false); alert(err); });
+    function executeTerminalSignOutSequence() {
+      localStorage.removeItem('shortener_session');
+      sessionStateToken = null;
+      location.reload();
+    }
+
+    function syncDashboardRemotePipelineData() {
+      if(!sessionStateToken) return;
+      const userSelectedPaginationLimit = document.getElementById('paginationSizeBox').value;
+      
+      executeRemoteGatewayCall("getDashboardData", [sessionStateToken.email, sessionStateToken.tier, activeNavigationGridPage, userSelectedPaginationLimit], (responsePipelineDataset) => {
+        localCacheStore = responsePipelineDataset;
+        document.getElementById('cardMetricLinks').innerText = responsePipelineDataset.pagination.totalItems || 0;
+        document.getElementById('cardMetricClicks').innerText = responsePipelineDataset.adminStats?.globalClicks || 0;
+        document.getElementById('cardMetricTier').innerText = sessionStateToken.tier;
+        
+        buildClientMutatedDataViewGrid();
+        if(sessionStateToken.tier === 'Admin') {
+          compileAdminAdInventoryUIGrid();
+          compileAdminSecurityFirewallUIList();
+          compileAdminUserMatrixUIGrid();
+        }
+      });
+    }
+
+    function buildClientMutatedDataViewGrid() {
+      const searchBoxInputString = document.getElementById('searchFilterBox').value.toLowerCase().trim();
+      const selectedStatusFilterValue = document.getElementById('statusFilterBox').value;
+      const activeSortRuleConfiguration = document.getElementById('sortRuleBox').value;
+      
+      let runningMutationArrayPool = [...localCacheStore.links];
+
+      if(searchBoxInputString) {
+        runningMutationArrayPool = runningMutationArrayPool.filter(el => 
+          el.shortCode.toLowerCase().includes(searchBoxInputString) || el.longUrl.toLowerCase().includes(searchBoxInputString)
+        );
+      }
+      if(selectedStatusFilterValue !== 'All') {
+        runningMutationArrayPool = runningMutationArrayPool.filter(el => el.status === selectedStatusFilterValue);
+      }
+
+      if(activeSortRuleConfiguration === 'date-asc') {
+        runningMutationArrayPool.sort((a,b) => new Date(a.date) - new Date(b.date));
+      } else if(activeSortRuleConfiguration === 'date-desc') {
+        runningMutationArrayPool.sort((a,b) => new Date(b.date) - new Date(a.date));
+      } else if(activeSortRuleConfiguration === 'slug-asc') {
+        runningMutationArrayPool.sort((a,b) => a.shortCode.localeCompare(b.shortCode));
+      }
+
+      const tableOutputContainerNode = document.getElementById('registryTableOutputBody');
+      tableOutputContainerNode.innerHTML = "";
+      
+      if(runningMutationArrayPool.length === 0) {
+        tableOutputContainerNode.innerHTML = `<tr><td colspan="5" class="text-center text-muted py-4">No matching routes configuration indices.</td></tr>`;
+        return;
+      }
+
+      runningMutationArrayPool.forEach(linkObj => {
+        const fullShortenedDestinationLink = ENGINE_REDIRECT_BASE + linkObj.shortCode;
+        const isPaused = linkObj.status === 'Inactive';
+        
+        tableOutputContainerNode.innerHTML += `
+          <tr>
+            <td><span class="fw-bold text-primary">${linkObj.shortCode}</span></td>
+            <td><div class="text-truncate text-muted" style="max-width: 220px;" title="${linkObj.longUrl}">${linkObj.longUrl}</div></td>
+            <td>
+              <div class="btn-group btn-group-sm">
+                <button class="btn btn-outline-secondary" onclick="executeClipboardCopyRoutine('${fullShortenedDestinationLink}', this)" title="Copy Shortened URL"><i class="bi bi-copy"></i> Copy</button>
+                <button class="btn btn-outline-secondary" onclick="invokeNativeShareEngine('${fullShortenedDestinationLink}', '${linkObj.shortCode}')" title="Share Route"><i class="bi bi-share"></i></button>
+                <button class="btn btn-outline-secondary" onclick="triggerQrPresentationModal('${fullShortenedDestinationLink}', '${linkObj.shortCode}')" title="QR Engine Operations"><i class="bi bi-qr-code"></i> QR</button>
+              </div>
+            </td>
+            <td><span class="badge ${isPaused ? 'bg-danger text-danger bg-opacity-10' : 'bg-success text-success bg-opacity-10'}">${linkObj.status}</span></td>
+            <td class="text-end text-nowrap">
+              <button class="btn btn-sm btn-outline-warning me-1" onclick="openEditLinkModalWindow('${linkObj.shortCode}', '${encodeURIComponent(linkObj.longUrl)}', '${linkObj.status}')">
+                <i class="bi bi-pencil-square"></i>
+              </button>
+              <button class="btn btn-sm btn-outline-danger" onclick="triggerDeleteRouteLinkCall('${linkObj.shortCode}')">
+                <i class="bi bi-trash3-fill"></i>
+              </button>
+            </td>
+          </tr>
+        `;
+      });
+
+      const serverPaginationConfigData = localCacheStore.pagination;
+      document.getElementById('paginationStatusSummary').innerText = `Page ${serverPaginationConfigData.currentPage} of ${serverPaginationConfigData.totalPages} (${serverPaginationConfigData.totalItems} entries total)`;
+      
+      const pagerUINodeWrapper = document.getElementById('paginationUINodeController');
+      pagerUINodeWrapper.innerHTML = `
+        <li class="page-item ${serverPaginationConfigData.currentPage === 1 ? 'disabled' : ''}">
+          <a class="page-link" href="#" onclick="modifyDataGridActivePageNumber(${serverPaginationConfigData.currentPage - 1})">Prev</a>
+        </li>
+      `;
+      for(let i=1; i<=serverPaginationConfigData.totalPages; i++) {
+        pagerUINodeWrapper.innerHTML += `
+          <li class="page-item ${serverPaginationConfigData.currentPage === i ? 'active' : ''}">
+            <a class="page-link" href="#" onclick="modifyDataGridActivePageNumber(${i})">${i}</a>
+          </li>
+        `;
+      }
+      pagerUINodeWrapper.innerHTML += `
+        <li class="page-item ${serverPaginationConfigData.currentPage === serverPaginationConfigData.totalPages ? 'disabled' : ''}">
+          <a class="page-link" href="#" onclick="modifyDataGridActivePageNumber(${serverPaginationConfigData.currentPage + 1})">Next</a>
+        </li>
+      `;
+    }
+
+    function modifyDataGridActivePageNumber(val) {
+      if(val < 1 || val > localCacheStore.pagination.totalPages) return;
+      activeNavigationGridPage = val;
+      syncDashboardRemotePipelineData();
+    }
+
+    // SHARING HANDLERS & UTIL ENGINE MATRIX
+    function executeClipboardCopyRoutine(textToCopy, htmlElementButtonNode) {
+      navigator.clipboard.writeText(textToCopy).then(() => {
+        const structuralOriginalHTMLContentBackup = htmlElementButtonNode.innerHTML;
+        htmlElementButtonNode.innerHTML = `<i class="bi bi-check-lg text-success"></i> Copied!`;
+        htmlElementButtonNode.classList.add("btn-outline-success");
+        setTimeout(() => {
+          htmlElementButtonNode.innerHTML = structuralOriginalHTMLContentBackup;
+          htmlElementButtonNode.classList.remove("btn-outline-success");
+        }, 1800);
+      }).catch(() => alert("Access blocked: verify site security certificate keys."));
+    }
+
+    function invokeNativeShareEngine(targetSharedLinkUrl, linkSlugLabel) {
+      if (navigator.share) {
+        navigator.share({
+          title: `Shortened link channel pointer: ${linkSlugLabel}`,
+          url: targetSharedLinkUrl
+        }).catch(() => {});
+      } else {
+        // Fallback fallback copy prompt loop matrix
+        prompt("Native sharing vectors unavailable. Manual link duplication tracking box index below:", targetSharedLinkUrl);
       }
     }
 
-    function modifyUserTierByAdmin(targetUserEmail, selectedTier) {
-      showLoader(true);
-      const user = JSON.parse(localStorage.getItem("dineshmc_session"));
-      runGas('updateUserTierInline', [user.tier, targetUserEmail, selectedTier], () => { fetchRenderWorkspace(); }, (err) => { showLoader(false); alert(err); });
+    function triggerQrPresentationModal(targetEncodedSourceLink, configurationSlugLabel) {
+      document.getElementById('qrTitleLabel').innerText = `QR: /${configurationSlugLabel}`;
+      
+      // Utilize high-speed, open source charts rendering endpoints matrices for reliable layout compilation
+      const generatedQrEndpointAddress = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(targetEncodedSourceLink)}`;
+      
+      const targetImgNode = document.getElementById('qrRenderDestinationImg');
+      targetImgNode.src = generatedQrEndpointAddress;
+      
+      document.getElementById('qrDownloadModalBtn').onclick = () => {
+        fetch(generatedQrEndpointAddress)
+          .then(res => res.blob())
+          .then(blobDataInstance => {
+            const tempBlobDownloadAnchor = document.createElement('a');
+            tempBlobDownloadAnchor.href = URL.createObjectURL(blobDataInstance);
+            tempBlobDownloadAnchor.download = `qr_route_${configurationSlugLabel}.png`;
+            document.body.appendChild(tempBlobDownloadAnchor);
+            tempBlobDownloadAnchor.click();
+            tempBlobDownloadAnchor.remove();
+          }).catch(() => alert("Asset stream signature download failed. Please try saving the image manually."));
+      };
+
+      qrModalEngineRef.show();
     }
 
-    function purgeUserAccountByAdmin(targetUserEmail) {
-      if (confirm(`CRITICAL DELETION WARNING: Remove profile "${targetUserEmail}"? This action cannot be reversed.`)) {
-        showLoader(true);
-        const user = JSON.parse(localStorage.getItem("dineshmc_session"));
-        runGas('removeUserRecord', [user.tier, targetUserEmail], () => { fetchRenderWorkspace(); }, (err) => { showLoader(false); alert(err); });
+    // CRUD VIEW PANEL INTERSECTION ACTIONS
+    function openEditLinkModalWindow(oldSlugCode, currentEscapedUrl, activeState) {
+      const decodedUrlTarget = decodeURIComponent(currentEscapedUrl);
+      document.getElementById('crudModalTitle').innerText = "Update Redirect Route Configuration";
+      
+      const formInputFieldsBodyContainer = document.getElementById('crudModalDynamicBodyFields');
+      formInputFieldsBodyContainer.innerHTML = `
+        <div class="mb-3">
+          <label class="form-label small fw-bold">Short Code Slug Path</label>
+          <input type="text" id="modalFieldLinkSlug" class="form-control" value="${oldSlugCode}">
+        </div>
+        <div class="mb-3">
+          <label class="form-label small fw-bold">Long Target Destination URL Link</label>
+          <input type="url" id="modalFieldLinkUrl" class="form-control" value="${decodedUrlTarget}">
+        </div>
+        <div class="mb-3">
+          <label class="form-label small fw-bold">Vector Route Condition State</label>
+          <select id="modalFieldLinkStatus" class="form-select">
+            <option value="Active" ${activeState === 'Active' ? 'selected' : ''}>Active Running State</option>
+            <option value="Inactive" ${activeState === 'Inactive' ? 'selected' : ''}>Inactive Paused State</option>
+          </select>
+        </div>
+      `;
+
+      document.getElementById('crudModalSubmitActionBtn').onclick = () => {
+        const mutatedSlug = document.getElementById('modalFieldLinkSlug').value;
+        const mutatedUrl = document.getElementById('modalFieldLinkUrl').value;
+        const mutatedStatus = document.getElementById('modalFieldLinkStatus').value;
+        
+        executeRemoteGatewayCall("updateLinkDetails", [oldSlugCode, mutatedSlug, mutatedUrl, mutatedStatus, sessionStateToken.email, sessionStateToken.tier], () => {
+          dynamicBootstrapModalRef.hide();
+          syncDashboardRemotePipelineData();
+        });
+      };
+      
+      dynamicBootstrapModalRef.show();
+    }
+
+    function openEditAdUnitModalWindow(adIdKey, escapedPromoUrl, escapedImgCdnUrl, currentState) {
+      document.getElementById('crudModalTitle').innerText = "Update System Advertisement Parameters";
+      const formInputFieldsBodyContainer = document.getElementById('crudModalDynamicBodyFields');
+      
+      formInputFieldsBodyContainer.innerHTML = `
+        <div class="mb-3">
+          <label class="form-label small fw-bold">Destination Marketing URL Vector</label>
+          <input type="url" id="modalFieldAdTarget" class="form-control" value="${decodeURIComponent(escapedPromoUrl)}">
+        </div>
+        <div class="mb-3">
+          <label class="form-label small fw-bold">Visual Graphic Render Asset Link</label>
+          <input type="url" id="modalFieldAdImg" class="form-control" value="${decodeURIComponent(escapedImgCdnUrl)}">
+        </div>
+        <div class="mb-3">
+          <label class="form-label small fw-bold">Ad Distribution Running State</label>
+          <select id="modalFieldAdStatus" class="form-select">
+            <option value="Active" ${currentState === 'Active' ? 'selected' : ''}>Active</option>
+            <option value="Inactive" ${currentState === 'Inactive' ? 'selected' : ''}>Inactive</option>
+          </select>
+        </div>
+      `;
+
+      document.getElementById('crudModalSubmitActionBtn').onclick = () => {
+        const target = document.getElementById('modalFieldAdTarget').value;
+        const img = document.getElementById('modalFieldAdImg').value;
+        const status = document.getElementById('modalFieldAdStatus').value;
+        
+        executeRemoteGatewayCall("updateAdRecordInline", [sessionStateToken.tier, adIdKey, target, img, status], () => {
+          dynamicBootstrapModalRef.hide();
+          syncDashboardRemotePipelineData();
+        });
+      };
+      dynamicBootstrapModalRef.show();
+    }
+
+    function openEditWhitelistModalWindow(oldDomainString) {
+      document.getElementById('crudModalTitle').innerText = "Modify Firewall Whitelisted Rules Grouping";
+      const formInputFieldsBodyContainer = document.getElementById('crudModalDynamicBodyFields');
+      
+      formInputFieldsBodyContainer.innerHTML = `
+        <div class="mb-3">
+          <label class="form-label small fw-bold">Configured Allowed Domain</label>
+          <input type="text" id="modalFieldDomainName" class="form-control" value="${oldDomainString}">
+        </div>
+      `;
+
+      document.getElementById('crudModalSubmitActionBtn').onclick = () => {
+        const updatedDomainVal = document.getElementById('modalFieldDomainName').value;
+        executeRemoteGatewayCall("updateWhitelistedDomainInline", [sessionStateToken.tier, oldDomainString, updatedDomainVal], () => {
+          dynamicBootstrapModalRef.hide();
+          syncDashboardRemotePipelineData();
+        });
+      };
+      dynamicBootstrapModalRef.show();
+    }
+
+    function openEditUserMatrixModalWindow(userEmailKey, currentAssignedTier) {
+      document.getElementById('crudModalTitle').innerText = "Update User Operational Clearance Level";
+      const formInputFieldsBodyContainer = document.getElementById('crudModalDynamicBodyFields');
+      
+      formInputFieldsBodyContainer.innerHTML = `
+        <div class="mb-3">
+          <label class="form-label small fw-bold">Target Operator Profile</label>
+          <input type="text" class="form-control" value="${userEmailKey}" disabled>
+        </div>
+        <div class="mb-3">
+          <label class="form-label small fw-bold">Allocated Account Subscription Matrix</label>
+          <select id="modalFieldUserTier" class="form-select">
+            <option value="Free" ${currentAssignedTier === 'Free' ? 'selected' : ''}>Free Accountability Node</option>
+            <option value="Premium" ${currentAssignedTier === 'Premium' ? 'selected' : ''}>Premium Accountability Node</option>
+            <option value="Admin" ${currentAssignedTier === 'Admin' ? 'selected' : ''}>Full System Administrator Clearance</option>
+          </select>
+        </div>
+      `;
+
+      document.getElementById('crudModalSubmitActionBtn').onclick = () => {
+        const targetedTierSelection = document.getElementById('modalFieldUserTier').value;
+        executeRemoteGatewayCall("updateUserTierInline", [sessionStateToken.tier, userEmailKey, targetedTierSelection], () => {
+          dynamicBootstrapModalRef.hide();
+          syncDashboardRemotePipelineData();
+        });
+      };
+      dynamicBootstrapModalRef.show();
+    }
+
+    // CORE DATASETS PERSISTENCE SUBROUTINES
+    function processDeployLinkRequestAction() {
+      const code = document.getElementById('linkShortSlug').value;
+      const target = document.getElementById('linkLongUrl').value;
+      if(!code || !target) return alert("Verify all mandatory fields are populated.");
+
+      executeRemoteGatewayCall("saveLink", [code, target, sessionStateToken.tier, sessionStateToken.email], () => {
+        const fullRuntimeShortLink = ENGINE_REDIRECT_BASE + code;
+        
+        // Populate and illuminate tracking success tray drawer desk context box natively
+        document.getElementById('outputShortenedUrlText').innerText = fullRuntimeShortLink;
+        
+        const utilityContainerRackNode = document.getElementById('outputUtilityActionRack');
+        utilityContainerRackNode.innerHTML = `
+          <button class="btn btn-sm btn-primary fw-bold" onclick="executeClipboardCopyRoutine('${fullRuntimeShortLink}', this)"><i class="bi bi-copy"></i> Copy Link</button>
+          <button class="btn btn-sm btn-outline-secondary" onclick="triggerQrPresentationModal('${fullRuntimeShortLink}', '${code}')"><i class="bi bi-qr-code"></i> View QR</button>
+        `;
+        
+        document.getElementById('generationSuccessDesk').classList.remove('d-none');
+        document.getElementById('linkShortSlug').value = "";
+        document.getElementById('linkLongUrl').value = "";
+        syncDashboardRemotePipelineData();
+      });
+    }
+
+    function triggerDeleteRouteLinkCall(slugKey) {
+      if(!confirm(`Delete redirection configuration mapping key index: ${slugKey}`)) return;
+      executeRemoteGatewayCall("deleteLink", [slugKey, sessionStateToken.email, sessionStateToken.tier], () => {
+        syncDashboardRemotePipelineData();
+      });
+    }
+
+    function compileAdminAdInventoryUIGrid() {
+      const adContainerTableBodyNode = document.getElementById('adManagerTableBody');
+      adContainerTableBodyNode.innerHTML = "";
+      if(localCacheStore.systemAds.length === 0) {
+        adContainerTableBodyNode.innerHTML = `<tr><td colspan="5" class="text-center text-muted">No operational advertisements registered.</td></tr>`;
       }
+      localCacheStore.systemAds.forEach(ad => {
+        adContainerTableBodyNode.innerHTML += `
+          <tr>
+            <td><code class="text-warning font-monospace">${ad.adId}</code></td>
+            <td><div class="text-truncate" style="max-width: 180px;">${ad.targetUrl}</div></td>
+            <td><a href="${ad.imageUrl}" target="_blank" class="btn btn-xs btn-outline-info px-2 py-0" style="font-size:0.75rem;">View Assets</a></td>
+            <td><span class="badge bg-secondary">${ad.status}</span></td>
+            <td class="text-end text-nowrap">
+              <button class="btn btn-sm btn-outline-warning me-1" onclick="openEditAdUnitModalWindow('${ad.adId}', '${encodeURIComponent(ad.targetUrl)}', '${encodeURIComponent(ad.imageUrl)}', '${ad.status}')"><i class="bi bi-pencil-square"></i></button>
+              <button class="btn btn-sm btn-outline-danger" onclick="triggerRemoveAdRecordCall('${ad.adId}')"><i class="bi bi-trash3-fill"></i></button>
+            </td>
+          </tr>
+        `;
+      });
     }
 
-    function switchToDomainEditMode(index) {
-      document.getElementById(`view-dom-${index}`).classList.add('d-none');
-      document.getElementById(`actions-view-${index}`).classList.add('d-none');
-      document.getElementById(`edit-dom-input-${index}`).classList.remove('d-none');
-      document.getElementById(`actions-edit-${index}`).classList.remove('d-none');
+    function processInsertAdUnitRequestAction() {
+      const target = document.getElementById('adRedirectLink').value;
+      const img = document.getElementById('adGraphicLink').value;
+      if(!target || !img) return alert("Verify redirect marketing URLs and configurations exist.");
+
+      executeRemoteGatewayCall("createNewAdRecord", [sessionStateToken.tier, target, img], () => {
+        document.getElementById('adRedirectLink').value = "";
+        document.getElementById('adGraphicLink').value = "";
+        syncDashboardRemotePipelineData();
+      });
     }
 
-    function cancelDomainInlineEdit(index) {
-      document.getElementById('view-dom-' + index).classList.remove('d-none');
-      document.getElementById('actions-view-' + index).classList.remove('d-none');
-      document.getElementById('edit-dom-input-' + index).classList.add('d-none');
-      document.getElementById('actions-edit-' + index).classList.add('d-none');
+    function triggerRemoveAdRecordCall(id) {
+      if(!confirm("Remove chosen advertisement node entity?")) return;
+      executeRemoteGatewayCall("removeAdRecord", [sessionStateToken.tier, id], () => {
+        syncDashboardRemotePipelineData();
+      });
     }
 
-    function saveDomainInlineEdits(index, oldDomain) {
-      const newDomain = document.getElementById(`edit-dom-input-${index}`).value;
-      if (!newDomain) return alert("Value cannot be blank.");
-      showLoader(true);
-      const user = JSON.parse(localStorage.getItem("dineshmc_session"));
-      runGas('updateWhitelistedDomain', [user.tier, oldDomain, newDomain], () => { fetchRenderWorkspace(); }, (err) => { showLoader(false); alert(err); });
+    function compileAdminSecurityFirewallUIList() {
+      const listContainerNode = document.getElementById('whitelistOutputListBody');
+      listContainerNode.innerHTML = "";
+      localCacheStore.whitelistedDomains.forEach(domain => {
+        listContainerNode.innerHTML += `
+          <div class="list-group-item bg-transparent d-flex align-items-center justify-content-between px-3 py-2">
+            <span><i class="bi bi-shield-fill-check text-success me-2"></i>${domain}</span>
+            <div class="d-flex gap-1">
+              <button class="btn btn-sm text-warning p-0 px-2" onclick="openEditWhitelistModalWindow('${domain}')"><i class="bi bi-pencil-square"></i></button>
+              <button class="btn btn-sm text-danger p-0" onclick="triggerDeleteWhitelistDomainCall('${domain}')"><i class="bi bi-dash-circle-fill"></i></button>
+            </div>
+          </div>
+        `;
+      });
     }
 
-    function addNewDomainToWhitelist(event) {
-      event.preventDefault(); showLoader(true);
-      const user = JSON.parse(localStorage.getItem("dineshmc_session"));
-      const domainValue = document.getElementById('whitelistInput').value;
-      runGas('addWhitelistedDomain', [user.tier, domainValue], () => { document.getElementById('whitelistInput').value = ''; fetchRenderWorkspace(); }, (err) => { showLoader(false); alert(err); });
+    function processAppendWhitelistDomainsRequestAction() {
+      const val = document.getElementById('whitelistDomainInput').value;
+      if(!val) return;
+      executeRemoteGatewayCall("addWhitelistedDomain", [sessionStateToken.tier, val], () => {
+        document.getElementById('whitelistDomainInput').value = "";
+        syncDashboardRemotePipelineData();
+      });
     }
 
-    function deleteDomainFromWhitelist(domain) {
-      if(confirm(`Remove rule logic match checking parameters for "${domain}"?`)) {
-        showLoader(true);
-        const user = JSON.parse(localStorage.getItem("dineshmc_session"));
-        runGas('removeWhitelistedDomain', [user.tier, domain], () => { fetchRenderWorkspace(); }, (err) => { showLoader(false); alert(err); });
+    function triggerDeleteWhitelistDomainCall(dom) {
+      executeRemoteGatewayCall("removeWhitelistedDomain", [sessionStateToken.tier, dom], () => {
+        syncDashboardRemotePipelineData();
+      });
+    }
+
+    function compileAdminUserMatrixUIGrid() {
+      const userMatrixTableOutputNode = document.getElementById('userMatrixTableBody');
+      userMatrixTableOutputNode.innerHTML = "";
+      localCacheStore.systemUsers.forEach(user => {
+        userMatrixTableOutputNode.innerHTML += `
+          <tr>
+            <td>${user.email}</td>
+            <td><span class="badge bg-secondary">${user.tier}</span></td>
+            <td><small class="text-muted">${user.joined}</small></td>
+            <td class="text-end text-nowrap">
+              <button class="btn btn-sm btn-outline-warning me-1" onclick="openEditUserMatrixModalWindow('${user.email}', '${user.tier}')"><i class="bi bi-pencil-square"></i></button>
+              <button class="btn btn-sm btn-outline-danger" onclick="triggerPurgeUserProfileRecordAction('${user.email}')"><i class="bi bi-person-dash-fill"></i></button>
+            </td>
+          </tr>
+        `;
+      });
+    }
+
+    function triggerPurgeUserProfileRecordAction(email) {
+      if(!confirm(`Purge profile completely for user: ${email}?`)) return;
+      executeRemoteGatewayCall("removeUserRecord", [sessionStateToken.tier, email], () => {
+        syncDashboardRemotePipelineData();
+      });
+    }
+
+    function processExportEngine(fileTypeKeyFormat) {
+      if(!localCacheStore.links || localCacheStore.links.length === 0) return alert("No links found to export.");
+      let payload = "";
+      let filename = `export_${new Date().getTime()}`;
+
+      if(fileTypeKeyFormat === 'json') {
+        payload = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(localCacheStore.links, null, 2));
+        filename += ".json";
+      } else {
+        const csvRows = [["ShortCode", "LongUrl", "Status", "Date"].join(",")];
+        localCacheStore.links.forEach(l => csvRows.push(`"${l.shortCode}","${l.longUrl}","${l.status}","${l.date}"`));
+        payload = "data:text/csv;charset=utf-8," + encodeURIComponent(csvRows.join("\n"));
+        filename += ".csv";
       }
+
+      const link = document.createElement('a');
+      link.setAttribute("href", payload);
+      link.setAttribute("download", filename);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
     }
-
-    function toggleEditDrawer(code) {
-      const drawer = document.getElementById(`drawer-${code}`);
-      drawer.style.display = drawer.style.display === "block" ? "none" : "block";
-    }
-
-    function saveLinkEdits(oldShortCode, currentStatus) {
-      const newShortCode = document.getElementById(`input-edit-short-${oldShortCode}`).value;
-      const newLongUrl = document.getElementById(`input-edit-long-${oldShortCode}`).value;
-      if(!newShortCode || !newLongUrl) return alert("Fields cannot be submitted empty.");
-      showLoader(true);
-      const user = JSON.parse(localStorage.getItem("dineshmc_session"));
-      runGas('updateLinkDetails', [oldShortCode, newShortCode, newLongUrl, currentStatus, user.email, user.tier], () => { fetchRenderWorkspace(); }, (err) => { showLoader(false); alert(err); });
-    }
-
-    function toggleLinkStatus(code, longUrl, currentStatus) {
-      const nextStatus = currentStatus === "Inactive" ? "Active" : "Inactive";
-      showLoader(true);
-      const user = JSON.parse(localStorage.getItem("dineshmc_session"));
-      runGas('updateLinkDetails', [code, code, longUrl, nextStatus, user.email, user.tier], () => { fetchRenderWorkspace(); }, (err) => { showLoader(false); alert(err); });
-    }
-
-    function submitCheckoutDetails(e) {
-      e.preventDefault(); showLoader(true);
-      const user = JSON.parse(localStorage.getItem("dineshmc_session"));
-      const plan = document.getElementById('checkoutPlan').value;
-      const txCode = document.getElementById('checkoutTxCode').value;
-      const payDate = document.getElementById('checkoutPayDate').value;
-      runGas('submitSubscriptionRequest', [user.email, plan, txCode, payDate], () => {
-        showLoader(false); document.getElementById('checkoutTxCode').value = ''; document.getElementById('checkoutPayDate').value = '';
-        document.getElementById('checkoutFormAnchorCard').style.display='none';
-        alert("Payment data successfully routed to verification desk queue.");
-      }, (err) => { showLoader(false); alert(err); });
-    }
-
-    function processAdminQueueAction(targetEmail, action) {
-      if(confirm(`Execute subscription [${action}] confirmation routine sequence for ${targetEmail}?`)) {
-        showLoader(true);
-        runGas('handlePlanRequestAction', [targetEmail, action], () => { fetchRenderWorkspace(); }, (err) => { showLoader(false); alert(err); });
-      }
-    }
-
-    function changePage(direction) {
-      const nextTarget = CURRENT_PAGE + direction;
-      if (nextTarget >= 1 && nextTarget <= TOTAL_PAGES) { CURRENT_PAGE = nextTarget; fetchRenderWorkspace(); }
-    }
-
-    function createNewLink(e) {
-      e.preventDefault(); showLoader(true);
-      const cachedUser = localStorage.getItem("dineshmc_session");
-      const longUrl = document.getElementById('longUrl').value;
-      let shortCode = document.getElementById('shortCode').value || Math.random().toString(36).substring(2, 7);
-      const email = cachedUser ? JSON.parse(cachedUser).email : "anonymous@dineshmc.com.np";
-      const tier = cachedUser ? JSON.parse(cachedUser).tier : "Free";
-
-      runGas('saveLink', [shortCode, longUrl, tier, email], () => {
-        const fullShortUrl = `https://www.dineshmc.com.np/urlshortner/${shortCode}`;
-        document.getElementById('anonShortLink').innerText = `dineshmc.com.np/urlshortner/${shortCode}`;
-        document.getElementById('anonShortLink').href = fullShortUrl;
-        document.getElementById('anonSuccessResult').classList.remove('d-none');
-        document.getElementById('longUrl').value = ''; document.getElementById('shortCode').value = '';
-        if (cachedUser) { fetchRenderWorkspace(); } else { showLoader(false); }
-      }, (err) => { showLoader(false); alert(err); });
-    }
-
-    function changePassword(e) { e.preventDefault(); showLoader(true); const user = JSON.parse(localStorage.getItem("dineshmc_session")); runGas('updatePassword', [user.email, document.getElementById('newPassword').value], () => { showLoader(false); document.getElementById('newPassword').value = ''; alert("Secret access key token updated successfully."); }); }
-    function purgeLink(code) { if(confirm("Permanently erase link tracking path configuration parameters?")) { showLoader(true); const user = JSON.parse(localStorage.getItem("dineshmc_session")); runGas('deleteLink', [code, user.email, user.tier], () => { fetchRenderWorkspace(); }); } }
-    function openQrModal(url) { document.getElementById('modalQrImg').src = url; new bootstrap.Modal(document.getElementById('qrModal')).show(); }
-    function copyAnonLink() { navigator.clipboard.writeText(document.getElementById('anonShortLink').href).then(() => alert("Shortened address asset string successfully sent to clipboard.")); }
-    function logout() { localStorage.removeItem("dineshmc_session"); window.location.reload(); }
   </script>
 </body>
 </html>
