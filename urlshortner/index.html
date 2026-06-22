@@ -88,10 +88,10 @@
         </div>
 
         <h5 class="fw-bold text-dark mb-2 border-top pt-3"><i class="bi bi-shield-fill-check text-success me-2"></i>Anti-Spam Domain Whitelist CRUD Panel</h5>
-        <p class="text-muted small">Manage whitelisted destination domain suffixes here to prevent malicious spam links.</p>
+        <p class="text-muted small">Manage whitelisted destination domain suffixes here. You can add individual domains or split them with commas (e.g. <code>google.com, apple.com</code>).</p>
         
         <form onsubmit="addNewDomainToWhitelist(event)" class="row g-2 mb-3">
-          <div class="col-md-8"><input type="text" id="whitelistInput" class="form-control form-control-sm" placeholder="Add domain (e.g. apple.com, myorg.np)" required></div>
+          <div class="col-md-8"><input type="text" id="whitelistInput" class="form-control form-control-sm" placeholder="Add domain rules (e.g., facebook.com, dineshmc.com.np)" required></div>
           <div class="col-md-4"><button type="submit" class="btn btn-sm btn-success w-100"><i class="bi bi-plus-circle"></i> Add Whitelist Rule</button></div>
         </form>
         
@@ -170,7 +170,7 @@
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
   <script>
-    const APPS_SCRIPT_API = "https://script.google.com/macros/s/AKfycbxbeY1_5rXicp_3dgugU3OiuHLd4_Q7i6MH0rC9eLrKm0YR_bTMl-EOB6V78ROwgnJb/exec";
+    const APPS_SCRIPT_API = "https://script.google.com/macros/s/AKfycbwi2_KguV50HPQCzYEVm9Ldq-4yx85GHo8_jk8kIEZLdnJtSpr7EBEYStLjtjmq9IDs/exec";
     let AUTH_MODE = 'login';
     let CURRENT_PAGE = 1;
     const ITEMS_PER_PAGE = 5;
@@ -184,7 +184,7 @@
     function showLoader(visible) { document.getElementById('loader').style.display = visible ? 'flex' : 'none'; }
     function goHome() { window.location.reload(); }
     function showAuthPage(mode) { document.getElementById('dashboardView').style.display = 'none'; document.getElementById('authView').style.display = 'block'; switchAuthMode(mode); }
-    function switchAuthMode(mode) { AUTH_MODE = mode; document.getElementById('tab-login').classList.toggle('active', mode === 'login'); document.getElementById('tab-register').classList.toggle('active', mode === 'register'); document.getElementById('authSubmitBtn').innerText = mode === 'login' ? 'Sign In' : 'Register Account'; }
+    function switchAuthMode(mode) { AUTH_MODE = mode; document.getElementById('tab-login').toggle('active', mode === 'login'); document.getElementById('tab-register').toggle('active', mode === 'register'); document.getElementById('authSubmitBtn').innerText = mode === 'login' ? 'Sign In' : 'Register Account'; }
 
     function runGas(functionName, args, success, failure) {
       const callbackName = 'gas_cb_' + Math.round(100000 * Math.random());
@@ -250,7 +250,7 @@
             });
           }
 
-          // Whitelist CRUD: Render and Read Loop
+          // Whitelist CRUD Layout Loader
           const tBody = document.getElementById('whitelistCrudTableBody');
           tBody.innerHTML = !data.whitelistedDomains || data.whitelistedDomains.length === 0 ? '<tr><td colspan="2" class="text-center text-muted py-2">No whitelisted domains found.</td></tr>' : '';
           if (data.whitelistedDomains) {
@@ -281,24 +281,26 @@
         feed.innerHTML = data.links.length === 0 ? '<div class="p-5 text-center bg-white border rounded-3 text-muted">No links on this viewport.</div>' : '';
         
         data.links.forEach((link) => {
-          const statusBadge = link.status === "Inactive" ? 'bg-danger' : 'bg-success';
-          const toggleIcon = link.status === "Inactive" ? 'bi-play-fill' : 'bi-pause-fill';
-          const toggleText = link.status === "Inactive" ? 'Activate' : 'Deactivate';
-          const toggleBtnClass = link.status === "Inactive" ? 'btn-outline-success' : 'btn-outline-warning';
+          // FIXED SANITIZATION PIPELINE: Cleans tracking parameters to neutralize "undefined" visual display errors
+          const cleanStatusStr = (link.status && link.status !== 'undefined') ? link.status : 'Active';
+          const statusBadge = cleanStatusStr === "Inactive" ? 'bg-danger' : 'bg-success';
+          const toggleIcon = cleanStatusStr === "Inactive" ? 'bi-play-fill' : 'bi-pause-fill';
+          const toggleText = cleanStatusStr === "Inactive" ? 'Activate' : 'Deactivate';
+          const toggleBtnClass = cleanStatusStr === "Inactive" ? 'btn-outline-success' : 'btn-outline-warning';
 
           feed.innerHTML += `
             <div class="link-row-card">
               <div class="d-flex justify-content-between align-items-start flex-wrap gap-2">
                 <div style="max-width: 65%;">
                   <span class="tag-badge me-1"><i class="bi bi-tag"></i> ${link.tier}</span>
-                  <span class="badge ${statusBadge} font-monospace rounded mb-1">${link.status}</span>
+                  <span class="badge ${statusBadge} font-monospace rounded mb-1">${cleanStatusStr}</span>
                   <h6 class="fw-bold mb-1 mt-1"><a href="${link.shortUrl}" target="_blank" class="text-decoration-none text-dark">/urlshortner/${link.shortCode}</a></h6>
                   <div class="text-secondary small text-truncate" style="max-width:380px;">${link.longUrl}</div>
                 </div>
                 <div class="d-flex align-items-center gap-2 ms-auto">
                   <img src="${link.qrUrl}" class="qr-thumb" onclick="openQrModal('${link.qrUrl}')">
                   <button class="btn btn-sm btn-outline-primary" onclick="toggleEditDrawer('${link.shortCode}')"><i class="bi bi-pencil"></i> Edit Link</button>
-                  <button class="btn btn-sm ${toggleBtnClass}" onclick="toggleLinkStatus('${link.shortCode}', '${link.longUrl}', '${link.status}')"><i class="bi ${toggleIcon}"></i> ${toggleText}</button>
+                  <button class="btn btn-sm ${toggleBtnClass}" onclick="toggleLinkStatus('${link.shortCode}', '${link.longUrl}', '${cleanStatusStr}')"><i class="bi ${toggleIcon}"></i> ${toggleText}</button>
                   <button class="btn btn-sm btn-outline-danger border-0" onclick="purgeLink('${link.shortCode}')"><i class="bi bi-trash"></i></button>
                 </div>
               </div>
@@ -315,7 +317,7 @@
                   </div>
                   <div class="col-12 d-flex gap-2 justify-content-end mt-2">
                     <button class="btn btn-sm btn-light border" onclick="toggleEditDrawer('${link.shortCode}')">Cancel</button>
-                    <button class="btn btn-sm btn-success px-4" onclick="saveLinkEdits('${link.shortCode}', '${link.status}')">Apply Changes</button>
+                    <button class="btn btn-sm btn-success px-4" onclick="saveLinkEdits('${link.shortCode}', '${cleanStatusStr}')">Apply Changes</button>
                   </div>
                 </div>
               </div>
@@ -325,7 +327,6 @@
       });
     }
 
-    // Whitelist CRUD View Switch Helper Utilities
     function switchToDomainEditMode(index) {
       document.getElementById(`view-dom-${index}`).classList.add('d-none');
       document.getElementById(`actions-view-${index}`).classList.add('d-none');
@@ -340,7 +341,6 @@
       document.getElementById(`actions-edit-${index}`).classList.add('d-none');
     }
 
-    // WHITELIST CRUD: UPDATE TRIGGER
     function saveDomainInlineEdits(index, oldDomain) {
       const newDomain = document.getElementById(`edit-dom-input-${index}`).value;
       if (!newDomain) return alert("Domain rule string cannot be blank.");
@@ -349,10 +349,9 @@
       const user = JSON.parse(localStorage.getItem("dineshmc_session"));
       runGas('updateWhitelistedDomain', [user.tier, oldDomain, newDomain], () => {
         fetchRenderWorkspace();
-      }, (err) => { showLoader(false); });
+      }, (err) => { showLoader(false); alert(err); });
     }
 
-    // WHITELIST CRUD: CREATE TRIGGER
     function addNewDomainToWhitelist(event) {
       event.preventDefault();
       showLoader(true);
@@ -361,15 +360,14 @@
       runGas('addWhitelistedDomain', [user.tier, domainValue], () => {
         document.getElementById('whitelistInput').value = '';
         fetchRenderWorkspace();
-      }, (err) => { showLoader(false); });
+      }, (err) => { showLoader(false); alert(err); });
     }
 
-    // WHITELIST CRUD: DELETE TRIGGER
     function deleteDomainFromWhitelist(domain) {
       if(confirm(`Remove "${domain}" from security whitelist logic checks?`)) {
         showLoader(true);
         const user = JSON.parse(localStorage.getItem("dineshmc_session"));
-        runGas('removeWhitelistedDomain', [user.tier, domain], () => { fetchRenderWorkspace(); }, (err) => { showLoader(false); });
+        runGas('removeWhitelistedDomain', [user.tier, domain], () => { fetchRenderWorkspace(); }, (err) => { showLoader(false); alert(err); });
       }
     }
 
@@ -387,7 +385,7 @@
       const user = JSON.parse(localStorage.getItem("dineshmc_session"));
       runGas('updateLinkDetails', [oldShortCode, newShortCode, newLongUrl, currentStatus, user.email, user.tier], () => {
         fetchRenderWorkspace();
-      }, (err) => { showLoader(false); });
+      }, (err) => { showLoader(false); alert(err); });
     }
 
     function toggleLinkStatus(code, longUrl, currentStatus) {
@@ -396,7 +394,7 @@
       const user = JSON.parse(localStorage.getItem("dineshmc_session"));
       runGas('updateLinkDetails', [code, code, longUrl, nextStatus, user.email, user.tier], () => {
         fetchRenderWorkspace();
-      }, (err) => { showLoader(false); });
+      }, (err) => { showLoader(false); alert(err); });
     }
 
     function submitCheckoutDetails(e) {
@@ -408,13 +406,13 @@
       runGas('submitSubscriptionRequest', [user.email, plan, txCode, payDate], () => {
         showLoader(false); document.getElementById('checkoutTxCode').value = ''; document.getElementById('checkoutPayDate').value = '';
         alert("Payment proof submitted! Awaiting validation lookup.");
-      }, (err) => { showLoader(false); });
+      }, (err) => { showLoader(false); alert(err); });
     }
 
     function processAdminQueueAction(targetEmail, action) {
       if(confirm(`Confirm subscription [${action}] for ${targetEmail}?`)) {
         showLoader(true);
-        runGas('handlePlanRequestAction', [targetEmail, action], () => { fetchRenderWorkspace(); }, (err) => { showLoader(false); });
+        runGas('handlePlanRequestAction', [targetEmail, action], () => { fetchRenderWorkspace(); }, (err) => { showLoader(false); alert(err); });
       }
     }
 
@@ -438,7 +436,7 @@
         document.getElementById('anonSuccessResult').classList.remove('d-none');
         document.getElementById('longUrl').value = ''; document.getElementById('shortCode').value = '';
         if (cachedUser) { fetchRenderWorkspace(); } else { showLoader(false); }
-      }, (err) => { showLoader(false); });
+      }, (err) => { showLoader(false); alert(err); });
     }
 
     function changePassword(e) { e.preventDefault(); showLoader(true); const user = JSON.parse(localStorage.getItem("dineshmc_session")); runGas('updatePassword', [user.email, document.getElementById('newPassword').value], () => { showLoader(false); document.getElementById('newPassword').value = ''; alert("Key updated."); }); }
