@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Bitly Premium Hub Module</title>
+  <title>Bitly Anti-Spam Protected Hub Module</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
   <style>
@@ -18,7 +18,7 @@
     .tag-badge { background-color: #e8edfa; color: var(--b-blue); font-size: 0.75rem; font-weight: 600; padding: 4px 10px; border-radius: 4px; }
     .qr-thumb { width: 44px; height: 44px; cursor: pointer; border: 1px solid #e1e4ea; padding: 3px; border-radius: 6px; }
     .loading-overlay { position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(244,246,250,0.85); display:flex; justify-content:center; align-items:center; z-index:9999; }
-    .edit-drawer { background-color: #f8f9fa; border-top: 1px dashed #ddd; margin-top: 12px; padding-top: 12px; display: none; }
+    .edit-drawer { background-color: #f8f9fa; border-top: 1px dashed #ddd; margin-top: 12px; padding: 15px; display: none; border-radius: 6px; }
   </style>
 </head>
 <body>
@@ -27,7 +27,7 @@
 
   <nav class="navbar navbar-expand-lg navbar-dark bitly-nav">
     <div class="container">
-      <a class="navbar-brand fw-bold text-white" href="#" onclick="goHome()"><i class="bi bi-box-arrow-up-right text-warning me-2"></i>Bitly<span class="text-warning">Clone</span></a>
+      <a class="navbar-brand fw-bold text-white" href="#" onclick="goHome()"><i class="bi bi-shield-lock text-warning me-2"></i>Bitly<span class="text-warning">Secure</span></a>
       <div class="d-flex align-items-center">
         <div id="navAuthSection">
           <button class="btn btn-sm text-white-50 me-2" onclick="showAuthPage('login')">Log In</button>
@@ -42,6 +42,7 @@
   </nav>
 
   <div class="container pb-5">
+    <!-- SHORTENER INPUT -->
     <div class="card creation-canvas">
       <form onsubmit="createNewLink(event)">
         <div class="row g-3">
@@ -59,6 +60,7 @@
       </div>
     </div>
 
+    <!-- ACCESS CONTROLLER GATE -->
     <div id="authView" class="card mx-auto mt-4 p-4 bg-white border shadow-sm" style="max-width: 400px; display: none; border-radius: 12px;">
       <ul class="nav nav-pills nav-justified mb-3">
         <li class="nav-item"><button id="tab-login" class="nav-link active" onclick="switchAuthMode('login')">Login</button></li>
@@ -71,24 +73,36 @@
       </form>
     </div>
 
+    <!-- MAIN INTERACTIVE WORKSPACE -->
     <div id="dashboardView" class="dashboard-view mt-4">
       <div class="row g-3 mb-4">
         <div class="col-md-4"><div class="metric-card"><h6>Account Membership Tier</h6><h3 class="mb-0 fw-bold text-primary" id="currentTierText">Free</h3></div></div>
         <div class="col-md-4"><div class="metric-card"><h6>Total Dynamic Links</h6><h3 class="mb-0 fw-bold" id="statGlobalLinks">0</h3></div></div>
-        <div class="col-md-4"><div class="metric-card"><h6>Cumulative Tracked Clicks</h6><h3 class="mb-0 fw-bold text-success" id="statGlobalClicks">0</h3></div></div>
+        <div class="col-md-4"><div class="metric-card"><h6>Cumulative Tracked Clicks</h6><h3 class="mb-0 fw-bold text-success">Protected</h3></div></div>
       </div>
 
+      <!-- ADMIN PREMIUM APPROVAL MONITOR VIEW QUEUE PANEL -->
       <div id="adminApprovalQueueCard" class="card p-4 border-warning mb-4 d-none bg-white shadow-sm" style="border-left: 5px solid #ffc107;">
         <h5 class="fw-bold text-dark mb-3"><i class="bi bi-shield-check text-warning me-2"></i>Pending Subscription Verification Queue</h5>
-        <div class="table-responsive">
+        <div class="table-responsive mb-4">
           <table class="table align-middle">
             <thead><tr><th>Account Profile Email</th><th>Plan Target</th><th>Transaction Code Reference</th><th>Payment Settlement Date</th><th class="text-end">Actions Matrix Control</th></tr></thead>
             <tbody id="adminQueueTableBody"></tbody>
           </table>
         </div>
+
+        <!-- NEW: WHITELIST MANAGEMENT DESK -->
+        <h5 class="fw-bold text-dark mb-2 border-top pt-3"><i class="bi bi-shield-fill-check text-success me-2"></i>Anti-Fraud Domain Creation Whitelist</h5>
+        <p class="text-muted small">Only destination links fitting these exact domain suffixes will be accepted by the shortener architecture.</p>
+        <form onsubmit="addNewDomainToWhitelist(event)" class="row g-2 mb-3">
+          <div class="col-md-8"><input type="text" id="whitelistInput" class="form-control form-control-sm" placeholder="e.g. facebook.com, custom-org.np" required></div>
+          <div class="col-md-4"><button type="submit" class="btn btn-sm btn-success w-100">Add Whitelist Domain</button></div>
+        </form>
+        <div id="whitelistBadgesContainer" class="d-flex flex-wrap gap-2"></div>
       </div>
 
       <div class="row g-4">
+        <!-- TRANSACTION LOG AND UPGRADES SIDEBAR CONTROLLER -->
         <div class="col-lg-4">
           <div id="pricingPlanCard" class="card p-4 bg-white border border-light-subtle mb-4">
             <h6 class="fw-bold text-uppercase small text-muted border-bottom pb-2 mb-3">Upgrade Subscription Plan</h6>
@@ -120,6 +134,7 @@
           </div>
         </div>
 
+        <!-- LOG LIST VIEW VECTORS -->
         <div class="col-lg-8">
           <div class="d-flex justify-content-between align-items-center mb-3">
             <h5 class="fw-bold m-0">Your Shortlink Mappings</h5>
@@ -128,6 +143,7 @@
           
           <div id="linksFeedContainer"></div>
 
+          <!-- NATIVE PAGINATION ELEMENT -->
           <nav class="mt-4 d-flex justify-content-between align-items-center">
             <button id="btnPrevPage" class="btn btn-sm btn-outline-secondary px-3" onclick="changePage(-1)"><i class="bi bi-chevron-left"></i> Previous</button>
             <span id="paginationInfoLabel" class="small fw-semibold text-secondary font-monospace">Page 1 of 1</span>
@@ -138,6 +154,7 @@
     </div>
   </div>
 
+  <!-- QR OVERLAY DISPLAY -->
   <div class="modal fade" id="qrModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-sm">
       <div class="modal-content text-center p-4">
@@ -150,7 +167,6 @@
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
   <script>
-    // 1. PLACE YOUR ACTIVE WEB APP DEPLOYMENT URL HERE
     const APPS_SCRIPT_API = "https://script.google.com/macros/s/AKfycbwrHLUDsAzEGYB-fPMx2OejDC-SiXo2u3Q8u-JbYXTZEhwx0Yf53Ty2t7u5_c_0CfTy/exec";
     let AUTH_MODE = 'login';
     let CURRENT_PAGE = 1;
@@ -171,15 +187,15 @@
       const callbackName = 'gas_cb_' + Math.round(100000 * Math.random());
       window[callbackName] = function(data) {
         delete window[callbackName]; document.getElementById(callbackName).remove();
-        if (data && data.error) { if (failure) failure(data.error); } else { if (success) success(data); }
+        if (data && data.error) { if (failure) failure(data.error); else alert(data.error); } else { if (success) success(data); }
       };
       const src = `${APPS_SCRIPT_API}?callback=${callbackName}&function=${functionName}&args=${encodeURIComponent(JSON.stringify(args))}`;
       const script = document.createElement('script'); script.id = callbackName; script.src = src;
       document.body.appendChild(script);
     }
 
-    function handleAuth(e) {
-      e.preventDefault(); showLoader(true);
+    function handleAuth(event) {
+      event.preventDefault(); showLoader(true);
       const email = document.getElementById('authEmail').value;
       const pass = document.getElementById('authPassword').value;
       const func = AUTH_MODE === 'login' ? 'loginUser' : 'registerUser';
@@ -205,7 +221,6 @@
       
       runGas('getDashboardData', [user.email, user.tier, CURRENT_PAGE, ITEMS_PER_PAGE], (data) => {
         document.getElementById('statGlobalLinks').innerText = data.adminStats.globalLinks;
-        document.getElementById('statGlobalClicks').innerText = data.adminStats.globalClicks;
         document.getElementById('totalLinksCounterSummary').innerText = `${data.pagination.totalItems} Managed Links`;
 
         TOTAL_PAGES = data.pagination.totalPages || 1;
@@ -213,8 +228,8 @@
         document.getElementById('btnPrevPage').disabled = (CURRENT_PAGE <= 1);
         document.getElementById('btnNextPage').disabled = (CURRENT_PAGE >= TOTAL_PAGES);
 
-        // Build Admin Queue elements dynamically if premium context targets match
         if (user.tier === 'Admin') {
+          // Render Verification Queue
           const qBody = document.getElementById('adminQueueTableBody');
           qBody.innerHTML = !data.pendingRequests || data.pendingRequests.length === 0 ? '<tr><td colspan="5" class="text-center text-muted small py-3">Verification desk queue is empty.</td></tr>' : '';
           if(data.pendingRequests) {
@@ -229,6 +244,15 @@
                   <button class="btn btn-xs btn-outline-danger py-1 px-2 small" onclick="processAdminQueueAction('${req.email}','Reject')">Reject</button>
                 </td>
               </tr>`;
+            });
+          }
+
+          // Render Whitelist Management Desk Badges
+          const bContainer = document.getElementById('whitelistBadgesContainer');
+          bContainer.innerHTML = !data.whitelistedDomains || data.whitelistedDomains.length === 0 ? '<span class="text-muted small">No rules added. System open to malware vulnerabilities!</span>' : '';
+          if(data.whitelistedDomains) {
+            data.whitelistedDomains.forEach(dom => {
+              bContainer.innerHTML += `<span class="badge bg-dark d-flex align-items-center gap-2 p-2">${dom} <i class="bi bi-x-circle text-danger cp" style="cursor:pointer;" onclick="deleteDomainFromWhitelist('${dom}')"></i></span>`;
             });
           }
         }
@@ -252,22 +276,27 @@
                   <div class="text-secondary small text-truncate" style="max-width:380px;">${link.longUrl}</div>
                 </div>
                 <div class="d-flex align-items-center gap-2 ms-auto">
-                  <span class="badge bg-light text-dark border p-2 font-monospace">${link.clicks} Clicks</span>
                   <img src="${link.qrUrl}" class="qr-thumb" onclick="openQrModal('${link.qrUrl}')">
-                  <button class="btn btn-sm btn-outline-primary" onclick="toggleEditDrawer('${link.shortCode}')"><i class="bi bi-pencil"></i> Edit</button>
+                  <button class="btn btn-sm btn-outline-primary" onclick="toggleEditDrawer('${link.shortCode}')"><i class="bi bi-pencil"></i> Edit Link</button>
                   <button class="btn btn-sm ${toggleBtnClass}" onclick="toggleLinkStatus('${link.shortCode}', '${link.longUrl}', '${link.status}')"><i class="bi ${toggleIcon}"></i> ${toggleText}</button>
                   <button class="btn btn-sm btn-outline-danger border-0" onclick="purgeLink('${link.shortCode}')"><i class="bi bi-trash"></i></button>
                 </div>
               </div>
               
+              <!-- UPDATED: COMPREHENSIVE EDIT CARD DRAWER -->
               <div class="edit-drawer" id="drawer-${link.shortCode}">
                 <div class="row g-2">
-                  <div class="col-md-9">
+                  <div class="col-md-4">
+                    <label class="form-label small fw-bold text-secondary mb-1">Modify Short URL Slug</label>
+                    <input type="text" class="form-control form-control-sm font-monospace" id="input-edit-short-${link.shortCode}" value="${link.shortCode}">
+                  </div>
+                  <div class="col-md-8">
+                    <label class="form-label small fw-bold text-secondary mb-1">Modify Target Destination Long URL</label>
                     <input type="url" class="form-control form-control-sm" id="input-edit-long-${link.shortCode}" value="${link.longUrl}">
                   </div>
-                  <div class="col-md-3 d-flex gap-1">
-                    <button class="btn btn-sm btn-success w-100" onclick="saveLinkEdits('${link.shortCode}', '${link.status}')">Save</button>
+                  <div class="col-12 d-flex gap-2 justify-content-end mt-2">
                     <button class="btn btn-sm btn-light border" onclick="toggleEditDrawer('${link.shortCode}')">Cancel</button>
+                    <button class="btn btn-sm btn-success px-4" onclick="saveLinkEdits('${link.shortCode}', '${link.status}')">Apply Changes</button>
                   </div>
                 </div>
               </div>
@@ -282,46 +311,64 @@
       drawer.style.display = drawer.style.display === "block" ? "none" : "block";
     }
 
-    function saveLinkEdits(code, currentStatus) {
-      const newLongUrl = document.getElementById(`input-edit-long-${code}`).value;
-      if(!newLongUrl) return alert("Destination URL cannot be empty.");
+    function saveLinkEdits(oldShortCode, currentStatus) {
+      const newShortCode = document.getElementById(`input-edit-short-${oldShortCode}`).value;
+      const newLongUrl = document.getElementById(`input-edit-long-${oldShortCode}`).value;
+      
+      if(!newShortCode || !newLongUrl) return alert("Values cannot be blank.");
       
       showLoader(true);
       const user = JSON.parse(localStorage.getItem("dineshmc_session"));
-      runGas('updateLinkDetails', [code, newLongUrl, currentStatus, user.email, user.tier], () => {
+      // Calls updateLinkDetails handling custom short code text configurations seamlessly
+      runGas('updateLinkDetails', [oldShortCode, newShortCode, newLongUrl, currentStatus, user.email, user.tier], () => {
         fetchRenderWorkspace();
-      }, (err) => { showLoader(false); alert(err); });
+      }, (err) => { showLoader(false); });
     }
 
     function toggleLinkStatus(code, longUrl, currentStatus) {
       const nextStatus = currentStatus === "Inactive" ? "Active" : "Inactive";
       showLoader(true);
       const user = JSON.parse(localStorage.getItem("dineshmc_session"));
-      runGas('updateLinkDetails', [code, longUrl, nextStatus, user.email, user.tier], () => {
+      runGas('updateLinkDetails', [code, code, longUrl, nextStatus, user.email, user.tier], () => {
         fetchRenderWorkspace();
-      }, (err) => { showLoader(false); alert(err); });
+      }, (err) => { showLoader(false); });
+    }
+
+    function addNewDomainToWhitelist(event) {
+      event.preventDefault();
+      showLoader(true);
+      const user = JSON.parse(localStorage.getItem("dineshmc_session"));
+      const domainValue = document.getElementById('whitelistInput').value;
+      runGas('addWhitelistedDomain', [user.tier, domainValue], () => {
+        document.getElementById('whitelistInput').value = '';
+        fetchRenderWorkspace();
+      }, (err) => { showLoader(false); });
+    }
+
+    function deleteDomainFromWhitelist(domain) {
+      if(confirm(`Remove ${domain} from the global security whitelist rules?`)) {
+        showLoader(true);
+        const user = JSON.parse(localStorage.getItem("dineshmc_session"));
+        runGas('removeWhitelistedDomain', [user.tier, domain], () => { fetchRenderWorkspace(); }, (err) => { showLoader(false); });
+      }
     }
 
     function submitCheckoutDetails(e) {
-      e.preventDefault();
-      showLoader(true);
+      e.preventDefault(); showLoader(true);
       const user = JSON.parse(localStorage.getItem("dineshmc_session"));
       const plan = document.getElementById('checkoutPlan').value;
       const txCode = document.getElementById('checkoutTxCode').value;
       const payDate = document.getElementById('checkoutPayDate').value;
-
       runGas('submitSubscriptionRequest', [user.email, plan, txCode, payDate], () => {
-        showLoader(false);
-        document.getElementById('checkoutTxCode').value = '';
-        document.getElementById('checkoutPayDate').value = '';
+        showLoader(false); document.getElementById('checkoutTxCode').value = ''; document.getElementById('checkoutPayDate').value = '';
         alert("Payment details submitted successfully! Awaiting Admin approval.");
-      }, (err) => { showLoader(false); alert(err); });
+      }, (err) => { showLoader(false); });
     }
 
     function processAdminQueueAction(targetEmail, action) {
       if(confirm(`Confirm subscription [${action}] for ${targetEmail}?`)) {
         showLoader(true);
-        runGas('handlePlanRequestAction', [targetEmail, action], () => { fetchRenderWorkspace(); }, (err) => { showLoader(false); alert(err); });
+        runGas('handlePlanRequestAction', [targetEmail, action], () => { fetchRenderWorkspace(); }, (err) => { showLoader(false); });
       }
     }
 
@@ -345,7 +392,7 @@
         document.getElementById('anonSuccessResult').classList.remove('d-none');
         document.getElementById('longUrl').value = ''; document.getElementById('shortCode').value = '';
         if (cachedUser) { fetchRenderWorkspace(); } else { showLoader(false); }
-      }, (err) => { showLoader(false); alert(err); });
+      }, (err) => { showLoader(false); });
     }
 
     function changePassword(e) { e.preventDefault(); showLoader(true); const user = JSON.parse(localStorage.getItem("dineshmc_session")); runGas('updatePassword', [user.email, document.getElementById('newPassword').value], () => { showLoader(false); document.getElementById('newPassword').value = ''; alert("Key updated."); }); }
