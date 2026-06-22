@@ -1,114 +1,147 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>DineshMC Advanced Link Hub</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bitly Clone Premium Core Hub</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
   <style>
-    body { background-color: #f4f6f9; font-family: system-ui, sans-serif; }
-    .auth-card { max-width: 420px; margin: 80px auto; border: none; border-radius: 16px; box-shadow: 0 10px 30px rgba(0,0,0,0.08); }
+    :root { --b-navy: #0c101d; --b-orange: #ee6123; --b-blue: #2a5bd7; --b-bg: #f4f6fa; }
+    body { background-color: var(--b-bg); font-family: system-ui, sans-serif; color: var(--b-navy); }
+    .bitly-nav { background-color: var(--b-navy); padding: 14px 0; border-bottom: 3px solid var(--b-orange); }
+    .creation-canvas { background: #fff; border-radius: 12px; box-shadow: 0 4px 20px rgba(12,16,29,0.05); padding: 30px; margin-top: 25px; border: 1px solid #e1e4ea; }
+    .metric-card { background: #fff; border: 1px solid #e1e4ea; border-radius: 10px; padding: 20px; position: relative; }
+    .metric-card::before { content: ''; position: absolute; top:0; left:0; width:4px; height:100%; background: var(--b-blue); }
     .dashboard-view { display: none; }
-    .qr-thumb { width: 38px; height: 38px; cursor: pointer; border: 1px solid #ddd; padding: 2px; border-radius: 4px; }
-    .loading-overlay { position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(255,255,255,0.8); display:flex; justify-content:center; align-items:center; z-index:9999; }
+    .link-row-card { background: #fff; border: 1px solid #e1e4ea; border-radius: 8px; margin-bottom: 12px; padding: 18px; display: flex; justify-content: space-between; align-items: center; flex-wrap: gap; gap: 15px; }
+    .tag-badge { background-color: #e8edfa; color: var(--b-blue); font-size: 0.75rem; font-weight: 600; padding: 4px 10px; border-radius: 4px; }
+    .qr-thumb { width: 44px; height: 44px; cursor: pointer; border: 1px solid #e1e4ea; padding: 3px; border-radius: 6px; }
+    .loading-overlay { position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(244,246,250,0.85); display:flex; justify-content:center; align-items:center; z-index:9999; }
   </style>
 </head>
 <body>
 
   <div id="loader" class="loading-overlay"><div class="spinner-border text-primary"></div></div>
 
-  <div id="authView" class="container" style="display: none;">
-    <div class="card auth-card p-4 bg-white">
-      <div class="text-center mb-4">
-        <h3 class="fw-bold text-primary"><i class="bi bi-link-45deg"></i> dineshmc.com.np</h3>
-        <p class="text-muted small">Link Hub Security Gateway</p>
-      </div>
-      <ul class="nav nav-pills nav-justified mb-3">
-        <li class="nav-item"><button id="tab-login" class="nav-link active" onclick="switchAuthMode('login')">Sign In</button></li>
-        <li class="nav-item"><button id="tab-register" class="nav-link" onclick="switchAuthMode('register')">Register</button></li>
-      </ul>
-      <form id="authForm" onsubmit="handleAuth(event)">
-        <div class="mb-3"><label class="form-label">Email</label><input type="email" id="authEmail" class="form-control" required></div>
-        <div class="mb-3"><label class="form-label">Password</label><input type="password" id="authPassword" class="form-control" required></div>
-        <button type="submit" id="authSubmitBtn" class="btn btn-primary w-100 py-2">Authenticate</button>
-      </form>
-    </div>
-  </div>
-
-  <div id="dashboardView" class="dashboard-view">
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow-sm">
-      <div class="container">
-        <a class="navbar-brand fw-bold" href="#"><i class="bi bi-lightning-charge-fill text-warning me-2"></i>Link Engine</a>
-        <div class="d-flex align-items-center">
-          <span class="navbar-text text-white me-3" id="sessionIdentity"></span>
-          <button class="btn btn-sm btn-outline-danger" onclick="logout()">Sign Out</button>
+  <!-- Header Section Bar -->
+  <nav class="navbar navbar-expand-lg navbar-dark bitly-nav">
+    <div class="container">
+      <a class="navbar-brand fw-bold text-white" href="#" onclick="goHome()"><i class="bi bi-box-arrow-up-right text-warning me-2"></i>Bitly<span class="text-warning">Clone</span></a>
+      <div class="d-flex align-items-center">
+        <div id="navAuthSection">
+          <button class="btn btn-sm text-white-50 me-2" onclick="showAuthPage('login')">Log In</button>
+          <button class="btn btn-sm btn-warning pt-1 pb-1 px-3" onclick="showAuthPage('register')">Sign Up Free</button>
+        </div>
+        <div id="navUserSection" style="display: none;">
+          <span class="navbar-text text-white me-3 id-label" id="sessionIdentity"></span>
+          <button class="btn btn-sm btn-outline-danger border-0" onclick="logout()"><i class="bi bi-power"></i> Log Out</button>
         </div>
       </div>
-    </nav>
+    </div>
+  </nav>
 
-    <div class="container my-4">
-      <div id="adminAnalyticsSection" class="row g-3 mb-4 d-none">
-        <div class="col-md-6"><div class="card p-3 bg-primary text-white"><h6>Global Active Links</h6><h2 class="mb-0 fw-bold" id="statGlobalLinks">0</h2></div></div>
-        <div class="col-md-6"><div class="card p-3 bg-dark text-white"><h6>Global Trafficked Clicks</h6><h2 class="mb-0 fw-bold text-warning" id="statGlobalClicks">0</h2></div></div>
+  <div class="container pb-5">
+    <!-- LINK SHORTENER WORKBENCH PANEL -->
+    <div class="card creation-canvas">
+      <form onsubmit="createNewLink(event)">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <h6 class="fw-bold m-0 text-muted text-uppercase font-monospace small">Shorten New Link Asset Target</h6>
+        </div>
+        <div class="row g-3">
+          <div class="col-lg-6"><input type="url" id="longUrl" class="form-control form-control-lg" placeholder="Paste your target URL here" required></div>
+          <div class="col-lg-3"><input type="text" id="shortCode" class="form-control form-control-lg" placeholder="Custom backhalf (optional)"></div>
+          <div class="col-lg-3"><button type="submit" class="btn btn-primary btn-lg w-100">Create</button></div>
+        </div>
+      </form>
+      <div id="anonSuccessResult" class="mt-3 p-3 bg-light rounded border border-primary d-none">
+        <span class="text-primary fw-bold d-block small">Short link configured:</span>
+        <div class="d-flex justify-content-between align-items-center mt-1">
+          <a id="anonShortLink" href="#" target="_blank" class="fw-bold fs-5 text-dark text-decoration-none"></a>
+          <button class="btn btn-sm btn-dark" onclick="copyAnonLink()">Copy</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ACCOUNT SECURITY CREDENTIAL MODULE GATE -->
+    <div id="authView" class="card mx-auto mt-4 p-4 bg-white border shadow-sm" style="max-width: 400px; display: none; border-radius: 12px;">
+      <ul class="nav nav-pills nav-justified mb-3">
+        <li class="nav-item"><button id="tab-login" class="nav-link active" onclick="switchAuthMode('login')">Login</button></li>
+        <li class="nav-item"><button id="tab-register" class="nav-link" onclick="switchAuthMode('register')">Register</button></li>
+      </ul>
+      <form onsubmit="handleAuth(event)">
+        <div class="mb-3"><label class="form-label small fw-bold">Email address</label><input type="email" id="authEmail" class="form-control" required></div>
+        <div class="mb-3"><label class="form-label small fw-bold">Password</label><input type="password" id="authPassword" class="form-control" required></div>
+        <button type="submit" id="authSubmitBtn" class="btn btn-primary w-100">Proceed</button>
+      </form>
+    </div>
+
+    <!-- AUTHENTICATED ACTIVE RUNTIME CONNECTIONS WORKSPACE CONSOLE -->
+    <div id="dashboardView" class="dashboard-view mt-4">
+      <div class="row g-3 mb-4">
+        <div class="col-md-4"><div class="metric-card"><h6>Account Tier</h6><h3 class="mb-0 fw-bold text-primary" id="currentTierText">Free</h3></div></div>
+        <div class="col-md-4"><div class="metric-card"><h6>Total Tracked System Links</h6><h3 class="mb-0 fw-bold" id="statGlobalLinks">0</h3></div></div>
+        <div class="col-md-4"><div class="metric-card"><h6>Tracked Active Clicks</h6><h3 class="mb-0 fw-bold text-success" id="statGlobalClicks">0</h3></div></div>
+      </div>
+
+      <!-- ADMIN PREMIUM APPROVAL MONITOR VIEW QUEUE PANEL -->
+      <div id="adminApprovalQueueCard" class="card p-4 border-warning mb-4 d-none bg-white shadow-sm" style="border-left: 5px solid #ffc107;">
+        <h5 class="fw-bold text-dark mb-3"><i class="bi bi-wallet2 text-warning me-2"></i>Pending Subscription Verification Desk Queue</h5>
+        <div class="table-responsive">
+          <table class="table align-middle">
+            <thead><tr><th>Subscriber Account Profile Email</th><th>Requested Plan Plan</th><th>Date Submitted</th><th class="text-end">Actions Matrix Control</th></tr></thead>
+            <tbody id="adminQueueTableBody"></tbody>
+          </table>
+        </div>
       </div>
 
       <div class="row g-4">
+        <!-- PLAN UPGRADES PANEL LAYOUT CONTROLLER MODULE -->
         <div class="col-lg-4">
-          <div class="card p-4 bg-white shadow-sm mb-4">
-            <h5 class="fw-bold mb-3">Deploy Short Redirect</h5>
-            <form onsubmit="createNewLink(event)">
-              <div class="mb-3">
-                <label class="form-label small fw-bold">Short Code (e.g., onlinekhabar)</label>
-                <input type="text" id="shortCode" class="form-control" required>
-              </div>
-              <div class="mb-3">
-                <label class="form-label small fw-bold">Destination Long URL</label>
-                <input type="url" id="longUrl" class="form-control" placeholder="https://..." required>
-              </div>
-              <button type="submit" class="btn btn-success w-100">Deploy Live Link</button>
-            </form>
-          </div>
-
-          <div class="card p-4 bg-white shadow-sm mb-4">
-            <h5 class="fw-bold mb-3">Account Workspace Controls</h5>
-            <div class="mb-3">
-              <label class="small fw-bold d-block mb-1">Subscription Class</label>
-              <div class="d-flex justify-content-between align-items-center border p-2 rounded bg-light">
-                <span id="currentTierText" class="fw-bold text-uppercase">Free Tier</span>
-                <button id="upgradeBtn" class="btn btn-sm btn-warning fw-bold" onclick="upgradeSubscription()">Upgrade to Premium</button>
-              </div>
+          <div id="pricingPlanCard" class="card p-4 bg-white border border-light-subtle mb-4">
+            <h6 class="fw-bold text-uppercase small text-muted border-bottom pb-2 mb-3">Subscribe to Premium</h6>
+            <p class="small text-secondary">Get custom short links, click tracking analytics, and priority feature access channels instantly.</p>
+            <div class="d-grid gap-2">
+              <button class="btn btn-sm btn-outline-primary text-start p-2.5" onclick="requestPlanUpgrade('Monthly ($9/mo)')"><i class="bi bi-calendar-event me-2"></i>Subscribe to Monthly Plan</button>
+              <button class="btn btn-sm btn-outline-success text-start p-2.5" onclick="requestPlanUpgrade('Yearly ($89/yr)')"><i class="bi bi-calendar-check me-2"></i>Subscribe to Yearly Plan</button>
             </div>
-            <hr>
-            <h6 class="fw-bold text-muted mb-2">Modify Security Credentials</h6>
+          </div>
+          <div class="card p-4 bg-white border border-light-subtle">
+            <h6 class="fw-bold text-uppercase small text-muted border-bottom pb-2 mb-2">Update Password Key</h6>
             <form onsubmit="changePassword(event)">
-              <div class="mb-2"><input type="password" id="newPassword" class="form-control form-control-sm" placeholder="New Secret Password" required></div>
-              <button type="submit" class="btn btn-sm btn-outline-primary w-100">Apply New Password</button>
+              <input type="password" id="newPassword" class="form-control form-control-sm mb-2" placeholder="Enter new secret key" required>
+              <button type="submit" class="btn btn-sm btn-dark w-100">Update Account Key</button>
             </form>
           </div>
         </div>
 
+        <!-- ACTIVE PAGINATED DATAFEED LOG WORKSPACE -->
         <div class="col-lg-8">
-          <div class="card p-4 bg-white shadow-sm">
-            <h5 class="fw-bold mb-3">Active Cluster Endpoints</h5>
-            <div class="table-responsive">
-              <table class="table table-hover align-middle">
-                <thead class="table-light">
-                  <tr><th>Pointer Location</th><th>Tracking</th><th>QR</th><th class="text-end">Purge</th></tr>
-                </thead>
-                <tbody id="linksTableBody"></tbody>
-              </table>
-            </div>
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <h5 class="fw-bold m-0">Your Active Link Mappings</h5>
+            <span class="text-muted small" id="totalLinksCounterSummary">0 Links</span>
           </div>
+          
+          <div id="linksFeedContainer"></div>
+
+          <!-- NATIVE PAGINATION BUTTON INTERACTIVE ELEMENT COMPONENT FOOTER -->
+          <nav class="mt-4 d-flex justify-content-between align-items-center">
+            <button id="btnPrevPage" class="btn btn-sm btn-outline-secondary px-3" onclick="changePage(-1)"><i class="bi bi-chevron-left"></i> Previous</button>
+            <span id="paginationInfoLabel" class="small fw-semibold text-secondary font-monospace">Page 1 of 1</span>
+            <button id="btnNextPage" class="btn btn-sm btn-outline-secondary px-3" onclick="changePage(1)">Next <i class="bi bi-chevron-right"></i></button>
+          </nav>
         </div>
       </div>
     </div>
   </div>
 
+  <!-- QR EXPANDED DISPLAY MODAL CORE LAYER -->
   <div class="modal fade" id="qrModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-sm">
-      <div class="modal-content text-center p-4">
-        <img id="modalQrImg" src="" class="img-fluid rounded mb-3">
-        <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal">Close</button>
+      <div class="modal-content text-center p-4 border-0">
+        <h6 class="fw-bold text-muted mb-2 small text-uppercase">Link Access QR Target</h6>
+        <img id="modalQrImg" src="" class="img-fluid rounded border p-2 mb-3 bg-white">
+        <button type="button" class="btn btn-sm btn-secondary w-100" data-bs-dismiss="modal">Close Overlay Window</button>
       </div>
     </div>
   </div>
@@ -117,33 +150,24 @@
   <script>
     const APPS_SCRIPT_API = "https://script.google.com/macros/s/AKfycbziZrenRdexGEONud-UztD-vIYgszaqDLrM8vupaLpSMkPO9W92flRvzFTBQWBQ7KC6/exec";
     let AUTH_MODE = 'login';
+    let CURRENT_PAGE = 1;
+    const ITEMS_PER_PAGE = 5; // Change this value to adjust the list capacity per view
+    let TOTAL_PAGES = 1;
 
-    // Core Lifecycle Loop: Checks LocalStorage for active sessions on load
     document.addEventListener("DOMContentLoaded", () => {
       const cachedUser = localStorage.getItem("dineshmc_session");
-      if (cachedUser) {
-        establishSession(JSON.parse(cachedUser));
-      } else {
-        showLoader(false);
-        document.getElementById('authView').style.display = 'block';
-      }
+      if (cachedUser) { establishSession(JSON.parse(cachedUser)); } else { showLoader(false); }
     });
 
     function showLoader(visible) { document.getElementById('loader').style.display = visible ? 'flex' : 'none'; }
-    
-    function switchAuthMode(mode) {
-      AUTH_MODE = mode;
-      document.getElementById('tab-login').classList.toggle('active', mode === 'login');
-      document.getElementById('tab-register').classList.toggle('active', mode === 'register');
-      document.getElementById('authSubmitBtn').innerText = mode === 'login' ? 'Authenticate' : 'Register';
-    }
+    function goHome() { window.location.reload(); }
+    function showAuthPage(mode) { document.getElementById('dashboardView').style.display = 'none'; document.getElementById('authView').style.display = 'block'; switchAuthMode(mode); }
+    function switchAuthMode(mode) { AUTH_MODE = mode; document.getElementById('tab-login').classList.toggle('active', mode === 'login'); document.getElementById('tab-register').classList.toggle('active', mode === 'register'); document.getElementById('authSubmitBtn').innerText = mode === 'login' ? 'Sign In' : 'Provision Account'; }
 
-    // Cross-Domain Safe Messaging Framework 
     function runGas(functionName, args, success, failure) {
       const callbackName = 'gas_cb_' + Math.round(100000 * Math.random());
       window[callbackName] = function(data) {
-        delete window[callbackName];
-        document.getElementById(callbackName).remove();
+        delete window[callbackName]; document.getElementById(callbackName).remove();
         if (data && data.error) { if (failure) failure(data.error); } else { if (success) success(data); }
       };
       const src = `${APPS_SCRIPT_API}?callback=${callbackName}&function=${functionName}&args=${encodeURIComponent(JSON.stringify(args))}`;
@@ -152,113 +176,131 @@
     }
 
     function handleAuth(e) {
-      e.preventDefault();
-      showLoader(true);
+      e.preventDefault(); showLoader(true);
       const email = document.getElementById('authEmail').value;
       const pass = document.getElementById('authPassword').value;
       const func = AUTH_MODE === 'login' ? 'loginUser' : 'registerUser';
-
-      runGas(func, [email, pass], (user) => {
-        localStorage.setItem("dineshmc_session", JSON.stringify(user)); // Store session persistence state
-        establishSession(user);
-      }, (err) => { showLoader(false); alert("Auth Failure: " + err); });
+      runGas(func, [email, pass], (user) => { localStorage.setItem("dineshmc_session", JSON.stringify(user)); establishSession(user); }, (err) => { showLoader(false); alert(err); });
     }
 
     function establishSession(user) {
       document.getElementById('authView').style.display = 'none';
+      document.getElementById('navAuthSection').style.display = 'none';
+      document.getElementById('navUserSection').style.display = 'block';
       document.getElementById('dashboardView').style.display = 'block';
-      document.getElementById('sessionIdentity').innerHTML = `<i class="bi bi-person-circle text-info me-1"></i> ${user.email}`;
-      document.getElementById('currentTierText').innerText = `${user.tier} Tier`;
+      document.getElementById('sessionIdentity').innerHTML = `<i class="bi bi-person-circle text-warning me-1"></i> ${user.email}`;
+      document.getElementById('currentTierText').innerText = user.tier;
       
-      // Hide upgrade tools if context is already Premium or Administrator
-      if (user.tier !== 'Free') document.getElementById('upgradeBtn').style.display = 'none';
-      if (user.tier === 'Admin') document.getElementById('adminAnalyticsSection').classList.remove('d-none');
+      // Hide Pricing panel for verified users
+      if(user.tier !== 'Free') { document.getElementById('pricingPlanCard').style.display = 'none'; }
+      if(user.tier === 'Admin') { document.getElementById('adminApprovalQueueCard').classList.remove('d-none'); }
       
-      fetchRenderWorkspace(user);
+      fetchRenderWorkspace();
     }
 
-    function fetchRenderWorkspace(user) {
+    function fetchRenderWorkspace() {
       showLoader(true);
-      runGas('getDashboardData', [user.email, user.tier], (data) => {
-        if(user.tier === 'Admin') {
-          document.getElementById('statGlobalLinks').innerText = data.adminStats.globalLinks;
-          document.getElementById('statGlobalClicks').innerText = data.adminStats.globalClicks;
-        }
-        const tbody = document.getElementById('linksTableBody');
-        tbody.innerHTML = '';
-        
-        data.links.forEach(link => {
-          tbody.innerHTML += `
-            <tr>
-              <td>
-                <a href="${link.shortUrl}" target="_blank" class="fw-bold text-decoration-none">${link.domainPointer}</a>
-                <div class="text-muted text-truncate small" style="max-width: 320px;">${link.longUrl}</div>
+      const user = JSON.parse(localStorage.getItem("dineshmc_session"));
+      
+      runGas('getDashboardData', [user.email, user.tier, CURRENT_PAGE, ITEMS_PER_PAGE], (data) => {
+        document.getElementById('statGlobalLinks').innerText = data.adminStats.globalLinks;
+        document.getElementById('statGlobalClicks').innerText = data.adminStats.globalClicks;
+        document.getElementById('totalLinksCounterSummary').innerText = `${data.pagination.totalItems} Mapped Vectors`;
+
+        // Update Native Pagination Metadata Layouts
+        TOTAL_PAGES = data.pagination.totalPages || 1;
+        document.getElementById('paginationInfoLabel').innerText = `Page ${CURRENT_PAGE} of ${TOTAL_PAGES}`;
+        document.getElementById('btnPrevPage').disabled = (CURRENT_PAGE <= 1);
+        document.getElementById('btnNextPage').disabled = (CURRENT_PAGE >= TOTAL_PAGES);
+
+        // Build Admin Queue if Active
+        if (user.tier === 'Admin') {
+          const qBody = document.getElementById('adminQueueTableBody');
+          qBody.innerHTML = data.pendingRequests.length === 0 ? '<tr><td colspan="4" class="text-center text-muted small py-3">Verification queue pristine.</td></tr>' : '';
+          data.pendingRequests.forEach(req => {
+            qBody.innerHTML += `<tr>
+              <td class="fw-bold small">${req.email}</td>
+              <td><span class="badge bg-primary">${req.planType}</span></td>
+              <td class="text-muted small">${req.date}</td>
+              <td class="text-end">
+                <button class="btn btn-xs btn-success py-1 px-2 small me-1" onclick="processAdminQueueAction('${req.email}','Approve')">Approve</button>
+                <button class="btn btn-xs btn-outline-danger py-1 px-2 small" onclick="processAdminQueueAction('${req.email}','Reject')">Reject</button>
               </td>
-              <td><span class="badge bg-light text-dark border"><i class="bi bi-graph-up text-success me-1"></i>${link.clicks} clicks</span></td>
-              <td><img src="${link.qrUrl}" class="qr-thumb" onclick="openQrModal('${link.qrUrl}')"></td>
-              <td class="text-end"><button class="btn btn-sm btn-outline-danger" onclick="purgeLink('${link.shortCode}')"><i class="bi bi-trash"></i></button></td>
             </tr>`;
+          });
+        }
+
+        // Render Links Container Feed Layout
+        const feed = document.getElementById('linksFeedContainer');
+        feed.innerHTML = data.links.length === 0 ? '<div class="p-5 text-center bg-white border rounded-3 text-muted">No links on this page layer viewport.</div>' : '';
+        data.links.forEach(link => {
+          feed.innerHTML += `
+            <div class="link-row-card">
+              <div style="max-width: 70%;">
+                <span class="tag-badge mb-1 d-inline-block"><i class="bi bi-globe me-1"></i>${link.tier}</span>
+                <h6 class="fw-bold mb-1"><a href="${link.shortUrl}" target="_blank" class="text-decoration-none text-dark">/urlshortner/${link.shortCode}</a></h6>
+                <div class="text-truncate text-secondary small">${link.longUrl}</div>
+              </div>
+              <div class="d-flex align-items-center gap-2">
+                <span class="badge bg-light text-dark border p-2 font-monospace">${link.clicks} Clicks</span>
+                <img src="${link.qrUrl}" class="qr-thumb" onclick="openQrModal('${link.qrUrl}')">
+                <button class="btn btn-sm btn-outline-danger border-0" onclick="purgeLink('${link.shortCode}')"><i class="bi bi-trash"></i></button>
+              </div>
+            </div>`;
         });
         showLoader(false);
       });
     }
 
-    function createNewLink(e) {
-      e.preventDefault();
-      showLoader(true);
-      const user = JSON.parse(localStorage.getItem("dineshmc_session"));
-      const code = document.getElementById('shortCode').value;
-      const longUrl = document.getElementById('longUrl').value;
-
-      runGas('saveLink', [code, longUrl, user.tier, user.email], () => {
-        document.getElementById('shortCode').value = '';
-        document.getElementById('longUrl').value = '';
-        fetchRenderWorkspace(user);
-      }, (err) => { showLoader(false); alert("Error creating link: " + err); });
+    function changePage(direction) {
+      const nextTarget = CURRENT_PAGE + direction;
+      if (nextTarget >= 1 && nextTarget <= TOTAL_PAGES) {
+        CURRENT_PAGE = nextTarget;
+        fetchRenderWorkspace();
+      }
     }
 
-    function changePassword(e) {
-      e.preventDefault();
-      showLoader(true);
-      const user = JSON.parse(localStorage.getItem("dineshmc_session"));
-      const newPass = document.getElementById('newPassword').value;
+    function requestPlanUpgrade(planName) {
+      if(confirm(`Confirm routing transaction verification requests for ${planName}? Ensure payments have been processed via administrative payment gates.`)) {
+        showLoader(true);
+        const user = JSON.parse(localStorage.getItem("dineshmc_session"));
+        runGas('submitSubscriptionRequest', [user.email, planName], () => {
+          showLoader(false);
+          alert("Payment subscription notification logged! Admin authorization processing will now proceed.");
+        }, (err) => { showLoader(false); alert(err); });
+      }
+    }
 
-      runGas('updatePassword', [user.email, newPass], () => {
-        showLoader(false);
-        document.getElementById('newPassword').value = '';
-        alert("Password updated securely across database cluster nodes.");
+    function processAdminQueueAction(targetEmail, action) {
+      if(confirm(`Confirm manual subscription status override action [${action}] on account profile context: ${targetEmail}?`)) {
+        showLoader(true);
+        runGas('handlePlanRequestAction', [targetEmail, action], () => { fetchRenderWorkspace(); }, (err) => { showLoader(false); alert(err); });
+      }
+    }
+
+    function createNewLink(e) {
+      e.preventDefault(); showLoader(true);
+      const cachedUser = localStorage.getItem("dineshmc_session");
+      const longUrl = document.getElementById('longUrl').value;
+      let shortCode = document.getElementById('shortCode').value || Math.random().toString(36).substring(2, 7);
+      const email = cachedUser ? JSON.parse(cachedUser).email : "anonymous@dineshmc.com.np";
+      const tier = cachedUser ? JSON.parse(cachedUser).tier : "Free";
+
+      runGas('saveLink', [shortCode, longUrl, tier, email], () => {
+        const fullShortUrl = `https://www.dineshmc.com.np/urlshortner/${shortCode}`;
+        document.getElementById('anonShortLink').innerText = `dineshmc.com.np/urlshortner/${shortCode}`;
+        document.getElementById('anonShortLink').href = fullShortUrl;
+        document.getElementById('anonSuccessResult').classList.remove('d-none');
+        document.getElementById('longUrl').value = ''; document.getElementById('shortCode').value = '';
+        if (cachedUser) { fetchRenderWorkspace(); } else { showLoader(false); }
       }, (err) => { showLoader(false); alert(err); });
     }
 
-    function upgradeSubscription() {
-      if(confirm("Confirm upgrading account deployment profile to Premium status tier?")) {
-        showLoader(true);
-        const user = JSON.parse(localStorage.getItem("dineshmc_session"));
-        runGas('upgradeToPremium', [user.email], (updatedUser) => {
-          localStorage.setItem("dineshmc_session", JSON.stringify(updatedUser));
-          establishSession(updatedUser);
-          alert("Account updated successfully!");
-        });
-      }
-    }
-
-    function purgeLink(code) {
-      if(confirm("Purge endpoint validation routing index?")) {
-        showLoader(true);
-        const user = JSON.parse(localStorage.getItem("dineshmc_session"));
-        runGas('deleteLink', [code, user.email, user.tier], () => { fetchRenderWorkspace(user); });
-      }
-    }
-
-    function openQrModal(url) {
-      document.getElementById('modalQrImg').src = url;
-      new bootstrap.Modal(document.getElementById('qrModal')).show();
-    }
-
-    function logout() {
-      localStorage.removeItem("dineshmc_session");
-      window.location.reload();
-    }
+    function copyAnonLink() { navigator.clipboard.writeText(document.getElementById('anonShortLink').href).then(() => alert("Copied shortcut path to clipboard.")); }
+    function changePassword(e) { e.preventDefault(); showLoader(true); const user = JSON.parse(localStorage.getItem("dineshmc_session")); runGas('updatePassword', [user.email, document.getElementById('newPassword').value], () => { showLoader(false); document.getElementById('newPassword').value = ''; alert("Key updated."); }); }
+    function purgeLink(code) { if(confirm("Purge link vector configuration parameters?")) { showLoader(true); const user = JSON.parse(localStorage.getItem("dineshmc_session")); runGas('deleteLink', [code, user.email, user.tier], () => { fetchRenderWorkspace(); }); } }
+    function openQrModal(url) { document.getElementById('modalQrImg').src = url; new bootstrap.Modal(document.getElementById('qrModal')).show(); }
+    function logout() { localStorage.removeItem("dineshmc_session"); window.location.reload(); }
   </script>
 </body>
 </html>
