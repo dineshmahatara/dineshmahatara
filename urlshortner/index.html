@@ -3,8 +3,10 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>URL Shortener & Analytics Dashboard</title>
+  <title>URL Shortener & Security Firewall Dashboard</title>
+  <!-- Bootstrap 5 CSS -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- Bootstrap Icons -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.2/font/bootstrap-icons.css" rel="stylesheet">
   <style>
     [data-bs-theme="dark"] {
@@ -137,6 +139,7 @@
 <body>
 
   <div class="app-container">
+    <!-- SIDEBAR NAVIGATION MODULE -->
     <aside id="sidebar">
       <div class="sidebar-header d-flex align-items-center justify-content-between">
         <h4 class="m-0 fw-bold text-primary"><i class="bi bi-bezier2 me-2"></i>LinkEngine</h4>
@@ -154,6 +157,7 @@
     </aside>
 
     <main id="main-content">
+      <!-- TOP CONTROL NAVIGATION BAR -->
       <header class="top-navbar d-flex align-items-center justify-content-between">
         <button class="btn btn-outline-secondary" id="toggleSidebar"><i class="bi bi-list"></i></button>
         
@@ -163,8 +167,8 @@
               <i class="bi bi-circle-half"></i> <span class="d-none d-sm-inline">Theme</span>
             </button>
             <ul class="dropdown-menu dropdown-menu-end">
-              <li><button class="dropdown-item d-flex align-items-center gap-2" data-theme="light"><i class="bi bi-sun-fill text-warning"></i> White</button></li>
-              <li><button class="dropdown-item d-flex align-items-center gap-2" data-theme="dark"><i class="bi bi-moon-stars-fill text-primary"></i> Black</button></li>
+              <li><button class="dropdown-item d-flex align-items-center gap-2" data-theme="light"><i class="bi bi-sun-fill text-warning"></i> Light</button></li>
+              <li><button class="dropdown-item d-flex align-items-center gap-2" data-theme="dark"><i class="bi bi-moon-stars-fill text-primary"></i> Dark</button></li>
               <li><button class="dropdown-item d-flex align-items-center gap-2" data-theme="system"><i class="bi bi-laptop"></i> System</button></li>
             </ul>
           </div>
@@ -173,6 +177,7 @@
       </header>
 
       <div class="content-body">
+        <!-- AUTH INTERFACE MODULE -->
         <div id="view-auth" class="app-view mx-auto" style="max-width: 400px; margin-top: 4rem;">
           <div class="glass-card text-center">
             <h3 class="fw-bold mb-4" id="authInterfaceTitle">Account Login</h3>
@@ -183,6 +188,7 @@
           </div>
         </div>
 
+        <!-- DASHBOARD ANALYTICS CORE -->
         <div id="view-dashboard" class="app-view d-none">
           <div class="row g-3 mb-4">
             <div class="col-md-4">
@@ -205,6 +211,7 @@
             </div>
           </div>
 
+          <!-- LINKS CREATION REGISTRY WITH LIVE OUTPUT SUCCESS DRAWER -->
           <div class="glass-card">
             <h5 class="fw-bold mb-3"><i class="bi bi-plus-circle-fill text-primary me-2"></i>Generate Dynamic Redirection Endpoint</h5>
             <div class="row g-3">
@@ -213,19 +220,20 @@
               <div class="col-md-2"><button class="btn btn-primary w-100 fw-bold" id="actionSaveLink">Deploy Path</button></div>
             </div>
 
+            <!-- ASYNC OUTPUT SHARING UTILITY DESK -->
             <div id="generationSuccessDesk" class="mt-4 p-3 border rounded-3 bg-body-tertiary d-none">
               <div class="d-flex flex-wrap align-items-center justify-content-between gap-3">
                 <div>
                   <span class="text-success small fw-bold d-block mb-1"><i class="bi bi-check-circle-fill me-1"></i> Path Successfully Deployed</span>
                   <span id="outputShortenedUrlText" class="fw-bold fs-5 text-primary"></span>
                 </div>
-                <div class="d-flex gap-2" id="outputUtilityActionRack">
-                  </div>
+                <div class="d-flex gap-2" id="outputUtilityActionRack"></div>
               </div>
             </div>
           </div>
         </div>
 
+        <!-- ADVANCED LINKS REGISTRY DATAGRID -->
         <div id="view-links" class="app-view d-none">
           <div class="glass-card">
             <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-4">
@@ -236,6 +244,7 @@
               </div>
             </div>
 
+            <!-- FILTERS MATRIX PANEL -->
             <div class="row g-3 mb-3">
               <div class="col-md-4"><input type="text" id="searchFilterBox" class="form-control" placeholder="Filter by slug or target..."></div>
               <div class="col-md-3">
@@ -255,7 +264,7 @@
               <div class="col-md-2">
                 <select id="paginationSizeBox" class="form-select">
                   <option value="5">5 Rows</option>
-                  <option value="10">10 Rows</option>
+                  <option value="10" selected>10 Rows</option>
                   <option value="25">25 Rows</option>
                 </select>
               </div>
@@ -283,6 +292,7 @@
           </div>
         </div>
 
+        <!-- ADVERTISING MATRIX CONTROL PANEL -->
         <div id="view-ads" class="app-view d-none">
           <div class="glass-card">
             <h5 class="fw-bold mb-3">Interstitial Ad Network Inventory</h5>
@@ -308,17 +318,45 @@
           </div>
         </div>
 
+        <!-- WHITELIST SECURITY INLINE FIREWALL MODULE -->
         <div id="view-whitelist" class="app-view d-none">
           <div class="glass-card">
             <h5 class="fw-bold mb-3">Gateway Security Allowed Whitelist</h5>
             <div class="input-group mb-4">
-              <input type="text" id="whitelistDomainInput" class="form-control" placeholder="domain.com, sub.domain.org (Comma split parameters support)">
+              <input type="text" id="whitelistDomainInput" class="form-control" placeholder="domain.com, sub.domain.org (Comma separation supported)">
               <button class="btn btn-primary fw-bold" id="actionAddDomains">Commit Security Entry</button>
             </div>
-            <div class="list-group list-group-flush border rounded-3" id="whitelistOutputListBody"></div>
+
+            <!-- FIREWALL DATA MANAGEMENT TOOLBAR -->
+            <div class="row g-3 mb-3">
+              <div class="col-md-5">
+                <input type="text" id="domainSearchFilterBox" class="form-control" placeholder="Search whitelisted domains...">
+              </div>
+              <div class="col-md-4">
+                <select id="domainSortRuleBox" class="form-select">
+                  <option value="alpha-asc">Domain Name Alphabetical (A-Z)</option>
+                  <option value="alpha-desc">Domain Name Alphabetical (Z-A)</option>
+                </select>
+              </div>
+              <div class="col-md-3">
+                <select id="domainPaginationSizeBox" class="form-select">
+                  <option value="5" selected>5 Rows</option>
+                  <option value="10">10 Rows</option>
+                  <option value="25">25 Rows</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="list-group list-group-flush border rounded-3 mb-3" id="whitelistOutputListBody"></div>
+
+            <div class="d-flex flex-wrap align-items-center justify-content-between gap-2">
+              <div class="text-muted small" id="domainPaginationStatusSummary">Calculating security vectors...</div>
+              <nav><ul class="pagination pagination-sm m-0" id="domainPaginationUINodeController"></ul></nav>
+            </div>
           </div>
         </div>
 
+        <!-- GLOBAL USER OPERATIONS GRID -->
         <div id="view-users" class="app-view d-none">
           <div class="glass-card">
             <h5 class="fw-bold mb-3">Platform User Matrix Rows</h5>
@@ -342,6 +380,7 @@
     </main>
   </div>
 
+  <!-- COMPACT MODAL WRAPPER STRUCTURE FOR ALL GLOBAL CRUD OPERATIONS -->
   <div class="modal fade" id="globalCrudUpdateModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
       <div class="modal-content">
@@ -358,6 +397,7 @@
     </div>
   </div>
 
+  <!-- dedicated QR CODE PRESENTATION MODAL SCREEN -->
   <div class="modal fade" id="qrPresentationModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-sm modal-dialog-centered">
       <div class="modal-content text-center">
@@ -375,17 +415,23 @@
     </div>
   </div>
 
+  <!-- BOOTSTRAP BUNDLE JS -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 
+  <!-- REACTIONARY DATA UTILITIES SCRIPT MODULE -->
   <script>
     const BACKEND_GATEWAY_URL = "https://script.google.com/macros/s/AKfycbwnjkWwJm-u6dufwCJ5mApY2CniO41gZe8dv4jCD6v9GkK9Ovw_uMLT5HVlaXlc5SpV/exec";
-    // Derived base redirect address link matching deployment paths parameters
-    const ENGINE_REDIRECT_BASE = BACKEND_GATEWAY_URL.includes("exec") ? BACKEND_GATEWAY_URL.split("/exec")[0] + "/exec?id=" : "https://yourdomain.com/";
+    // Custom domain redirection target matrix path matching user assignment requirement parameters
+    const ENGINE_REDIRECT_BASE = "https://www.dineshmc.com.np/urlshortner/";
 
     let sessionStateToken = JSON.parse(localStorage.getItem('shortener_session')) || null;
     let localCacheStore = { links: [], systemAds: [], whitelistedDomains: [], systemUsers: [], pagination: {} };
     let registrationFlowMode = false;
+    
+    // Independent pagination pointer tracking configurations
     let activeNavigationGridPage = 1;
+    let activeDomainGridPage = 1;
+
     let dynamicBootstrapModalRef = null;
     let qrModalEngineRef = null;
 
@@ -455,10 +501,16 @@
       document.getElementById('actionCreateAd').addEventListener('click', processInsertAdUnitRequestAction);
       document.getElementById('actionAddDomains').addEventListener('click', processAppendWhitelistDomainsRequestAction);
 
+      // Links Data Matrix Filters
       document.getElementById('searchFilterBox').addEventListener('input', () => { activeNavigationGridPage = 1; buildClientMutatedDataViewGrid(); });
       document.getElementById('statusFilterBox').addEventListener('change', () => { activeNavigationGridPage = 1; buildClientMutatedDataViewGrid(); });
       document.getElementById('sortRuleBox').addEventListener('change', buildClientMutatedDataViewGrid);
       document.getElementById('paginationSizeBox').addEventListener('change', () => { activeNavigationGridPage = 1; syncDashboardRemotePipelineData(); });
+
+      // Domain Whitelist Data Matrix Filters
+      document.getElementById('domainSearchFilterBox').addEventListener('input', () => { activeDomainGridPage = 1; compileAdminSecurityFirewallUIList(); });
+      document.getElementById('domainSortRuleBox').addEventListener('change', () => { compileAdminSecurityFirewallUIList(); });
+      document.getElementById('domainPaginationSizeBox').addEventListener('change', () => { activeDomainGridPage = 1; compileAdminSecurityFirewallUIList(); });
     }
 
     function evaluateGlobalAccessState() {
@@ -636,6 +688,81 @@
       syncDashboardRemotePipelineData();
     }
 
+    // ADVANCED FIREWALL REGISTRY (MUTATION, SORT, PAGINATION)
+    function compileAdminSecurityFirewallUIList() {
+      const listContainerNode = document.getElementById('whitelistOutputListBody');
+      listContainerNode.innerHTML = "";
+
+      const searchInput = document.getElementById('domainSearchFilterBox').value.toLowerCase().trim();
+      const sortRule = document.getElementById('domainSortRuleBox').value;
+      const pageSize = parseInt(document.getElementById('domainPaginationSizeBox').value);
+
+      let domainsPool = [...(localCacheStore.whitelistedDomains || [])];
+
+      // Filtering logic
+      if(searchInput) {
+        domainsPool = domainsPool.filter(domain => domain.toLowerCase().includes(searchInput));
+      }
+
+      // Sorting logic
+      if(sortRule === 'alpha-asc') {
+        domainsPool.sort((a, b) => a.localeCompare(b));
+      } else if(sortRule === 'alpha-desc') {
+        domainsPool.sort((a, b) => b.localeCompare(a));
+      }
+
+      // Pagination math computation parameters
+      const totalItems = domainsPool.length;
+      const totalPages = Math.ceil(totalItems / pageSize) || 1;
+      if (activeDomainGridPage > totalPages) activeDomainGridPage = totalPages;
+
+      const startIndex = (activeDomainGridPage - 1) * pageSize;
+      const paginatedDomains = domainsPool.slice(startIndex, startIndex + pageSize);
+
+      if(paginatedDomains.length === 0) {
+        listContainerNode.innerHTML = `<div class="list-group-item text-center text-muted py-3">No matching firewall domains logged.</div>`;
+      }
+
+      paginatedDomains.forEach(domain => {
+        listContainerNode.innerHTML += `
+          <div class="list-group-item bg-transparent d-flex align-items-center justify-content-between px-3 py-2">
+            <span><i class="bi bi-shield-fill-check text-success me-2"></i>${domain}</span>
+            <div class="d-flex gap-1">
+              <button class="btn btn-sm text-warning p-0 px-2" onclick="openEditWhitelistModalWindow('${domain}')"><i class="bi bi-pencil-square"></i></button>
+              <button class="btn btn-sm text-danger p-0" onclick="triggerDeleteWhitelistDomainCall('${domain}')"><i class="bi bi-dash-circle-fill"></i></button>
+            </div>
+          </div>
+        `;
+      });
+
+      // Update Domain Pagination UI Components
+      document.getElementById('domainPaginationStatusSummary').innerText = `Page ${activeDomainGridPage} of ${totalPages} (${totalItems} domains total)`;
+      
+      const domainPagerWrapper = document.getElementById('domainPaginationUINodeController');
+      domainPagerWrapper.innerHTML = `
+        <li class="page-item ${activeDomainGridPage === 1 ? 'disabled' : ''}">
+          <a class="page-link" href="#" onclick="modifyDomainActivePageNumber(${activeDomainGridPage - 1})">Prev</a>
+        </li>
+      `;
+      for(let i = 1; i <= totalPages; i++) {
+        domainPagerWrapper.innerHTML += `
+          <li class="page-item ${activeDomainGridPage === i ? 'active' : ''}">
+            <a class="page-link" href="#" onclick="modifyDomainActivePageNumber(${i})">${i}</a>
+          </li>
+        `;
+      }
+      domainPagerWrapper.innerHTML += `
+        <li class="page-item ${activeDomainGridPage === totalPages ? 'disabled' : ''}">
+          <a class="page-link" href="#" onclick="modifyDomainActivePageNumber(${activeDomainGridPage + 1})">Next</a>
+        </li>
+      `;
+    }
+
+    function modifyDomainActivePageNumber(val) {
+      activeDomainGridPage = val;
+      compileAdminSecurityFirewallUIList();
+    }
+
     // SHARING HANDLERS & UTIL ENGINE MATRIX
     function executeClipboardCopyRoutine(textToCopy, htmlElementButtonNode) {
       navigator.clipboard.writeText(textToCopy).then(() => {
@@ -646,25 +773,22 @@
           htmlElementButtonNode.innerHTML = structuralOriginalHTMLContentBackup;
           htmlElementButtonNode.classList.remove("btn-outline-success");
         }, 1800);
-      }).catch(() => alert("Access blocked: verify site security certificate keys."));
+      }).catch(() => alert("Clipboard write permission blocked."));
     }
 
     function invokeNativeShareEngine(targetSharedLinkUrl, linkSlugLabel) {
       if (navigator.share) {
         navigator.share({
-          title: `Shortened link channel pointer: ${linkSlugLabel}`,
+          title: `Shortened route parameter: ${linkSlugLabel}`,
           url: targetSharedLinkUrl
         }).catch(() => {});
       } else {
-        // Fallback fallback copy prompt loop matrix
-        prompt("Native sharing vectors unavailable. Manual link duplication tracking box index below:", targetSharedLinkUrl);
+        prompt("Native sharing vectors unavailable. Copy distribution endpoint route below:", targetSharedLinkUrl);
       }
     }
 
     function triggerQrPresentationModal(targetEncodedSourceLink, configurationSlugLabel) {
       document.getElementById('qrTitleLabel').innerText = `QR: /${configurationSlugLabel}`;
-      
-      // Utilize high-speed, open source charts rendering endpoints matrices for reliable layout compilation
       const generatedQrEndpointAddress = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(targetEncodedSourceLink)}`;
       
       const targetImgNode = document.getElementById('qrRenderDestinationImg');
@@ -680,13 +804,13 @@
             document.body.appendChild(tempBlobDownloadAnchor);
             tempBlobDownloadAnchor.click();
             tempBlobDownloadAnchor.remove();
-          }).catch(() => alert("Asset stream signature download failed. Please try saving the image manually."));
+          }).catch(() => alert("Asset stream signature download failed. Please save manually."));
       };
 
       qrModalEngineRef.show();
     }
 
-    // CRUD VIEW PANEL INTERSECTION ACTIONS
+    // CRUD REACTION ROUTINES
     function openEditLinkModalWindow(oldSlugCode, currentEscapedUrl, activeState) {
       const decodedUrlTarget = decodeURIComponent(currentEscapedUrl);
       document.getElementById('crudModalTitle').innerText = "Update Redirect Route Configuration";
@@ -809,16 +933,15 @@
       dynamicBootstrapModalRef.show();
     }
 
-    // CORE DATASETS PERSISTENCE SUBROUTINES
+    // CORE COMMITS PERSISTENCE SEQUENCES
     function processDeployLinkRequestAction() {
-      const code = document.getElementById('linkShortSlug').value;
-      const target = document.getElementById('linkLongUrl').value;
+      const code = document.getElementById('linkShortSlug').value.trim();
+      const target = document.getElementById('linkLongUrl').value.trim();
       if(!code || !target) return alert("Verify all mandatory fields are populated.");
 
       executeRemoteGatewayCall("saveLink", [code, target, sessionStateToken.tier, sessionStateToken.email], () => {
         const fullRuntimeShortLink = ENGINE_REDIRECT_BASE + code;
         
-        // Populate and illuminate tracking success tray drawer desk context box natively
         document.getElementById('outputShortenedUrlText').innerText = fullRuntimeShortLink;
         
         const utilityContainerRackNode = document.getElementById('outputUtilityActionRack');
@@ -882,22 +1005,6 @@
       });
     }
 
-    function compileAdminSecurityFirewallUIList() {
-      const listContainerNode = document.getElementById('whitelistOutputListBody');
-      listContainerNode.innerHTML = "";
-      localCacheStore.whitelistedDomains.forEach(domain => {
-        listContainerNode.innerHTML += `
-          <div class="list-group-item bg-transparent d-flex align-items-center justify-content-between px-3 py-2">
-            <span><i class="bi bi-shield-fill-check text-success me-2"></i>${domain}</span>
-            <div class="d-flex gap-1">
-              <button class="btn btn-sm text-warning p-0 px-2" onclick="openEditWhitelistModalWindow('${domain}')"><i class="bi bi-pencil-square"></i></button>
-              <button class="btn btn-sm text-danger p-0" onclick="triggerDeleteWhitelistDomainCall('${domain}')"><i class="bi bi-dash-circle-fill"></i></button>
-            </div>
-          </div>
-        `;
-      });
-    }
-
     function processAppendWhitelistDomainsRequestAction() {
       const val = document.getElementById('whitelistDomainInput').value;
       if(!val) return;
@@ -908,6 +1015,7 @@
     }
 
     function triggerDeleteWhitelistDomainCall(dom) {
+      if(!confirm(`Remove ${dom} from firewall permissions checklist?`)) return;
       executeRemoteGatewayCall("removeWhitelistedDomain", [sessionStateToken.tier, dom], () => {
         syncDashboardRemotePipelineData();
       });
