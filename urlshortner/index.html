@@ -3,172 +3,254 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Bitly Premium Hub Matrix Console</title>
+  <title>Premium Link Asset Analytics Engine</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
   <style>
-    :root { --b-navy: #0c101d; --b-orange: #ee6123; --b-blue: #2a5bd7; --b-bg: #f4f6fa; }
-    body { background-color: var(--b-bg); font-family: system-ui, sans-serif; color: var(--b-navy); }
-    .bitly-nav { background-color: var(--b-navy); padding: 14px 0; border-bottom: 3px solid var(--b-orange); }
-    .creation-canvas { background: #fff; border-radius: 12px; box-shadow: 0 4px 20px rgba(12,16,29,0.05); padding: 30px; margin-top: 25px; border: 1px solid #e1e4ea; }
-    .metric-card { background: #fff; border: 1px solid #e1e4ea; border-radius: 10px; padding: 20px; position: relative; }
-    .metric-card::before { content: ''; position: absolute; top:0; left:0; width:4px; height:100%; background: var(--b-blue); }
+    :root { --b-navy: #0c101d; --b-orange: #ee6123; --b-blue: #2a5bd7; --b-bg: #f8f9fc; }
+    body { background-color: var(--b-bg); font-family: 'Segoe UI', system-ui, sans-serif; color: var(--b-navy); }
+    .bitly-nav { background-color: var(--b-navy); padding: 16px 0; border-bottom: 4px solid var(--b-orange); }
+    .creation-canvas { background: #fff; border-radius: 14px; box-shadow: 0 10px 30px rgba(12,16,29,0.04); padding: 32px; margin-top: -20px; border: 1px solid #e2e8f0; }
+    .metric-card { background: #fff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 24px; position: relative; overflow: hidden; transition: transform 0.2s; }
+    .metric-card:hover { transform: translateY(-2px); }
+    .metric-card::before { content: ''; position: absolute; top:0; left:0; width:5px; height:100%; background: var(--b-blue); }
     .dashboard-view { display: none; }
-    .link-row-card { background: #fff; border: 1px solid #e1e4ea; border-radius: 8px; margin-bottom: 12px; padding: 18px; }
-    .tag-badge { background-color: #e8edfa; color: var(--b-blue); font-size: 0.75rem; font-weight: 600; padding: 4px 10px; border-radius: 4px; }
-    .qr-thumb { width: 44px; height: 44px; cursor: pointer; border: 1px solid #e1e4ea; padding: 3px; border-radius: 6px; }
-    .loading-overlay { position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(244,246,250,0.85); display:flex; justify-content:center; align-items:center; z-index:9999; }
-    .edit-drawer { background-color: #f8f9fa; border-top: 1px dashed #ddd; margin-top: 12px; padding: 15px; display: none; border-radius: 6px; }
+    .link-row-card { background: #fff; border: 1px solid #e2e8f0; border-radius: 10px; margin-bottom: 16px; padding: 20px; box-shadow: 0 2px 6px rgba(0,0,0,0.01); }
+    .tag-badge { background-color: #e0e7ff; color: var(--b-blue); font-size: 0.75rem; font-weight: 700; padding: 4px 12px; border-radius: 6px; text-transform: uppercase; }
+    .qr-thumb { width: 48px; height: 48px; cursor: pointer; border: 1px solid #cbd5e1; padding: 2px; border-radius: 8px; background: white; transition: opacity 0.2s; }
+    .qr-thumb:hover { opacity: 0.8; }
+    .loading-overlay { position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(248,249,252,0.9); display:flex; justify-content:center; align-items:center; z-index:9999; }
+    .edit-drawer { background-color: #f1f5f9; border-radius: 8px; padding: 18px; margin-top: 14px; display: none; border: 1px dashed #cbd5e1; }
+    
+    /* Interactive Package Comparison Matrix styling */
+    .pricing-header { text-align: center; margin-bottom: 30px; }
+    .price-card { background: #fff; border: 1px solid #e2e8f0; border-radius: 14px; padding: 30px; text-align: center; position: relative; transition: all 0.3s ease; height: 100%; }
+    .price-card.featured { border: 2px solid var(--b-blue); box-shadow: 0 10px 25px rgba(42,91,215,0.1); }
+    .price-card.featured .popular-tag { position: absolute; top: -13px; left: 50%; transform: translateX(-50%); background: var(--b-blue); color: #fff; padding: 4px 14px; font-size: 0.75rem; font-weight: 700; border-radius: 20px; letter-spacing: 0.5px; }
+    .price-amount { font-size: 2.25rem; font-weight: 800; color: var(--b-navy); margin: 15px 0; }
+    .price-amount span { font-size: 0.9rem; color: #64748b; font-weight: 400; }
+    .feature-list { list-style: none; padding: 0; margin: 25px 0; text-align: left; font-size: 0.9rem; }
+    .feature-list li { padding: 8px 0; color: #475569; display: flex; align-items: center; }
+    .feature-list li i { color: #10b981; margin-right: 10px; font-size: 1.1rem; }
+    .feature-list li.disabled { color: #94a3b8; text-decoration: line-through; }
+    .feature-list li.disabled i { color: #cbd5e1; }
   </style>
 </head>
 <body>
 
-  <div id="loader" class="loading-overlay"><div class="spinner-border text-primary"></div></div>
+  <div id="loader" class="loading-overlay">
+    <div class="text-center">
+      <div class="spinner-border text-primary mb-2" style="width: 3rem; height: 3rem;"></div>
+      <p class="text-muted small fw-bold font-monospace">Synchronizing Ledger Rows...</p>
+    </div>
+  </div>
 
   <nav class="navbar navbar-expand-lg navbar-dark bitly-nav">
     <div class="container">
-      <a class="navbar-brand fw-bold text-white" href="#" onclick="goHome()"><i class="bi bi-shield-check text-warning me-2"></i>Bitly<span class="text-warning">Management</span></a>
+      <a class="navbar-brand fw-bold text-white fs-4" href="#" onclick="goHome()"><i class="bi bi-box-arrow-up-right text-warning me-2"></i>Bitly<span class="text-warning">Hub</span></a>
       <div class="d-flex align-items-center">
         <div id="navAuthSection">
-          <button class="btn btn-sm text-white-50 me-2" onclick="showAuthPage('login')">Log In</button>
-          <button class="btn btn-sm btn-warning pt-1 pb-1 px-3" onclick="showAuthPage('register')">Sign Up Free</button>
+          <button class="btn btn-sm text-white fw-medium me-3" onclick="showAuthPage('login')">Sign In</button>
+          <button class="btn btn-sm btn-warning fw-bold px-4 py-2 rounded-pill shadow-sm" onclick="showAuthPage('register')">Get Started Free</button>
         </div>
         <div id="navUserSection" style="display: none;">
-          <span class="navbar-text text-white me-3" id="sessionIdentity"></span>
-          <button class="btn btn-sm btn-outline-danger border-0" onclick="logout()"><i class="bi bi-power"></i> Log Out</button>
+          <span class="navbar-text text-white fw-medium me-4 font-monospace" id="sessionIdentity"></span>
+          <button class="btn btn-sm btn-outline-danger px-3 py-1.5 rounded-pill border-2 fw-bold" onclick="logout()"><i class="bi bi-power me-1"></i>Sign Out</button>
         </div>
       </div>
     </div>
   </nav>
 
   <div class="container pb-5">
+    
     <div class="card creation-canvas">
+      <h5 class="fw-bold mb-3"><i class="bi bi-link-45deg text-primary"></i> Create short URLs cleanly</h5>
       <form onsubmit="createNewLink(event)">
         <div class="row g-3">
-          <div class="col-lg-6"><input type="url" id="longUrl" class="form-control form-control-lg" placeholder="Paste your target long URL direction" required></div>
-          <div class="col-lg-3"><input type="text" id="shortCode" class="form-control form-control-lg" placeholder="Custom link slug (optional)"></div>
-          <div class="col-lg-3"><button type="submit" class="btn btn-primary btn-lg w-100">Create Mapping</button></div>
+          <div class="col-lg-6"><input type="url" id="longUrl" class="form-control form-control-lg bg-light border-0 shadow-none fs-6" placeholder="Paste your target long destination URL here..." required></div>
+          <div class="col-lg-3"><input type="text" id="shortCode" class="form-control form-control-lg bg-light border-0 shadow-none fs-6 font-monospace" placeholder="Custom alias (optional)"></div>
+          <div class="col-lg-3"><button type="submit" class="btn btn-primary btn-lg w-100 fw-bold fs-6 shadow">Shorten Address</button></div>
         </div>
       </form>
-      <div id="anonSuccessResult" class="mt-3 p-3 bg-light rounded border border-primary d-none">
-        <span class="text-primary fw-bold d-block small">Link created successfully:</span>
-        <div class="d-flex justify-content-between align-items-center mt-1">
-          <a id="anonShortLink" href="#" target="_blank" class="fw-bold fs-5 text-dark text-decoration-none"></a>
-          <button class="btn btn-sm btn-dark" onclick="copyAnonLink()">Copy</button>
+      <div id="anonSuccessResult" class="mt-4 p-3 bg-light rounded-3 border border-primary d-none">
+        <span class="text-primary fw-bold d-block small mb-1"><i class="bi bi-check-circle-fill me-1"></i> Shortlink generated successfully:</span>
+        <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+          <a id="anonShortLink" href="#" target="_blank" class="fw-bold fs-5 text-dark font-monospace text-decoration-none"></a>
+          <button class="btn btn-sm btn-dark px-4 fw-bold shadow-sm" onclick="copyAnonLink()">Copy Link</button>
         </div>
       </div>
     </div>
 
-    <div id="authView" class="card mx-auto mt-4 p-4 bg-white border shadow-sm" style="max-width: 400px; display: none; border-radius: 12px;">
-      <ul class="nav nav-pills nav-justified mb-3">
-        <li class="nav-item"><button id="tab-login" class="nav-link active" onclick="switchAuthMode('login')">Login</button></li>
-        <li class="nav-item"><button id="tab-register" class="nav-link" onclick="switchAuthMode('register')">Register</button></li>
+    <div id="authView" class="card mx-auto mt-5 p-4 bg-white border-0 shadow-lg" style="max-width: 440px; display: none; border-radius: 16px;">
+      <ul class="nav nav-pills nav-justified mb-4 bg-light p-1 rounded-pill">
+        <li class="nav-item"><button id="tab-login" class="nav-link active rounded-pill fw-bold" onclick="switchAuthMode('login')">Login</button></li>
+        <li class="nav-item"><button id="tab-register" class="nav-link rounded-pill fw-bold" onclick="switchAuthMode('register')">Register</button></li>
       </ul>
       <form onsubmit="handleAuth(event)">
-        <div class="mb-3"><label class="form-label small fw-bold">Email address</label><input type="email" id="authEmail" class="form-control" required></div>
-        <div class="mb-3"><label class="form-label small fw-bold">Password</label><input type="password" id="authPassword" class="form-control" required></div>
-        <button type="submit" id="authSubmitBtn" class="btn btn-primary w-100">Proceed</button>
+        <div class="mb-3"><label class="form-label small fw-bold text-secondary">Email Account String</label><input type="email" id="authEmail" class="form-control form-control-lg fs-6" required></div>
+        <div class="mb-4"><label class="form-label small fw-bold text-secondary">Access Private Key</label><input type="password" id="authPassword" class="form-control form-control-lg fs-6" required></div>
+        <button type="submit" id="authSubmitBtn" class="btn btn-primary btn-lg w-100 fw-bold fs-6 shadow-sm">Continue Access</button>
       </form>
     </div>
 
-    <div id="dashboardView" class="dashboard-view mt-4">
-      <div class="row g-3 mb-4">
-        <div class="col-md-4"><div class="metric-card"><h6>Account Membership Tier</h6><h3 class="mb-0 fw-bold text-primary" id="currentTierText">Free</h3></div></div>
-        <div class="col-md-4"><div class="metric-card"><h6>Total Dynamic Links</h6><h3 class="mb-0 fw-bold" id="statGlobalLinks">0</h3></div></div>
-        <div class="col-md-4"><div class="metric-card"><h6>Cumulative Tracked Clicks</h6><h3 class="mb-0 fw-bold text-success">Active</h3></div></div>
+    <div id="dashboardView" class="dashboard-view mt-5">
+      <div class="row g-4 mb-5">
+        <div class="col-md-4"><div class="metric-card"><h6>Account Tier State</h6><h3 class="mb-0 fw-bold text-primary font-monospace" id="currentTierText">Free Tier</h3></div></div>
+        <div class="col-md-4"><div class="metric-card"><h6>Tracked Active Mappings</h6><h3 class="mb-0 fw-bold font-monospace" id="statGlobalLinks">0</h3></div></div>
+        <div class="col-md-4"><div class="metric-card"><h6>Redirect Verification Engine</h6><h3 class="mb-0 fw-bold text-success font-monospace">Operational</h3></div></div>
       </div>
 
-      <div id="adminApprovalQueueCard" class="card p-4 border-warning mb-4 d-none bg-white shadow-sm" style="border-left: 5px solid #ffc107;">
+      <div id="adminApprovalQueueCard" class="card p-4 border-0 mb-5 d-none bg-white shadow-sm" style="border-radius: 16px; border-left: 6px solid #ffc107 !important;">
         
-        <h5 class="fw-bold text-dark mb-2"><i class="bi bi-people-fill text-primary me-2"></i>System User Account Registry (CRUD Panel)</h5>
-        <p class="text-muted small mb-3">View active system profiles, purge accounts, or manually adjust their core subscription tiers on the fly.</p>
-        <div class="table-responsive mb-4 border rounded">
+        <h5 class="fw-bold text-dark mb-1"><i class="bi bi-people-fill text-primary me-2"></i>System Accounts Discovery Control Registry</h5>
+        <p class="text-muted small mb-3">View platform profiles, purge database records, or manually mutate user subcription plans inline instantly.</p>
+        <div class="table-responsive mb-5 border rounded-3 bg-white">
           <table class="table table-hover align-middle mb-0 small">
-            <thead class="table-primary text-secondary">
+            <thead class="table-light text-secondary">
               <tr>
-                <th>User Email Address</th>
-                <th>Registration Date</th>
-                <th>Subscription Tier Vector</th>
-                <th class="text-center" style="width: 120px;">Actions Matrix</th>
+                <th class="ps-3">User Profile Identity Suffix</th>
+                <th>Registration Date Cell</th>
+                <th>Assigned Access Membership Matrix</th>
+                <th class="text-center" style="width: 140px;">Operations Anchor</th>
               </tr>
             </thead>
-            <tbody id="adminUserManagementTableBody"></tbody>
+            <tbody id="adminUserManagementTableBody">
+              <tr><td colspan="4" class="text-center py-4 text-muted font-monospace">Locating rows...</td></tr>
+            </tbody>
           </table>
         </div>
 
-        <h5 class="fw-bold text-dark mb-3 border-top pt-3"><i class="bi bi-shield-check text-warning me-2"></i>Pending Subscription Verification Queue</h5>
-        <div class="table-responsive mb-4">
-          <table class="table align-middle">
-            <thead><tr><th>Account Profile Email</th><th>Plan Target</th><th>Transaction Code Reference</th><th>Payment Settlement Date</th><th class="text-end">Actions Matrix Control</th></tr></thead>
+        <h5 class="fw-bold text-dark mb-3 pt-3 border-top"><i class="bi bi-wallet2 text-warning me-2"></i>Pending Subscription Verification Desk Queue</h5>
+        <div class="table-responsive mb-5">
+          <table class="table align-middle table-bordered small bg-white rounded">
+            <thead class="table-light"><tr><th>Account Email</th><th>Plan Target</th><th>Transaction Code Ref</th><th>Settlement Date</th><th class="text-end pe-3">Actions Execution</th></tr></thead>
             <tbody id="adminQueueTableBody"></tbody>
           </table>
         </div>
 
-        <h5 class="fw-bold text-dark mb-2 border-top pt-3"><i class="bi bi-shield-fill-check text-success me-2"></i>Anti-Spam Domain Whitelist CRUD Panel</h5>
-        <p class="text-muted small">Manage whitelisted destination domain suffixes here. Separate multiple domains with commas (e.g. <code>google.com, apple.com</code>).</p>
+        <h5 class="fw-bold text-dark mb-1 border-top pt-3"><i class="bi bi-shield-lock-fill text-success me-2"></i>Anti-Spam Allowed Domain Routing Directives</h5>
+        <p class="text-muted small">Manage allowed target rules. Add plain comma groupings for nested routing arrays safely.</p>
         
         <form onsubmit="addNewDomainToWhitelist(event)" class="row g-2 mb-3">
-          <div class="col-md-8"><input type="text" id="whitelistInput" class="form-control form-control-sm" placeholder="Add domain rules (e.g., facebook.com, dineshmc.com.np)" required></div>
-          <div class="col-md-4"><button type="submit" class="btn btn-sm btn-success w-100"><i class="bi bi-plus-circle"></i> Add Whitelist Rule</button></div>
+          <div class="col-md-9"><input type="text" id="whitelistInput" class="form-control form-control-sm" placeholder="Add domain references (e.g. apple.com, microsoft.com)" required></div>
+          <div class="col-md-3"><button type="submit" class="btn btn-sm btn-success w-100 fw-bold"><i class="bi bi-plus-circle"></i> Inject Domain Rule</button></div>
         </form>
         
         <div class="table-responsive">
-          <table class="table table-bordered table-sm align-middle bg-light small">
-            <thead>
-              <tr class="table-dark">
-                <th>Target Allowed Domain Suffix Rule</th>
-                <th class="text-center" style="width: 180px;">Actions Matrix</th>
-              </tr>
-            </thead>
+          <table class="table table-bordered table-sm align-middle bg-light font-monospace small">
+            <thead><tr class="table-dark"><th>Allowed Active String Suffix</th><th class="text-center" style="width: 200px;">Actions</th></tr></thead>
             <tbody id="whitelistCrudTableBody"></tbody>
           </table>
         </div>
       </div>
 
-      <div class="row g-4">
-        <div class="col-lg-4">
-          <div id="pricingPlanCard" class="card p-4 bg-white border border-light-subtle mb-4">
-            <h6 class="fw-bold text-uppercase small text-muted border-bottom pb-2 mb-3">Upgrade Subscription Plan</h6>
-            <form onsubmit="submitCheckoutDetails(event)">
-              <div class="mb-2">
-                <label class="form-label small fw-bold text-secondary mb-1">Select Subscription Plan Layout</label>
-                <select id="checkoutPlan" class="form-select form-select-sm" required>
+      <div id="pricingPlanCard" class="mb-5">
+        <div class="pricing-header">
+          <span class="badge bg-primary-subtle text-primary font-monospace px-3 py-2 rounded-pill fw-bold mb-2">Upgrade Account Metrics</span>
+          <h2 class="fw-bold text-dark">Bitly Premium Tier Structures</h2>
+          <p class="text-muted mx-auto" style="max-width: 550px;">Scale your visibility options instantly. Review capabilities and submit automated verification references to activate capabilities.</p>
+        </div>
+        
+        <div class="row g-4 align-items-stretch mb-4">
+          <div class="col-lg-4">
+            <div class="price-card">
+              <h5 class="fw-bold text-secondary text-uppercase small tracking-wider">Free Starter Tier</h5>
+              <div class="price-amount">$0<span>/forever</span></div>
+              <p class="text-muted small">Fundamental utility package for single link management setups.</p>
+              <ul class="feature-list">
+                <li><i class="bi bi-check-circle-fill"></i> Standard Link Generation</li>
+                <li><i class="bi bi-check-circle-fill"></i> Standard Anonymous Operations</li>
+                <li class="disabled"><i class="bi bi-x-circle"></i> Custom Branded Suffix Mapping</li>
+                <li class="disabled"><i class="bi bi-x-circle"></i> Bulk Link Automation Vectoring</li>
+                <li class="disabled"><i class="bi bi-x-circle"></i> Extended Domain Whitelist Pass</li>
+              </ul>
+              <button class="btn btn-outline-secondary w-100 rounded-pill fw-bold py-2 disabled">Current Structure State</button>
+            </div>
+          </div>
+          <div class="col-lg-4">
+            <div class="price-card featured">
+              <div class="popular-tag">RECOMMENDED</div>
+              <h5 class="fw-bold text-primary text-uppercase small tracking-wider">Premium Monthly</h5>
+              <div class="price-amount">$9<span>/month</span></div>
+              <p class="text-muted small">Advanced capabilities for digital tracking optimization across modern applications.</p>
+              <ul class="feature-list">
+                <li><i class="bi bi-check-circle-fill"></i> Uncapped Premium Shortcodes</li>
+                <li><i class="bi bi-check-circle-fill"></i> Rapid Dynamic Link Adjustments</li>
+                <li><i class="bi bi-check-circle-fill"></i> Interactive Realtime QR Modules</li>
+                <li><i class="bi bi-check-circle-fill"></i> Custom Asset Description Locks</li>
+                <li class="disabled"><i class="bi bi-x-circle"></i> Annual Payment Ledger Rebate</li>
+              </ul>
+              <button class="btn btn-primary w-100 rounded-pill fw-bold py-2 shadow-sm" onclick="focusCheckoutPlan('Monthly ($9/mo)')">Select Monthly Metric</button>
+            </div>
+          </div>
+          <div class="col-lg-4">
+            <div class="price-card">
+              <h5 class="fw-bold text-success text-uppercase small tracking-wider">Premium Elite Annual</h5>
+              <div class="price-amount">$89<span>/year</span></div>
+              <p class="text-muted small">Maximized value matrix tailored towards enterprise developers requiring high stability links.</p>
+              <ul class="feature-list">
+                <li><i class="bi bi-check-circle-fill"></i> Everything included in Monthly Tier</li>
+                <li><i class="bi bi-check-circle-fill"></i> 17% Structural Price Discount Option</li>
+                <li><i class="bi bi-check-circle-fill"></i> Dedicated Priority Server Query Lines</li>
+                <li><i class="bi bi-check-circle-fill"></i> Extended Lifetime Storage Access</li>
+                <li><i class="bi bi-check-circle-fill"></i> Advanced API Callback Hooks</li>
+              </ul>
+              <button class="btn btn-dark w-100 rounded-pill fw-bold py-2" onclick="focusCheckoutPlan('Yearly ($89/yr)')">Select Elite Annual</button>
+            </div>
+          </div>
+        </div>
+
+        <div id="checkoutFormAnchorCard" class="card p-4 border-0 shadow-sm mx-auto bg-white" style="max-width: 600px; border-radius: 14px; display: none;">
+          <div class="d-flex justify-content-between align-items-center border-bottom pb-2 mb-3">
+            <h6 class="fw-bold m-0 text-primary text-uppercase small"><i class="bi bi-send-check-fill me-1"></i> Submit Payment Proof Verification</h6>
+            <button type="button" class="btn-close small" onclick="document.getElementById('checkoutFormAnchorCard').style.display='none'"></button>
+          </div>
+          <form onsubmit="submitCheckoutDetails(event)">
+            <div class="row g-2">
+              <div class="col-md-6">
+                <label class="form-label small fw-bold text-secondary mb-1">Target Package Plan Choice</label>
+                <select id="checkoutPlan" class="form-select form-select-sm font-monospace fw-bold text-primary" required>
                   <option value="Monthly ($9/mo)">Monthly ($9/mo)</option>
                   <option value="Yearly ($89/yr)">Yearly ($89/yr)</option>
                 </select>
               </div>
-              <div class="mb-2">
-                <label class="form-label small fw-bold text-secondary mb-1">Transaction Ref Code</label>
-                <input type="text" id="checkoutTxCode" class="form-control form-control-sm" placeholder="e.g. TXN983274" required>
+              <div class="col-md-6">
+                <label class="form-label small fw-bold text-secondary mb-1">Transaction Ref Identification String</label>
+                <input type="text" id="checkoutTxCode" class="form-control form-control-sm font-monospace fw-bold" placeholder="e.g. TXN-789324" required>
               </div>
-              <div class="mb-3">
-                <label class="form-label small fw-bold text-secondary mb-1">Payment Date</label>
+              <div class="col-12 mt-2">
+                <label class="form-label small fw-bold text-secondary mb-1">Payment Settlement Date Reference</label>
                 <input type="date" id="checkoutPayDate" class="form-control form-control-sm" required>
               </div>
-              <button type="submit" class="btn btn-sm btn-primary w-100">Submit Payment Proof Verification</button>
-            </form>
-          </div>
-          <div class="card p-4 bg-white border border-light-subtle">
-            <h6 class="fw-bold text-uppercase small text-muted border-bottom pb-2 mb-2">Change Password</h6>
+            </div>
+            <button type="submit" class="btn btn-sm btn-success w-100 fw-bold py-2 mt-3 shadow-sm">Submit Premium Activation Request</button>
+          </form>
+        </div>
+      </div>
+
+      <div class="row g-4">
+        <div class="col-lg-4 order-lg-2">
+          <div class="card p-4 bg-white border-0 shadow-sm" style="border-radius: 12px;">
+            <h6 class="fw-bold text-uppercase small text-muted border-bottom pb-2 mb-3"><i class="bi bi-key me-1"></i> Change Security Pass</h6>
             <form onsubmit="changePassword(event)">
-              <input type="password" id="newPassword" class="form-control form-control-sm mb-2" placeholder="Enter new secret code" required>
-              <button type="submit" class="btn btn-sm btn-dark w-100">Update Password</button>
+              <input type="password" id="newPassword" class="form-control form-control-sm mb-3 font-monospace" placeholder="Enter new custom secret token string" required>
+              <button type="submit" class="btn btn-sm btn-dark w-100 fw-bold py-2 shadow-sm">Update Password Token</button>
             </form>
           </div>
         </div>
 
-        <div class="col-lg-8">
-          <div class="d-flex justify-content-between align-items-center mb-3">
-            <h5 class="fw-bold m-0">Your Shortlink Mappings</h5>
-            <span class="text-muted small" id="totalLinksCounterSummary">0 Links</span>
+        <div class="col-lg-8 order-lg-1">
+          <div class="d-flex justify-content-between align-items-center mb-4">
+            <h5 class="fw-bold m-0 text-dark"><i class="bi bi-collection-play text-primary me-1"></i> Managed Mapping Pipelines</h5>
+            <span class="badge bg-white text-dark border font-monospace px-3 py-2 rounded-pill fw-medium shadow-sm" id="totalLinksCounterSummary">0 Links Found</span>
           </div>
           
           <div id="linksFeedContainer"></div>
 
-          <nav class="mt-4 d-flex justify-content-between align-items-center">
-            <button id="btnPrevPage" class="btn btn-sm btn-outline-secondary px-3" onclick="changePage(-1)"><i class="bi bi-chevron-left"></i> Previous</button>
-            <span id="paginationInfoLabel" class="small fw-semibold text-secondary font-monospace">Page 1 of 1</span>
-            <button id="btnNextPage" class="btn btn-sm btn-outline-secondary px-3" onclick="changePage(1)">Next <i class="bi bi-chevron-right"></i></button>
+          <nav class="mt-4 d-flex justify-content-between align-items-center bg-white p-2 rounded-3 border">
+            <button id="btnPrevPage" class="btn btn-sm btn-outline-secondary px-3 py-1 fw-bold" onclick="changePage(-1)"><i class="bi bi-chevron-left"></i> Prev</button>
+            <span id="paginationInfoLabel" class="small fw-bold text-secondary font-monospace">Page 1 of 1</span>
+            <button id="btnNextPage" class="btn btn-sm btn-outline-secondary px-3 py-1 fw-bold" onclick="changePage(1)">Next <i class="bi bi-chevron-right"></i></button>
           </nav>
         </div>
       </div>
@@ -177,17 +259,21 @@
 
   <div class="modal fade" id="qrModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-sm">
-      <div class="modal-content text-center p-4">
-        <h6 class="fw-bold text-muted mb-2 small text-uppercase">Link Asset QR Code</h6>
-        <img id="modalQrImg" src="" class="img-fluid rounded border p-2 mb-3 bg-white">
-        <button type="button" class="btn btn-sm btn-secondary w-100" data-bs-dismiss="modal">Close</button>
+      <div class="modal-content text-center p-4 border-0 shadow-lg" style="border-radius: 16px;">
+        <h6 class="fw-bold text-muted mb-3 small text-uppercase tracking-wider">Asset QR Vector Output</h6>
+        <div class="bg-light p-3 rounded-3 mb-3 border">
+          <img id="modalQrImg" src="" class="img-fluid rounded shadow-sm bg-white">
+        </div>
+        <button type="button" class="btn btn-sm btn-secondary w-100 fw-bold py-2 rounded-pill" data-bs-dismiss="modal">Dismiss View</button>
       </div>
     </div>
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
   <script>
+    // CRITICAL DEPLOYMENT PROPERTY VALUE: Swap out with your active Apps Script Web App executable URL endpoint string!
     const APPS_SCRIPT_API = "https://script.google.com/macros/s/AKfycbwi2_KguV50HPQCzYEVm9Ldq-4yx85GHo8_jk8kIEZLdnJtSpr7EBEYStLjtjmq9IDs/exec";
+    
     let AUTH_MODE = 'login';
     let CURRENT_PAGE = 1;
     const ITEMS_PER_PAGE = 5;
@@ -200,8 +286,13 @@
 
     function showLoader(visible) { document.getElementById('loader').style.display = visible ? 'flex' : 'none'; }
     function goHome() { window.location.reload(); }
+    function focusCheckoutPlan(planString) {
+      document.getElementById('checkoutFormAnchorCard').style.display = 'block';
+      document.getElementById('checkoutPlan').value = planString;
+      document.getElementById('checkoutFormAnchorCard').scrollIntoView({ behavior: 'smooth' });
+    }
     function showAuthPage(mode) { document.getElementById('dashboardView').style.display = 'none'; document.getElementById('authView').style.display = 'block'; switchAuthMode(mode); }
-    function switchAuthMode(mode) { AUTH_MODE = mode; document.getElementById('tab-login').toggle('active', mode === 'login'); document.getElementById('tab-register').toggle('active', mode === 'register'); document.getElementById('authSubmitBtn').innerText = mode === 'login' ? 'Sign In' : 'Register Account'; }
+    function switchAuthMode(mode) { AUTH_MODE = mode; document.getElementById('tab-login').classList.toggle('active', mode === 'login'); document.getElementById('tab-register').classList.toggle('active', mode === 'register'); document.getElementById('authSubmitBtn').innerText = mode === 'login' ? 'Sign In to Workspace' : 'Register Secure Profile'; }
 
     function runGas(functionName, args, success, failure) {
       const callbackName = 'gas_cb_' + Math.round(100000 * Math.random());
@@ -241,7 +332,7 @@
       
       runGas('getDashboardData', [user.email, user.tier, CURRENT_PAGE, ITEMS_PER_PAGE], (data) => {
         document.getElementById('statGlobalLinks').innerText = data.adminStats.globalLinks;
-        document.getElementById('totalLinksCounterSummary').innerText = `${data.pagination.totalItems} Managed Links`;
+        document.getElementById('totalLinksCounterSummary').innerText = `${data.pagination.totalItems} Mapped Tracks`;
 
         TOTAL_PAGES = data.pagination.totalPages || 1;
         document.getElementById('paginationInfoLabel').innerText = `Page ${CURRENT_PAGE} of ${TOTAL_PAGES}`;
@@ -249,26 +340,33 @@
         document.getElementById('btnNextPage').disabled = (CURRENT_PAGE >= TOTAL_PAGES);
 
         if (user.tier === 'Admin') {
-          // USER MANAGEMENT CRUD: Dynamic Row Loader Component Engine
+          // USER MANAGEMENT CRUD INLINE ROW LOADER ENGINE FIX
           const uBody = document.getElementById('adminUserManagementTableBody');
-          uBody.innerHTML = !data.systemUsers || data.systemUsers.length === 0 ? '<tr><td colspan="4" class="text-center text-muted py-3">No system users discovered.</td></tr>' : '';
+          uBody.innerHTML = !data.systemUsers || data.systemUsers.length === 0 ? '<tr><td colspan="4" class="text-center text-muted py-3 font-monospace">No active profiles discovered in directory.</td></tr>' : '';
           if(data.systemUsers) {
-            data.systemUsers.forEach((sysUser, index) => {
+            data.systemUsers.forEach((sysUser) => {
               const isSelf = (sysUser.email === user.email);
+              
+              // Standardize values to guarantee perfect matches regardless of casing variations
+              const isMonthly = sysUser.tier.toLowerCase().includes('monthly');
+              const isYearly = sysUser.tier.toLowerCase().includes('yearly');
+              const isFree = sysUser.tier === 'Free';
+              const isAdmin = sysUser.tier === 'Admin';
+
               uBody.innerHTML += `<tr>
-                <td class="fw-bold text-dark font-monospace">${sysUser.email} ${isSelf ? '<span class="badge bg-secondary p-1 ms-1">You</span>' : ''}</td>
-                <td class="text-secondary font-monospace">${sysUser.joined}</td>
+                <td class="ps-3 fw-bold text-dark font-monospace small">${sysUser.email} ${isSelf ? '<span class="badge bg-secondary ms-1">You</span>' : ''}</td>
+                <td class="text-secondary font-monospace small">${sysUser.joined}</td>
                 <td>
-                  <select class="form-select form-select-sm font-monospace p-1" style="max-width:210px;" 
+                  <select class="form-select form-select-sm font-monospace p-1 fw-bold text-dark border-secondary-subtle" style="max-width:230px; font-size:0.8rem;" 
                           onchange="modifyUserTierByAdmin('${sysUser.email}', this.value)" ${isSelf ? 'disabled' : ''}>
-                    <option value="Free" ${sysUser.tier === 'Free' ? 'selected' : ''}>Free</option>
-                    <option value="Premium (Monthly ($9/mo))" ${sysUser.tier.includes('Monthly') ? 'selected' : ''}>Premium (Monthly)</option>
-                    <option value="Premium (Yearly ($89/yr))" ${sysUser.tier.includes('Yearly') ? 'selected' : ''}>Premium (Yearly)</option>
-                    <option value="Admin" ${sysUser.tier === 'Admin' ? 'selected' : ''}>Admin</option>
+                    <option value="Free" ${isFree ? 'selected' : ''}>Free Starter Tier</option>
+                    <option value="Premium (Monthly ($9/mo))" ${isMonthly ? 'selected' : ''}>Premium (Monthly ($9/mo))</option>
+                    <option value="Premium (Yearly ($89/yr))" ${isYearly ? 'selected' : ''}>Premium (Yearly ($89/yr))</option>
+                    <option value="Admin" ${isAdmin ? 'selected' : ''}>Admin Root Access</option>
                   </select>
                 </td>
                 <td class="text-center">
-                  <button class="btn btn-xs btn-outline-danger py-0 px-2 small" 
+                  <button class="btn btn-sm btn-outline-danger py-0 px-2 small fw-bold text-uppercase" style="font-size:0.75rem;" 
                           onclick="purgeUserAccountByAdmin('${sysUser.email}')" ${isSelf ? 'disabled' : ''}>
                     <i class="bi bi-person-x-fill"></i> Purge
                   </button>
@@ -277,44 +375,43 @@
             });
           }
 
-          // Render Payment Queue
+          // Render Payment Queue Array
           const qBody = document.getElementById('adminQueueTableBody');
-          qBody.innerHTML = !data.pendingRequests || data.pendingRequests.length === 0 ? '<tr><td colspan="5" class="text-center text-muted small py-3">Verification desk queue is empty.</td></tr>' : '';
+          qBody.innerHTML = !data.pendingRequests || data.pendingRequests.length === 0 ? '<tr><td colspan="5" class="text-center text-muted small py-3 font-monospace">Payment request verify ledger desk is currently clean.</td></tr>' : '';
           if(data.pendingRequests) {
             data.pendingRequests.forEach(req => {
               qBody.innerHTML += `<tr>
-                <td class="fw-bold small">${req.email}</td>
-                <td><span class="badge bg-primary">${req.planType}</span></td>
-                <td><code class="text-dark fw-bold">${req.txCode}</code></td>
-                <td class="text-secondary small">${req.payDate}</td>
-                <td class="text-end">
-                  <button class="btn btn-xs btn-success py-1 px-2 small me-1" onclick="processAdminQueueAction('${req.email}','Approve')">Approve</button>
-                  <button class="btn btn-xs btn-outline-danger py-1 px-2 small" onclick="processAdminQueueAction('${req.email}','Reject')">Reject</button>
+                <td class="fw-bold text-dark font-monospace small">${req.email}</td>
+                <td><span class="badge bg-primary px-2 font-monospace">${req.planType}</span></td>
+                <td><code class="text-dark fw-bold font-monospace bg-light p-1 border rounded">${req.txCode}</code></td>
+                <td class="text-secondary small font-monospace">${req.payDate}</td>
+                <td class="text-end pe-3">
+                  <button class="btn btn-sm btn-success py-0 px-2 fw-bold me-1" style="font-size:0.75rem;" onclick="processAdminQueueAction('${req.email}','Approve')">Approve</button>
+                  <button class="btn btn-sm btn-outline-danger py-0 px-2 fw-bold" style="font-size:0.75rem;" onclick="processAdminQueueAction('${req.email}','Reject')">Reject</button>
                 </td>
               </tr>`;
             });
           }
 
-          // Whitelist CRUD Layout Loader
+          // Whitelist Rule Generation Loader Interface
           const tBody = document.getElementById('whitelistCrudTableBody');
-          tBody.innerHTML = !data.whitelistedDomains || data.whitelistedDomains.length === 0 ? '<tr><td colspan="2" class="text-center text-muted py-2">No whitelisted domains found.</td></tr>' : '';
+          tBody.innerHTML = !data.whitelistedDomains || data.whitelistedDomains.length === 0 ? '<tr><td colspan="2" class="text-center text-muted py-2">No whitelisted routing configurations enforced.</td></tr>' : '';
           if (data.whitelistedDomains) {
             data.whitelistedDomains.forEach((dom, index) => {
-              const domId = `dom-row-${index}`;
               tBody.innerHTML += `
-                <tr id="${domId}">
-                  <td>
-                    <span id="view-dom-${index}" class="fw-bold font-monospace text-dark">${dom}</span>
-                    <input type="text" id="edit-dom-input-${index}" class="form-control form-control-sm d-none font-monospace" value="${dom}">
+                <tr>
+                  <td class="ps-3">
+                    <span id="view-dom-${index}" class="fw-bold text-dark">${dom}</span>
+                    <input type="text" id="edit-dom-input-${index}" class="form-control form-control-sm d-none font-monospace p-1" value="${dom}">
                   </td>
                   <td class="text-center">
                     <div id="actions-view-${index}">
-                      <button class="btn btn-xs btn-outline-primary py-0 px-2 small me-1" onclick="switchToDomainEditMode(${index})"><i class="bi bi-pencil"></i> Edit</button>
-                      <button class="btn btn-xs btn-outline-danger py-0 px-2 small" onclick="deleteDomainFromWhitelist('${dom}')"><i class="bi bi-trash"></i></button>
+                      <button class="btn btn-sm btn-outline-primary py-0 px-2 me-1 style="font-size:0.75rem;" onclick="switchToDomainEditMode(${index})"><i class="bi bi-pencil"></i> Edit</button>
+                      <button class="btn btn-sm btn-outline-danger py-0 px-2" style="font-size:0.75rem;" onclick="deleteDomainFromWhitelist('${dom}')"><i class="bi bi-trash"></i></button>
                     </div>
                     <div id="actions-edit-${index}" class="d-none">
-                      <button class="btn btn-xs btn-success py-0 px-2 small me-1" onclick="saveDomainInlineEdits(${index}, '${dom}')">Save</button>
-                      <button class="btn btn-xs btn-light border py-0 px-2 small" onclick="cancelDomainInlineEdit(${index})">Cancel</button>
+                      <button class="btn btn-sm btn-success py-0 px-2 me-1" style="font-size:0.75rem;" onclick="saveDomainInlineEdits(${index}, '${dom}')">Save</button>
+                      <button class="btn btn-sm btn-light border py-0 px-2" style="font-size:0.75rem;" onclick="cancelDomainInlineEdit(${index})">Cancel</button>
                     </div>
                   </td>
                 </tr>`;
@@ -323,28 +420,32 @@
         }
 
         const feed = document.getElementById('linksFeedContainer');
-        feed.innerHTML = data.links.length === 0 ? '<div class="p-5 text-center bg-white border rounded-3 text-muted">No links on this viewport.</div>' : '';
+        feed.innerHTML = data.links.length === 0 ? '<div class="p-5 text-center bg-white border rounded-3 text-muted font-monospace small">No mapping channels discoverable inside this viewport frame.</div>' : '';
         
         data.links.forEach((link) => {
           const cleanStatusStr = (link.status && link.status !== 'undefined') ? link.status : 'Active';
-          const statusBadge = cleanStatusStr === "Inactive" ? 'bg-danger' : 'bg-success';
-          const toggleIcon = cleanStatusStr === "Inactive" ? 'bi-play-fill' : 'bi-pause-fill';
-          const toggleText = cleanStatusStr === "Inactive" ? 'Activate' : 'Deactivate';
-          const toggleBtnClass = cleanStatusStr === "Inactive" ? 'btn-outline-success' : 'btn-outline-warning';
+          const isInactive = (cleanStatusStr === "Inactive");
+          const statusBadge = isInactive ? 'bg-danger-subtle text-danger border border-danger-subtle' : 'bg-success-subtle text-success border border-success-subtle';
+          const toggleIcon = isInactive ? 'bi-play-fill' : 'bi-pause-fill';
+          const toggleText = isInactive ? 'Activate' : 'Pause';
+          const toggleBtnClass = isInactive ? 'btn-outline-success' : 'btn-outline-warning';
 
           feed.innerHTML += `
-            <div class="link-row-card">
+            <div class="link-row-card shadow-sm">
               <div class="d-flex justify-content-between align-items-start flex-wrap gap-2">
-                <div style="max-width: 65%;">
-                  <span class="tag-badge me-1"><i class="bi bi-tag"></i> ${link.tier}</span>
-                  <span class="badge ${statusBadge} font-monospace rounded mb-1">${cleanStatusStr}</span>
-                  <h6 class="fw-bold mb-1 mt-1"><a href="${link.shortUrl}" target="_blank" class="text-decoration-none text-dark">/urlshortner/${link.shortCode}</a></h6>
-                  <div class="text-secondary small text-truncate" style="max-width:380px;">${link.longUrl}</div>
+                <div style="max-width: 70%;">
+                  <div class="d-flex align-items-center gap-2 mb-2 flex-wrap">
+                    <span class="tag-badge"><i class="bi bi-tag-fill me-1"></i>${link.tier}</span>
+                    <span class="badge ${statusBadge} font-monospace px-2 py-1 rounded small">${cleanStatusStr}</span>
+                    <span class="text-muted font-monospace small" style="font-size: 0.75rem;"><i class="bi bi-calendar3 me-1"></i>${link.date}</span>
+                  </div>
+                  <h5 class="fw-bold mb-1"><a href="${link.shortUrl}" target="_blank" class="text-decoration-none text-primary font-monospace text-break">/urlshortner/${link.shortCode}</a></h5>
+                  <div class="text-secondary small text-truncate font-monospace text-muted" style="max-width:450px;">${link.longUrl}</div>
                 </div>
-                <div class="d-flex align-items-center gap-2 ms-auto">
-                  <img src="${link.qrUrl}" class="qr-thumb" onclick="openQrModal('${link.qrUrl}')">
-                  <button class="btn btn-sm btn-outline-primary" onclick="toggleEditDrawer('${link.shortCode}')"><i class="bi bi-pencil"></i> Edit Link</button>
-                  <button class="btn btn-sm ${toggleBtnClass}" onclick="toggleLinkStatus('${link.shortCode}', '${link.longUrl}', '${cleanStatusStr}')"><i class="bi ${toggleIcon}"></i> ${toggleText}</button>
+                <div class="d-flex align-items-center gap-2 ms-auto pt-1">
+                  <img src="${link.qrUrl}" class="qr-thumb border" title="Click to enlarge" onclick="openQrModal('${link.qrUrl}')">
+                  <button class="btn btn-sm btn-outline-primary fw-medium" onclick="toggleEditDrawer('${link.shortCode}')"><i class="bi bi-pencil"></i> Modify</button>
+                  <button class="btn btn-sm ${toggleBtnClass} fw-medium" onclick="toggleLinkStatus('${link.shortCode}', '${link.longUrl}', '${cleanStatusStr}')"><i class="bi ${toggleIcon}"></i> ${toggleText}</button>
                   <button class="btn btn-sm btn-outline-danger border-0" onclick="purgeLink('${link.shortCode}')"><i class="bi bi-trash"></i></button>
                 </div>
               </div>
@@ -352,16 +453,16 @@
               <div class="edit-drawer" id="drawer-${link.shortCode}">
                 <div class="row g-2">
                   <div class="col-md-4">
-                    <label class="form-label small fw-bold text-secondary mb-1">Modify Short URL Slug</label>
-                    <input type="text" class="form-control form-control-sm font-monospace" id="input-edit-short-${link.shortCode}" value="${link.shortCode}">
+                    <label class="form-label small fw-bold text-secondary mb-1">Link Routing Custom Slug</label>
+                    <input type="text" class="form-control form-control-sm font-monospace fw-bold" id="input-edit-short-${link.shortCode}" value="${link.shortCode}">
                   </div>
                   <div class="col-md-8">
-                    <label class="form-label small fw-bold text-secondary mb-1">Modify Target Destination Long URL</label>
+                    <label class="form-label small fw-bold text-secondary mb-1">Destination Target Long Link Route</label>
                     <input type="url" class="form-control form-control-sm" id="input-edit-long-${link.shortCode}" value="${link.longUrl}">
                   </div>
                   <div class="col-12 d-flex gap-2 justify-content-end mt-2">
-                    <button class="btn btn-sm btn-light border" onclick="toggleEditDrawer('${link.shortCode}')">Cancel</button>
-                    <button class="btn btn-sm btn-success px-4" onclick="saveLinkEdits('${link.shortCode}', '${cleanStatusStr}')">Apply Changes</button>
+                    <button class="btn btn-sm btn-light border font-medium px-3" onclick="toggleEditDrawer('${link.shortCode}')">Cancel</button>
+                    <button class="btn btn-sm btn-success fw-bold px-4 shadow-sm" onclick="saveLinkEdits('${link.shortCode}', '${cleanStatusStr}')">Save Update</button>
                   </div>
                 </div>
               </div>
@@ -371,23 +472,17 @@
       });
     }
 
-    // USER MANAGEMENT CRUD: INLINE TIER SELECTION MUTATION UPDATE
     function modifyUserTierByAdmin(targetUserEmail, selectedTier) {
       showLoader(true);
       const user = JSON.parse(localStorage.getItem("dineshmc_session"));
-      runGas('updateUserTierInline', [user.tier, targetUserEmail, selectedTier], () => {
-        fetchRenderWorkspace();
-      }, (err) => { showLoader(false); alert(err); });
+      runGas('updateUserTierInline', [user.tier, targetUserEmail, selectedTier], () => { fetchRenderWorkspace(); }, (err) => { showLoader(false); alert(err); });
     }
 
-    // USER MANAGEMENT CRUD: ACCOUNT PURGE DELETE ACTION
     function purgeUserAccountByAdmin(targetUserEmail) {
-      if (confirm(`CRITICAL WARNING: Are you sure you want to completely purge the user account "${targetUserEmail}" from the registry database?`)) {
+      if (confirm(`CRITICAL DELETION WARNING: Are you certain you want to completely remove user profile record "${targetUserEmail}" from system tables? This action cannot be reversed.`)) {
         showLoader(true);
         const user = JSON.parse(localStorage.getItem("dineshmc_session"));
-        runGas('removeUserRecord', [user.tier, targetUserEmail], () => {
-          fetchRenderWorkspace();
-        }, (err) => { showLoader(false); alert(err); });
+        runGas('removeUserRecord', [user.tier, targetUserEmail], () => { fetchRenderWorkspace(); }, (err) => { showLoader(false); alert(err); });
       }
     }
 
@@ -398,32 +493,30 @@
       document.getElementById(`actions-edit-${index}`).classList.remove('d-none');
     }
 
-    // WHITELIST CONTROLS
     function cancelDomainInlineEdit(index) {
-      document.getElementById(`view-dom-${index}`).classList.remove('d-none');
-      document.getElementById(`actions-view-${index}`).classList.remove('d-none');
-      document.getElementById(`edit-dom-input-${index}`).classList.add('d-none');
-      document.getElementById(`actions-edit-${index}`).classList.add('d-none');
+      document.getElementById('view-dom-' + index).classList.remove('d-none');
+      document.getElementById('actions-view-' + index).classList.remove('d-none');
+      document.getElementById('edit-dom-input-' + index).classList.add('d-none');
+      document.getElementById('actions-edit-' + index).classList.add('d-none');
     }
 
     function saveDomainInlineEdits(index, oldDomain) {
       const newDomain = document.getElementById(`edit-dom-input-${index}`).value;
-      if (!newDomain) return alert("Domain rule string cannot be blank.");
+      if (!newDomain) return alert("Value cannot be blank.");
       showLoader(true);
       const user = JSON.parse(localStorage.getItem("dineshmc_session"));
       runGas('updateWhitelistedDomain', [user.tier, oldDomain, newDomain], () => { fetchRenderWorkspace(); }, (err) => { showLoader(false); alert(err); });
     }
 
     function addNewDomainToWhitelist(event) {
-      event.preventDefault();
-      showLoader(true);
+      event.preventDefault(); showLoader(true);
       const user = JSON.parse(localStorage.getItem("dineshmc_session"));
       const domainValue = document.getElementById('whitelistInput').value;
       runGas('addWhitelistedDomain', [user.tier, domainValue], () => { document.getElementById('whitelistInput').value = ''; fetchRenderWorkspace(); }, (err) => { showLoader(false); alert(err); });
     }
 
     function deleteDomainFromWhitelist(domain) {
-      if(confirm(`Remove "${domain}" from security whitelist logic checks?`)) {
+      if(confirm(`Remove rule logic match checking parameters for "${domain}"?`)) {
         showLoader(true);
         const user = JSON.parse(localStorage.getItem("dineshmc_session"));
         runGas('removeWhitelistedDomain', [user.tier, domain], () => { fetchRenderWorkspace(); }, (err) => { showLoader(false); alert(err); });
@@ -438,7 +531,7 @@
     function saveLinkEdits(oldShortCode, currentStatus) {
       const newShortCode = document.getElementById(`input-edit-short-${oldShortCode}`).value;
       const newLongUrl = document.getElementById(`input-edit-long-${oldShortCode}`).value;
-      if(!newShortCode || !newLongUrl) return alert("Values cannot be blank.");
+      if(!newShortCode || !newLongUrl) return alert("Fields cannot be submitted empty.");
       showLoader(true);
       const user = JSON.parse(localStorage.getItem("dineshmc_session"));
       runGas('updateLinkDetails', [oldShortCode, newShortCode, newLongUrl, currentStatus, user.email, user.tier], () => { fetchRenderWorkspace(); }, (err) => { showLoader(false); alert(err); });
@@ -459,12 +552,13 @@
       const payDate = document.getElementById('checkoutPayDate').value;
       runGas('submitSubscriptionRequest', [user.email, plan, txCode, payDate], () => {
         showLoader(false); document.getElementById('checkoutTxCode').value = ''; document.getElementById('checkoutPayDate').value = '';
-        alert("Payment proof submitted! Awaiting validation lookup.");
+        document.getElementById('checkoutFormAnchorCard').style.display='none';
+        alert("Payment data successfully routed to admin verification hub desk queue.");
       }, (err) => { showLoader(false); alert(err); });
     }
 
     function processAdminQueueAction(targetEmail, action) {
-      if(confirm(`Confirm subscription [${action}] for ${targetEmail}?`)) {
+      if(confirm(`Execute subscription [${action}] confirmation routine sequence for ${targetEmail}?`)) {
         showLoader(true);
         runGas('handlePlanRequestAction', [targetEmail, action], () => { fetchRenderWorkspace(); }, (err) => { showLoader(false); alert(err); });
       }
@@ -493,10 +587,10 @@
       }, (err) => { showLoader(false); alert(err); });
     }
 
-    function changePassword(e) { e.preventDefault(); showLoader(true); const user = JSON.parse(localStorage.getItem("dineshmc_session")); runGas('updatePassword', [user.email, document.getElementById('newPassword').value], () => { showLoader(false); document.getElementById('newPassword').value = ''; alert("Key updated."); }); }
-    function purgeLink(code) { if(confirm("Purge link configuration completely?")) { showLoader(true); const user = JSON.parse(localStorage.getItem("dineshmc_session")); runGas('deleteLink', [code, user.email, user.tier], () => { fetchRenderWorkspace(); }); } }
+    function changePassword(e) { e.preventDefault(); showLoader(true); const user = JSON.parse(localStorage.getItem("dineshmc_session")); runGas('updatePassword', [user.email, document.getElementById('newPassword').value], () => { showLoader(false); document.getElementById('newPassword').value = ''; alert("Secret access key token updated successfully."); }); }
+    function purgeLink(code) { if(confirm("Permanently erase link tracking path configuration parameters?")) { showLoader(true); const user = JSON.parse(localStorage.getItem("dineshmc_session")); runGas('deleteLink', [code, user.email, user.tier], () => { fetchRenderWorkspace(); }); } }
     function openQrModal(url) { document.getElementById('modalQrImg').src = url; new bootstrap.Modal(document.getElementById('qrModal')).show(); }
-    function copyAnonLink() { navigator.clipboard.writeText(document.getElementById('anonShortLink').href).then(() => alert("Copied.")); }
+    function copyAnonLink() { navigator.clipboard.writeText(document.getElementById('anonShortLink').href).then(() => alert("Shortened address asset string successfully sent to user clipboard buffer.")); }
     function logout() { localStorage.removeItem("dineshmc_session"); window.location.reload(); }
   </script>
 </body>
