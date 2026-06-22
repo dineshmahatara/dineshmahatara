@@ -79,7 +79,24 @@
       </div>
 
       <div id="adminApprovalQueueCard" class="card p-4 border-warning mb-4 d-none bg-white shadow-sm" style="border-left: 5px solid #ffc107;">
-        <h5 class="fw-bold text-dark mb-3"><i class="bi bi-shield-check text-warning me-2"></i>Pending Subscription Verification Queue</h5>
+        
+        <h5 class="fw-bold text-dark mb-2"><i class="bi bi-people-fill text-primary me-2"></i>System User Account Registry (CRUD Panel)</h5>
+        <p class="text-muted small mb-3">View active system profiles, purge accounts, or manually adjust their core subscription tiers on the fly.</p>
+        <div class="table-responsive mb-4 border rounded">
+          <table class="table table-hover align-middle mb-0 small">
+            <thead class="table-primary text-secondary">
+              <tr>
+                <th>User Email Address</th>
+                <th>Registration Date</th>
+                <th>Subscription Tier Vector</th>
+                <th class="text-center" style="width: 120px;">Actions Matrix</th>
+              </tr>
+            </thead>
+            <tbody id="adminUserManagementTableBody"></tbody>
+          </table>
+        </div>
+
+        <h5 class="fw-bold text-dark mb-3 border-top pt-3"><i class="bi bi-shield-check text-warning me-2"></i>Pending Subscription Verification Queue</h5>
         <div class="table-responsive mb-4">
           <table class="table align-middle">
             <thead><tr><th>Account Profile Email</th><th>Plan Target</th><th>Transaction Code Reference</th><th>Payment Settlement Date</th><th class="text-end">Actions Matrix Control</th></tr></thead>
@@ -88,7 +105,7 @@
         </div>
 
         <h5 class="fw-bold text-dark mb-2 border-top pt-3"><i class="bi bi-shield-fill-check text-success me-2"></i>Anti-Spam Domain Whitelist CRUD Panel</h5>
-        <p class="text-muted small">Manage whitelisted destination domain suffixes here. You can add individual domains or split them with commas (e.g. <code>google.com, apple.com</code>).</p>
+        <p class="text-muted small">Manage whitelisted destination domain suffixes here. Separate multiple domains with commas (e.g. <code>google.com, apple.com</code>).</p>
         
         <form onsubmit="addNewDomainToWhitelist(event)" class="row g-2 mb-3">
           <div class="col-md-8"><input type="text" id="whitelistInput" class="form-control form-control-sm" placeholder="Add domain rules (e.g., facebook.com, dineshmc.com.np)" required></div>
@@ -232,6 +249,34 @@
         document.getElementById('btnNextPage').disabled = (CURRENT_PAGE >= TOTAL_PAGES);
 
         if (user.tier === 'Admin') {
+          // USER MANAGEMENT CRUD: Dynamic Row Loader Component Engine
+          const uBody = document.getElementById('adminUserManagementTableBody');
+          uBody.innerHTML = !data.systemUsers || data.systemUsers.length === 0 ? '<tr><td colspan="4" class="text-center text-muted py-3">No system users discovered.</td></tr>' : '';
+          if(data.systemUsers) {
+            data.systemUsers.forEach((sysUser, index) => {
+              const isSelf = (sysUser.email === user.email);
+              uBody.innerHTML += `<tr>
+                <td class="fw-bold text-dark font-monospace">${sysUser.email} ${isSelf ? '<span class="badge bg-secondary p-1 ms-1">You</span>' : ''}</td>
+                <td class="text-secondary font-monospace">${sysUser.joined}</td>
+                <td>
+                  <select class="form-select form-select-sm font-monospace p-1" style="max-width:210px;" 
+                          onchange="modifyUserTierByAdmin('${sysUser.email}', this.value)" ${isSelf ? 'disabled' : ''}>
+                    <option value="Free" ${sysUser.tier === 'Free' ? 'selected' : ''}>Free</option>
+                    <option value="Premium (Monthly ($9/mo))" ${sysUser.tier.includes('Monthly') ? 'selected' : ''}>Premium (Monthly)</option>
+                    <option value="Premium (Yearly ($89/yr))" ${sysUser.tier.includes('Yearly') ? 'selected' : ''}>Premium (Yearly)</option>
+                    <option value="Admin" ${sysUser.tier === 'Admin' ? 'selected' : ''}>Admin</option>
+                  </select>
+                </td>
+                <td class="text-center">
+                  <button class="btn btn-xs btn-outline-danger py-0 px-2 small" 
+                          onclick="purgeUserAccountByAdmin('${sysUser.email}')" ${isSelf ? 'disabled' : ''}>
+                    <i class="bi bi-person-x-fill"></i> Purge
+                  </button>
+                </td>
+              </tr>`;
+            });
+          }
+
           // Render Payment Queue
           const qBody = document.getElementById('adminQueueTableBody');
           qBody.innerHTML = !data.pendingRequests || data.pendingRequests.length === 0 ? '<tr><td colspan="5" class="text-center text-muted small py-3">Verification desk queue is empty.</td></tr>' : '';
@@ -281,7 +326,6 @@
         feed.innerHTML = data.links.length === 0 ? '<div class="p-5 text-center bg-white border rounded-3 text-muted">No links on this viewport.</div>' : '';
         
         data.links.forEach((link) => {
-          // FIXED SANITIZATION PIPELINE: Cleans tracking parameters to neutralize "undefined" visual display errors
           const cleanStatusStr = (link.status && link.status !== 'undefined') ? link.status : 'Active';
           const statusBadge = cleanStatusStr === "Inactive" ? 'bg-danger' : 'bg-success';
           const toggleIcon = cleanStatusStr === "Inactive" ? 'bi-play-fill' : 'bi-pause-fill';
@@ -327,6 +371,26 @@
       });
     }
 
+    // USER MANAGEMENT CRUD: INLINE TIER SELECTION MUTATION UPDATE
+    function modifyUserTierByAdmin(targetUserEmail, selectedTier) {
+      showLoader(true);
+      const user = JSON.parse(localStorage.getItem("dineshmc_session"));
+      runGas('updateUserTierInline', [user.tier, targetUserEmail, selectedTier], () => {
+        fetchRenderWorkspace();
+      }, (err) => { showLoader(false); alert(err); });
+    }
+
+    // USER MANAGEMENT CRUD: ACCOUNT PURGE DELETE ACTION
+    function purgeUserAccountByAdmin(targetUserEmail) {
+      if (confirm(`CRITICAL WARNING: Are you sure you want to completely purge the user account "${targetUserEmail}" from the registry database?`)) {
+        showLoader(true);
+        const user = JSON.parse(localStorage.getItem("dineshmc_session"));
+        runGas('removeUserRecord', [user.tier, targetUserEmail], () => {
+          fetchRenderWorkspace();
+        }, (err) => { showLoader(false); alert(err); });
+      }
+    }
+
     function switchToDomainEditMode(index) {
       document.getElementById(`view-dom-${index}`).classList.add('d-none');
       document.getElementById(`actions-view-${index}`).classList.add('d-none');
@@ -334,6 +398,7 @@
       document.getElementById(`actions-edit-${index}`).classList.remove('d-none');
     }
 
+    // WHITELIST CONTROLS
     function cancelDomainInlineEdit(index) {
       document.getElementById(`view-dom-${index}`).classList.remove('d-none');
       document.getElementById(`actions-view-${index}`).classList.remove('d-none');
@@ -344,12 +409,9 @@
     function saveDomainInlineEdits(index, oldDomain) {
       const newDomain = document.getElementById(`edit-dom-input-${index}`).value;
       if (!newDomain) return alert("Domain rule string cannot be blank.");
-      
       showLoader(true);
       const user = JSON.parse(localStorage.getItem("dineshmc_session"));
-      runGas('updateWhitelistedDomain', [user.tier, oldDomain, newDomain], () => {
-        fetchRenderWorkspace();
-      }, (err) => { showLoader(false); alert(err); });
+      runGas('updateWhitelistedDomain', [user.tier, oldDomain, newDomain], () => { fetchRenderWorkspace(); }, (err) => { showLoader(false); alert(err); });
     }
 
     function addNewDomainToWhitelist(event) {
@@ -357,10 +419,7 @@
       showLoader(true);
       const user = JSON.parse(localStorage.getItem("dineshmc_session"));
       const domainValue = document.getElementById('whitelistInput').value;
-      runGas('addWhitelistedDomain', [user.tier, domainValue], () => {
-        document.getElementById('whitelistInput').value = '';
-        fetchRenderWorkspace();
-      }, (err) => { showLoader(false); alert(err); });
+      runGas('addWhitelistedDomain', [user.tier, domainValue], () => { document.getElementById('whitelistInput').value = ''; fetchRenderWorkspace(); }, (err) => { showLoader(false); alert(err); });
     }
 
     function deleteDomainFromWhitelist(domain) {
@@ -380,21 +439,16 @@
       const newShortCode = document.getElementById(`input-edit-short-${oldShortCode}`).value;
       const newLongUrl = document.getElementById(`input-edit-long-${oldShortCode}`).value;
       if(!newShortCode || !newLongUrl) return alert("Values cannot be blank.");
-      
       showLoader(true);
       const user = JSON.parse(localStorage.getItem("dineshmc_session"));
-      runGas('updateLinkDetails', [oldShortCode, newShortCode, newLongUrl, currentStatus, user.email, user.tier], () => {
-        fetchRenderWorkspace();
-      }, (err) => { showLoader(false); alert(err); });
+      runGas('updateLinkDetails', [oldShortCode, newShortCode, newLongUrl, currentStatus, user.email, user.tier], () => { fetchRenderWorkspace(); }, (err) => { showLoader(false); alert(err); });
     }
 
     function toggleLinkStatus(code, longUrl, currentStatus) {
       const nextStatus = currentStatus === "Inactive" ? "Active" : "Inactive";
       showLoader(true);
       const user = JSON.parse(localStorage.getItem("dineshmc_session"));
-      runGas('updateLinkDetails', [code, code, longUrl, nextStatus, user.email, user.tier], () => {
-        fetchRenderWorkspace();
-      }, (err) => { showLoader(false); alert(err); });
+      runGas('updateLinkDetails', [code, code, longUrl, nextStatus, user.email, user.tier], () => { fetchRenderWorkspace(); }, (err) => { showLoader(false); alert(err); });
     }
 
     function submitCheckoutDetails(e) {
