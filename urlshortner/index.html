@@ -175,18 +175,21 @@
 
       <div class="content-body">
         <div id="view-auth" class="app-view mx-auto" style="max-width: 420px; margin-top: 4rem;">
-          <div class="glass-card text-center py-5">
+          <div class="glass-card text-center shadow-lg border-primary">
             <div class="bg-primary bg-opacity-10 text-primary p-3 rounded-circle d-inline-block mb-3 fs-2">
               <i class="bi bi-shield-lock-fill"></i>
             </div>
-            <h3 class="fw-bold mb-2">System Access Gateway</h3>
-            <p class="text-muted small mb-4">Authenticate using your Google identity account to access backend pipelines.</p>
+            <h3 class="fw-bold mb-2">System Console Access</h3>
+            <p class="text-muted small mb-4">Please log in using your authorized Gmail account to verify credentials parameters.</p>
             
-            <div class="d-flex justify-content-center my-4">
-              <div id="googleIdentityButtonFrame"></div>
+            <div class="d-flex justify-content-center py-2 my-1">
+              <div id="googleIdentityServicesButtonAnchorDiv"></div>
             </div>
             
-            <p class="text-muted small m-0 px-3">By continuous operation, you accept system network routing parameters.</p>
+            <div class="mt-4 border-top pt-3 text-start">
+              <span class="text-muted text-uppercase tracking-wider fw-bold d-block mb-1" style="font-size:0.65rem;">System Notice</span>
+              <p class="m-0 text-muted small" style="font-size:0.75rem; line-height:1.3;">Access logs are kept transparently inside the analytics data sheet database matrix dynamically.</p>
+            </div>
           </div>
         </div>
 
@@ -285,46 +288,6 @@
             <div class="d-flex flex-wrap align-items-center justify-content-between mt-3 gap-2">
               <div class="text-muted small" id="paginationStatusSummary">Calculating pipeline coordinates...</div>
               <nav><ul class="pagination pagination-sm m-0" id="paginationUINodeController"></ul></nav>
-            </div>
-          </div>
-
-          <div id="linkAnalyticsWorkspaceSection" class="glass-card mt-4 border border-info bg-opacity-10 d-none">
-            <div class="d-flex align-items-center justify-content-between border-bottom border-secondary pb-3 mb-3">
-              <div>
-                <span class="badge bg-info text-dark mb-1">Telemetry Monitor Desk</span>
-                <h5 class="fw-bold m-0 text-white">Metrics Audit Logs Grid: <span id="analyticsInspectionActiveCode" class="text-primary font-monospace"></span></h5>
-              </div>
-              <button class="btn btn-sm btn-outline-secondary" onclick="closeAnalyticsInspectionWorkspace()"><i class="bi bi-x-circle"></i> Dismiss Desk</button>
-            </div>
-
-            <div class="row g-3 mb-3">
-              <div class="col-md-4">
-                <div class="p-3 border border-secondary rounded-3 bg-body-tertiary">
-                  <h6 class="text-muted small text-uppercase fw-bold m-0">Total Tracked Impressions</h6>
-                  <h2 class="fw-bold m-0 mt-1 text-primary" id="analyticsCounterTotalImpressions">0</h2>
-                </div>
-              </div>
-              <div class="col-md-8">
-                <div class="p-3 border border-secondary rounded-3 bg-body-tertiary h-100 d-flex align-items-center justify-content-center text-center">
-                  <span class="text-muted small"><i class="bi bi-info-circle me-1"></i> Data processing maps streaming signals from server relational analytics log tabs cleanly.</span>
-                </div>
-              </div>
-            </div>
-
-            <div class="table-responsive-wrapper" style="max-height: 250px; overflow-y: auto;">
-              <table class="table table-custom align-middle m-0" style="font-size: 0.85rem;">
-                <thead>
-                  <tr>
-                    <th>Signal Hit Timestamp</th>
-                    <th>Identity Route Client Session</th>
-                    <th>Tracking UserAgent Profile Map</th>
-                    <th>Target Access Referral Vector</th>
-                  </tr>
-                </thead>
-                <tbody id="analyticsLogTableBodyPayload">
-                  <tr><td colspan="4" class="text-center py-3 text-muted">Initialize data log stream array vectors...</td></tr>
-                </tbody>
-              </table>
             </div>
           </div>
         </div>
@@ -449,8 +412,12 @@
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 
   <script>
-    const BACKEND_GATEWAY_URL = "https://script.google.com/macros/s/AKfycbyaXwDuoXYr8LkPiClvFbwbs_Oar0k-2ssIxcJxQVXi2oyxX1JweV0iv6G_tCNa0DHf/exec";
+    const BACKEND_GATEWAY_URL = "https://script.google.com/macros/s/AKfycbwnjkWwJm-u6dufwCJ5mApY2CniO41gZe8dv4jCD6v9GkK9Ovw_uMLT5HVlaXlc5SpV/exec";
     const ENGINE_REDIRECT_BASE = "https://www.dineshmc.com.np/urlshortner/";
+    
+    // CRITICAL STEPS: Generate a Google OAuth Client ID inside Google Cloud Console 
+    // and add your dynamic dashboard URL into the Whitelisted Redirect JavaScript Origins array.
+    const GOOGLE_CLIENT_OAUTH_ID = "109867543210-sampleappsapps1234abcd.apps.googleusercontent.com";
 
     let sessionStateToken = JSON.parse(localStorage.getItem('shortener_session')) || null;
     let localCacheStore = { links: [], systemAds: [], whitelistedDomains: [], systemUsers: [], pagination: {} };
@@ -466,54 +433,8 @@
       qrModalEngineRef = new bootstrap.Modal(document.getElementById('qrPresentationModal'));
       initializeThemeModuleEngine();
       configureGlobalEventBridges();
-      
-      // Initialize Google Client Components directly on Dom load
-      initializeGoogleIdentityServicesClient();
-      
       evaluateGlobalAccessState();
     });
-
-    function initializeGoogleIdentityServicesClient() {
-      if (typeof google === 'undefined') return;
-      
-      google.accounts.id.initialize({
-        // REPLACE WITH YOUR GOOGLE DEVELOPER CONSOLE CLIENT ID STRING KEY VALUE
-        client_id: "871247639084-dr5rtlm185hh2qs5n3s7kl1msh4e8lvi.apps.googleusercontent.com",
-        callback: handleGoogleIdentityTokenResponsePayload
-      });
-      
-      google.accounts.id.renderButton(
-        document.getElementById("googleIdentityButtonFrame"),
-        { theme: "dark", size: "large", type: "standard", shape: "pill", width: "320" }
-      );
-    }
-
-    function handleGoogleIdentityTokenResponsePayload(response) {
-      try {
-        const base64UrlPayload = response.credential.split('.')[1];
-        const base64Data = base64UrlPayload.replace(/-/g, '+').replace(/_/g, '/');
-        const cleanJsonPayload = decodeURIComponent(window.atob(base64Data).split('').map(function(c) {
-            return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
-        }).join(''));
-
-        const decodedTokenDetails = JSON.parse(cleanJsonPayload);
-        const targetVerifiedEmail = decodedTokenDetails.email;
-        const targetGoogleId = decodedTokenDetails.sub;
-
-        if(!targetVerifiedEmail) return alert("Security Identity Handshake Protocol Violation: Parsing faulted.");
-
-        // Deliver payload tokens to verifyOrCreateGoogleUser endpoint matching updated backend infrastructure
-        executeRemoteGatewayCall("verifyOrCreateGoogleUser", [targetVerifiedEmail, targetGoogleId], (profileDataPayload) => {
-          if(profileDataPayload && profileDataPayload.email) {
-            sessionStateToken = profileDataPayload;
-            localStorage.setItem('shortener_session', JSON.stringify(sessionStateToken));
-            evaluateGlobalAccessState();
-          }
-        });
-      } catch(err) {
-        alert("OAuth token verification parse configuration failure.");
-      }
-    }
 
     function initializeThemeModuleEngine() {
       const targetCachedThemePreference = localStorage.getItem('system_theme_mode') || 'system';
@@ -579,6 +500,7 @@
         document.getElementById('sidebar').classList.add('collapsed');
         document.getElementById('toggleSidebar').classList.add('d-none');
         navigateSubWorkspaceView('view-auth');
+        initializeGoogleAuthPromptMarkup();
       } else {
         document.getElementById('sidebar').classList.remove('collapsed');
         document.getElementById('toggleSidebar').classList.remove('d-none');
@@ -589,6 +511,52 @@
         }
         navigateSubWorkspaceView('view-dashboard');
         syncDashboardRemotePipelineData();
+      }
+    }
+
+    /**
+     * Spawns explicit Google Identity wrapper elements onto the placeholder element layout
+     */
+    function initializeGoogleAuthPromptMarkup() {
+      try {
+        google.accounts.id.initialize({
+          client_id: "871247639084-9n1edofm755gm1pgf4h2eeb1g5ckgauv.apps.googleusercontent.com",
+          callback: handleGoogleIdentityTokenResponsePayload
+        });
+        google.accounts.id.renderButton(
+          document.getElementById("googleIdentityServicesButtonAnchorDiv"),
+          { theme: "filled_blue", size: "large", text: "signin_with", shape: "pill" }
+        );
+      } catch(err) {
+        console.error("Identity Engine loading timeout exception.", err);
+      }
+    }
+
+    /**
+     * Decodes individual JWT token packets safely on client runtime execution mappings
+     */
+    function handleGoogleIdentityTokenResponsePayload(response) {
+      try {
+        const base64Url = response.credential.split('.')[1];
+        const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+        const jsonPayload = decodeURIComponent(window.atob(base64).split('').map(function(c) {
+          return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+        }).join(''));
+
+        const parsedProfile = JSON.parse(jsonPayload);
+        const userEmail = parsedProfile.email;
+        const googleId = parsedProfile.sub;
+
+        // Route arguments right into the matching Apps Script backend controller
+        executeRemoteGatewayCall("verifyOrCreateGoogleUser", [userEmail, googleId], (profileDataPayload) => {
+          if(profileDataPayload && profileDataPayload.email) {
+            sessionStateToken = profileDataPayload;
+            localStorage.setItem('shortener_session', JSON.stringify(sessionStateToken));
+            evaluateGlobalAccessState();
+          }
+        });
+      } catch(e) {
+        alert("Payload verification error: " + e.toString());
       }
     }
 
@@ -694,11 +662,6 @@
             </td>
             <td><span class="badge ${isPaused ? 'bg-danger text-danger bg-opacity-10' : 'bg-success text-success bg-opacity-10'}">${linkObj.status}</span></td>
             <td class="text-end text-nowrap">
-              ${sessionStateToken.tier === 'Admin' ? `
-                <button class="btn btn-sm btn-outline-info me-1" onclick="openLinkAnalyticsInspectionWorkspace('${linkObj.shortCode}')" title="Inspect Link Telemetry Metrics">
-                  <i class="bi bi-bar-chart-line-fill"></i>
-                </button>
-              ` : ''}
               <button class="btn btn-sm btn-outline-warning me-1" onclick="openEditLinkModalWindow('${linkObj.shortCode}', '${encodeURIComponent(linkObj.longUrl)}', '${linkObj.status}')">
                 <i class="bi bi-pencil-square"></i>
               </button>
@@ -739,53 +702,7 @@
       syncDashboardRemotePipelineData();
     }
 
-    // TELEMETRY LOG INTERACTION METHODS FOR LINK-BY-LINK METRICS
-    function openLinkAnalyticsInspectionWorkspace(shortCodeKey) {
-      const container = document.getElementById('linkAnalyticsWorkspaceSection');
-      const labelCode = document.getElementById('analyticsInspectionActiveCode');
-      const bodyLog = document.getElementById('analyticsLogTableBodyPayload');
-      const impressionCounter = document.getElementById('analyticsCounterTotalImpressions');
-
-      labelCode.innerText = `/${shortCodeKey}`;
-      bodyLog.innerHTML = `<tr><td colspan="4" class="text-center py-3 text-warning"><div class="spinner-border spinner-border-sm me-2"></div>Syncing link telemetry files...</td></tr>`;
-      impressionCounter.innerText = "...";
-      container.classList.remove('d-none');
-
-      executeRemoteGatewayCall("getLinkAnalyticsSummary", [sessionStateToken.tier, shortCodeKey], (analyticsRecordsPool) => {
-        if (!analyticsRecordsPool || analyticsRecordsPool.error) {
-          bodyLog.innerHTML = `<tr><td colspan="4" class="text-center text-danger py-3">Error compiling analysis metadata vectors securely.</td></tr>`;
-          return;
-        }
-
-        impressionCounter.innerText = analyticsRecordsPool.length || 0;
-        bodyLog.innerHTML = "";
-
-        if (analyticsRecordsPool.length === 0) {
-          bodyLog.innerHTML = `<tr><td colspan="4" class="text-center py-3 text-muted">No impression signals received for this specific route vector instance.</td></tr>`;
-          return;
-        }
-
-        analyticsRecordsPool.forEach(record => {
-          let formattedDate = record.timestamp;
-          try { formattedDate = new Date(record.timestamp).toLocaleString(); } catch(e){}
-          
-          bodyLog.innerHTML += `
-            <tr>
-              <td><span class="text-success font-monospace small">${formattedDate}</span></td>
-              <td><code class="text-white">${record.ip || 'Session Connected'}</code></td>
-              <td><div class="text-truncate text-muted" style="max-width:240px;" title="${record.userAgent}">${record.userAgent || 'Web View Tracker'}</div></td>
-              <td><div class="text-truncate text-muted" style="max-width:180px;" title="${record.referrer || 'Direct Path'}">${record.referrer || '<span class="text-secondary small">Direct/Organic</span>'}</div></td>
-            </tr>
-          `;
-        });
-      });
-    }
-
-    function closeAnalyticsInspectionWorkspace() {
-      document.getElementById('linkAnalyticsWorkspaceSection').add('d-none');
-    }
-
-    // ADVANCED FIREWALL REGISTRY (MUTATION, SORT, PAGINATION)
+    // ADVANCED FIREWALL REGISTRY
     function compileAdminSecurityFirewallUIList() {
       const listContainerNode = document.getElementById('whitelistOutputListBody');
       listContainerNode.innerHTML = "";
@@ -856,7 +773,6 @@
       compileAdminSecurityFirewallUIList();
     }
 
-    // SHARING HANDLERS & UTIL ENGINE MATRIX
     function executeClipboardCopyRoutine(textToCopy, htmlElementButtonNode) {
       navigator.clipboard.writeText(textToCopy).then(() => {
         const structuralOriginalHTMLContentBackup = htmlElementButtonNode.innerHTML;
@@ -982,7 +898,7 @@
       
       formInputFieldsBodyContainer.innerHTML = `
         <div class="mb-3">
-          <label class="form-label small fw-bold">Configured Allowed Domain</label>
+          <label class="form-label small fw-bold">Allowed Domain</label>
           <input type="text" id="modalFieldDomainName" class="form-control" value="${oldDomainString}">
         </div>
       `;
@@ -1009,9 +925,9 @@
         <div class="mb-3">
           <label class="form-label small fw-bold">Allocated Account Subscription Matrix</label>
           <select id="modalFieldUserTier" class="form-select">
-            <option value="Free" ${currentAssignedTier === 'Free' ? 'selected' : ''}>Free Accountability Node</option>
-            <option value="Premium" ${currentAssignedTier === 'Premium' ? 'selected' : ''}>Premium Accountability Node</option>
-            <option value="Admin" ${currentAssignedTier === 'Admin' ? 'selected' : ''}>Full System Administrator Clearance</option>
+            <option value="Free" ${currentAssignedTier === 'Free' ? 'selected' : ''}>Free</option>
+            <option value="Premium" ${currentAssignedTier === 'Premium' ? 'selected' : ''}>Premium</option>
+            <option value="Admin" ${currentAssignedTier === 'Admin' ? 'selected' : ''}>Admin</option>
           </select>
         </div>
       `;
@@ -1082,7 +998,7 @@
     function processInsertAdUnitRequestAction() {
       const target = document.getElementById('adRedirectLink').value;
       const img = document.getElementById('adGraphicLink').value;
-      if(!target || !img) return alert("Verify redirect marketing URLs and configurations exist.");
+      if(!target || !img) return alert("Verify redirect marketing URLs exist.");
 
       executeRemoteGatewayCall("createNewAdRecord", [sessionStateToken.tier, target, img], () => {
         document.getElementById('adRedirectLink').value = "";
