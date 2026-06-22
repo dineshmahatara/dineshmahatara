@@ -4,10 +4,9 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>URL Shortener & Security Firewall Dashboard</title>
-  <!-- Bootstrap 5 CSS -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-  <!-- Bootstrap Icons -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.2/font/bootstrap-icons.css" rel="stylesheet">
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
   <style>
     [data-bs-theme="dark"] {
       --bg-primary: #0a0e1a;
@@ -139,7 +138,6 @@
 <body>
 
   <div class="app-container">
-    <!-- SIDEBAR NAVIGATION MODULE -->
     <aside id="sidebar">
       <div class="sidebar-header d-flex align-items-center justify-content-between">
         <h4 class="m-0 fw-bold text-primary"><i class="bi bi-bezier2 me-2"></i>LinkEngine</h4>
@@ -157,7 +155,6 @@
     </aside>
 
     <main id="main-content">
-      <!-- TOP CONTROL NAVIGATION BAR -->
       <header class="top-navbar d-flex align-items-center justify-content-between">
         <button class="btn btn-outline-secondary" id="toggleSidebar"><i class="bi bi-list"></i></button>
         
@@ -177,18 +174,22 @@
       </header>
 
       <div class="content-body">
-        <!-- AUTH INTERFACE MODULE -->
-        <div id="view-auth" class="app-view mx-auto" style="max-width: 400px; margin-top: 4rem;">
-          <div class="glass-card text-center">
-            <h3 class="fw-bold mb-4" id="authInterfaceTitle">Account Login</h3>
-            <div class="mb-3"><input type="email" id="inputAuthEmail" class="form-control" placeholder="Email identity"></div>
-            <div class="mb-4"><input type="password" id="inputAuthPassword" class="form-control" placeholder="Password security key"></div>
-            <button class="btn btn-primary w-100 fw-bold mb-3 py-2" id="triggerAuthAction">Authenticate</button>
-            <p class="text-muted small m-0" id="toggleAuthLayout">New operator? <a href="#" id="linkToggleFormMode" class="text-primary text-decoration-none">Create Credentials</a></p>
+        <div id="view-auth" class="app-view mx-auto" style="max-width: 420px; margin-top: 4rem;">
+          <div class="glass-card text-center py-5">
+            <div class="bg-primary bg-opacity-10 text-primary p-3 rounded-circle d-inline-block mb-3 fs-2">
+              <i class="bi bi-shield-lock-fill"></i>
+            </div>
+            <h3 class="fw-bold mb-2">System Access Gateway</h3>
+            <p class="text-muted small mb-4">Authenticate using your Google identity account to access backend pipelines.</p>
+            
+            <div class="d-flex justify-content-center my-4">
+              <div id="googleIdentityButtonFrame"></div>
+            </div>
+            
+            <p class="text-muted small m-0 px-3">By continuous operation, you accept system network routing parameters.</p>
           </div>
         </div>
 
-        <!-- DASHBOARD ANALYTICS CORE -->
         <div id="view-dashboard" class="app-view d-none">
           <div class="row g-3 mb-4">
             <div class="col-md-4">
@@ -211,7 +212,6 @@
             </div>
           </div>
 
-          <!-- LINKS CREATION REGISTRY WITH LIVE OUTPUT SUCCESS DRAWER -->
           <div class="glass-card">
             <h5 class="fw-bold mb-3"><i class="bi bi-plus-circle-fill text-primary me-2"></i>Generate Dynamic Redirection Endpoint</h5>
             <div class="row g-3">
@@ -220,7 +220,6 @@
               <div class="col-md-2"><button class="btn btn-primary w-100 fw-bold" id="actionSaveLink">Deploy Path</button></div>
             </div>
 
-            <!-- ASYNC OUTPUT SHARING UTILITY DESK -->
             <div id="generationSuccessDesk" class="mt-4 p-3 border rounded-3 bg-body-tertiary d-none">
               <div class="d-flex flex-wrap align-items-center justify-content-between gap-3">
                 <div>
@@ -233,7 +232,6 @@
           </div>
         </div>
 
-        <!-- ADVANCED LINKS REGISTRY DATAGRID -->
         <div id="view-links" class="app-view d-none">
           <div class="glass-card">
             <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-4">
@@ -244,7 +242,6 @@
               </div>
             </div>
 
-            <!-- FILTERS MATRIX PANEL -->
             <div class="row g-3 mb-3">
               <div class="col-md-4"><input type="text" id="searchFilterBox" class="form-control" placeholder="Filter by slug or target..."></div>
               <div class="col-md-3">
@@ -290,9 +287,48 @@
               <nav><ul class="pagination pagination-sm m-0" id="paginationUINodeController"></ul></nav>
             </div>
           </div>
+
+          <div id="linkAnalyticsWorkspaceSection" class="glass-card mt-4 border border-info bg-opacity-10 d-none">
+            <div class="d-flex align-items-center justify-content-between border-bottom border-secondary pb-3 mb-3">
+              <div>
+                <span class="badge bg-info text-dark mb-1">Telemetry Monitor Desk</span>
+                <h5 class="fw-bold m-0 text-white">Metrics Audit Logs Grid: <span id="analyticsInspectionActiveCode" class="text-primary font-monospace"></span></h5>
+              </div>
+              <button class="btn btn-sm btn-outline-secondary" onclick="closeAnalyticsInspectionWorkspace()"><i class="bi bi-x-circle"></i> Dismiss Desk</button>
+            </div>
+
+            <div class="row g-3 mb-3">
+              <div class="col-md-4">
+                <div class="p-3 border border-secondary rounded-3 bg-body-tertiary">
+                  <h6 class="text-muted small text-uppercase fw-bold m-0">Total Tracked Impressions</h6>
+                  <h2 class="fw-bold m-0 mt-1 text-primary" id="analyticsCounterTotalImpressions">0</h2>
+                </div>
+              </div>
+              <div class="col-md-8">
+                <div class="p-3 border border-secondary rounded-3 bg-body-tertiary h-100 d-flex align-items-center justify-content-center text-center">
+                  <span class="text-muted small"><i class="bi bi-info-circle me-1"></i> Data processing maps streaming signals from server relational analytics log tabs cleanly.</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="table-responsive-wrapper" style="max-height: 250px; overflow-y: auto;">
+              <table class="table table-custom align-middle m-0" style="font-size: 0.85rem;">
+                <thead>
+                  <tr>
+                    <th>Signal Hit Timestamp</th>
+                    <th>Identity Route Client Session</th>
+                    <th>Tracking UserAgent Profile Map</th>
+                    <th>Target Access Referral Vector</th>
+                  </tr>
+                </thead>
+                <tbody id="analyticsLogTableBodyPayload">
+                  <tr><td colspan="4" class="text-center py-3 text-muted">Initialize data log stream array vectors...</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
         </div>
 
-        <!-- ADVERTISING MATRIX CONTROL PANEL -->
         <div id="view-ads" class="app-view d-none">
           <div class="glass-card">
             <h5 class="fw-bold mb-3">Interstitial Ad Network Inventory</h5>
@@ -318,7 +354,6 @@
           </div>
         </div>
 
-        <!-- WHITELIST SECURITY INLINE FIREWALL MODULE -->
         <div id="view-whitelist" class="app-view d-none">
           <div class="glass-card">
             <h5 class="fw-bold mb-3">Gateway Security Allowed Whitelist</h5>
@@ -327,7 +362,6 @@
               <button class="btn btn-primary fw-bold" id="actionAddDomains">Commit Security Entry</button>
             </div>
 
-            <!-- FIREWALL DATA MANAGEMENT TOOLBAR -->
             <div class="row g-3 mb-3">
               <div class="col-md-5">
                 <input type="text" id="domainSearchFilterBox" class="form-control" placeholder="Search whitelisted domains...">
@@ -356,7 +390,6 @@
           </div>
         </div>
 
-        <!-- GLOBAL USER OPERATIONS GRID -->
         <div id="view-users" class="app-view d-none">
           <div class="glass-card">
             <h5 class="fw-bold mb-3">Platform User Matrix Rows</h5>
@@ -380,7 +413,6 @@
     </main>
   </div>
 
-  <!-- COMPACT MODAL WRAPPER STRUCTURE FOR ALL GLOBAL CRUD OPERATIONS -->
   <div class="modal fade" id="globalCrudUpdateModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
       <div class="modal-content">
@@ -397,7 +429,6 @@
     </div>
   </div>
 
-  <!-- dedicated QR CODE PRESENTATION MODAL SCREEN -->
   <div class="modal fade" id="qrPresentationModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-sm modal-dialog-centered">
       <div class="modal-content text-center">
@@ -415,20 +446,15 @@
     </div>
   </div>
 
-  <!-- BOOTSTRAP BUNDLE JS -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 
-  <!-- REACTIONARY DATA UTILITIES SCRIPT MODULE -->
   <script>
     const BACKEND_GATEWAY_URL = "https://script.google.com/macros/s/AKfycbwnjkWwJm-u6dufwCJ5mApY2CniO41gZe8dv4jCD6v9GkK9Ovw_uMLT5HVlaXlc5SpV/exec";
-    // Custom domain redirection target matrix path matching user assignment requirement parameters
     const ENGINE_REDIRECT_BASE = "https://www.dineshmc.com.np/urlshortner/";
 
     let sessionStateToken = JSON.parse(localStorage.getItem('shortener_session')) || null;
     let localCacheStore = { links: [], systemAds: [], whitelistedDomains: [], systemUsers: [], pagination: {} };
-    let registrationFlowMode = false;
     
-    // Independent pagination pointer tracking configurations
     let activeNavigationGridPage = 1;
     let activeDomainGridPage = 1;
 
@@ -440,8 +466,54 @@
       qrModalEngineRef = new bootstrap.Modal(document.getElementById('qrPresentationModal'));
       initializeThemeModuleEngine();
       configureGlobalEventBridges();
+      
+      // Initialize Google Client Components directly on Dom load
+      initializeGoogleIdentityServicesClient();
+      
       evaluateGlobalAccessState();
     });
+
+    function initializeGoogleIdentityServicesClient() {
+      if (typeof google === 'undefined') return;
+      
+      google.accounts.id.initialize({
+        // REPLACE WITH YOUR GOOGLE DEVELOPER CONSOLE CLIENT ID STRING KEY VALUE
+        client_id: "871247639084-9n1edofm755gm1pgf4h2eeb1g5ckgauv.apps.googleusercontent.com",
+        callback: handleGoogleIdentityTokenResponsePayload
+      });
+      
+      google.accounts.id.renderButton(
+        document.getElementById("googleIdentityButtonFrame"),
+        { theme: "dark", size: "large", type: "standard", shape: "pill", width: "320" }
+      );
+    }
+
+    function handleGoogleIdentityTokenResponsePayload(response) {
+      try {
+        const base64UrlPayload = response.credential.split('.')[1];
+        const base64Data = base64UrlPayload.replace(/-/g, '+').replace(/_/g, '/');
+        const cleanJsonPayload = decodeURIComponent(window.atob(base64Data).split('').map(function(c) {
+            return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+        }).join(''));
+
+        const decodedTokenDetails = JSON.parse(cleanJsonPayload);
+        const targetVerifiedEmail = decodedTokenDetails.email;
+        const targetGoogleId = decodedTokenDetails.sub;
+
+        if(!targetVerifiedEmail) return alert("Security Identity Handshake Protocol Violation: Parsing faulted.");
+
+        // Deliver payload tokens to verifyOrCreateGoogleUser endpoint matching updated backend infrastructure
+        executeRemoteGatewayCall("verifyOrCreateGoogleUser", [targetVerifiedEmail, targetGoogleId], (profileDataPayload) => {
+          if(profileDataPayload && profileDataPayload.email) {
+            sessionStateToken = profileDataPayload;
+            localStorage.setItem('shortener_session', JSON.stringify(sessionStateToken));
+            evaluateGlobalAccessState();
+          }
+        });
+      } catch(err) {
+        alert("OAuth token verification parse configuration failure.");
+      }
+    }
 
     function initializeThemeModuleEngine() {
       const targetCachedThemePreference = localStorage.getItem('system_theme_mode') || 'system';
@@ -485,17 +557,6 @@
         });
       });
 
-      document.getElementById('linkToggleFormMode').addEventListener('click', (e) => {
-        e.preventDefault();
-        registrationFlowMode = !registrationFlowMode;
-        document.getElementById('authInterfaceTitle').innerText = registrationFlowMode ? "Create Access Account" : "Account Login";
-        document.getElementById('toggleAuthLayout').innerHTML = registrationFlowMode ? 
-          `Registered? <a href="#" id="linkToggleFormMode" class="text-primary text-decoration-none">Log In</a>` : 
-          `New? <a href="#" id="linkToggleFormMode" class="text-primary text-decoration-none">Create Credentials</a>`;
-        configureGlobalEventBridges();
-      });
-
-      document.getElementById('triggerAuthAction').addEventListener('click', processAuthFormSubmission);
       document.getElementById('action-logout').addEventListener('click', executeTerminalSignOutSequence);
       document.getElementById('actionSaveLink').addEventListener('click', processDeployLinkRequestAction);
       document.getElementById('actionCreateAd').addEventListener('click', processInsertAdUnitRequestAction);
@@ -557,21 +618,6 @@
       backgroundDOMScriptLoadingTag.id = synchronousUniqueTokenId;
       backgroundDOMScriptLoadingTag.src = BACKEND_GATEWAY_URL + structuredQueryParametersString;
       document.body.appendChild(backgroundDOMScriptLoadingTag);
-    }
-
-    function processAuthFormSubmission() {
-      const accountEmail = document.getElementById('inputAuthEmail').value;
-      const accountPassKey = document.getElementById('inputAuthPassword').value;
-      if(!accountEmail || !accountPassKey) return alert("Verify input credentials parameters completely.");
-      
-      const mappedGatewayFunctionName = registrationFlowMode ? "registerUser" : "loginUser";
-      executeRemoteGatewayCall(mappedGatewayFunctionName, [accountEmail, accountPassKey], (profileDataPayload) => {
-        if(profileDataPayload && profileDataPayload.email) {
-          sessionStateToken = profileDataPayload;
-          localStorage.setItem('shortener_session', JSON.stringify(sessionStateToken));
-          evaluateGlobalAccessState();
-        }
-      });
     }
 
     function executeTerminalSignOutSequence() {
@@ -648,6 +694,11 @@
             </td>
             <td><span class="badge ${isPaused ? 'bg-danger text-danger bg-opacity-10' : 'bg-success text-success bg-opacity-10'}">${linkObj.status}</span></td>
             <td class="text-end text-nowrap">
+              ${sessionStateToken.tier === 'Admin' ? `
+                <button class="btn btn-sm btn-outline-info me-1" onclick="openLinkAnalyticsInspectionWorkspace('${linkObj.shortCode}')" title="Inspect Link Telemetry Metrics">
+                  <i class="bi bi-bar-chart-line-fill"></i>
+                </button>
+              ` : ''}
               <button class="btn btn-sm btn-outline-warning me-1" onclick="openEditLinkModalWindow('${linkObj.shortCode}', '${encodeURIComponent(linkObj.longUrl)}', '${linkObj.status}')">
                 <i class="bi bi-pencil-square"></i>
               </button>
@@ -688,6 +739,52 @@
       syncDashboardRemotePipelineData();
     }
 
+    // TELEMETRY LOG INTERACTION METHODS FOR LINK-BY-LINK METRICS
+    function openLinkAnalyticsInspectionWorkspace(shortCodeKey) {
+      const container = document.getElementById('linkAnalyticsWorkspaceSection');
+      const labelCode = document.getElementById('analyticsInspectionActiveCode');
+      const bodyLog = document.getElementById('analyticsLogTableBodyPayload');
+      const impressionCounter = document.getElementById('analyticsCounterTotalImpressions');
+
+      labelCode.innerText = `/${shortCodeKey}`;
+      bodyLog.innerHTML = `<tr><td colspan="4" class="text-center py-3 text-warning"><div class="spinner-border spinner-border-sm me-2"></div>Syncing link telemetry files...</td></tr>`;
+      impressionCounter.innerText = "...";
+      container.classList.remove('d-none');
+
+      executeRemoteGatewayCall("getLinkAnalyticsSummary", [sessionStateToken.tier, shortCodeKey], (analyticsRecordsPool) => {
+        if (!analyticsRecordsPool || analyticsRecordsPool.error) {
+          bodyLog.innerHTML = `<tr><td colspan="4" class="text-center text-danger py-3">Error compiling analysis metadata vectors securely.</td></tr>`;
+          return;
+        }
+
+        impressionCounter.innerText = analyticsRecordsPool.length || 0;
+        bodyLog.innerHTML = "";
+
+        if (analyticsRecordsPool.length === 0) {
+          bodyLog.innerHTML = `<tr><td colspan="4" class="text-center py-3 text-muted">No impression signals received for this specific route vector instance.</td></tr>`;
+          return;
+        }
+
+        analyticsRecordsPool.forEach(record => {
+          let formattedDate = record.timestamp;
+          try { formattedDate = new Date(record.timestamp).toLocaleString(); } catch(e){}
+          
+          bodyLog.innerHTML += `
+            <tr>
+              <td><span class="text-success font-monospace small">${formattedDate}</span></td>
+              <td><code class="text-white">${record.ip || 'Session Connected'}</code></td>
+              <td><div class="text-truncate text-muted" style="max-width:240px;" title="${record.userAgent}">${record.userAgent || 'Web View Tracker'}</div></td>
+              <td><div class="text-truncate text-muted" style="max-width:180px;" title="${record.referrer || 'Direct Path'}">${record.referrer || '<span class="text-secondary small">Direct/Organic</span>'}</div></td>
+            </tr>
+          `;
+        });
+      });
+    }
+
+    function closeAnalyticsInspectionWorkspace() {
+      document.getElementById('linkAnalyticsWorkspaceSection').add('d-none');
+    }
+
     // ADVANCED FIREWALL REGISTRY (MUTATION, SORT, PAGINATION)
     function compileAdminSecurityFirewallUIList() {
       const listContainerNode = document.getElementById('whitelistOutputListBody');
@@ -699,19 +796,16 @@
 
       let domainsPool = [...(localCacheStore.whitelistedDomains || [])];
 
-      // Filtering logic
       if(searchInput) {
         domainsPool = domainsPool.filter(domain => domain.toLowerCase().includes(searchInput));
       }
 
-      // Sorting logic
       if(sortRule === 'alpha-asc') {
         domainsPool.sort((a, b) => a.localeCompare(b));
       } else if(sortRule === 'alpha-desc') {
         domainsPool.sort((a, b) => b.localeCompare(a));
       }
 
-      // Pagination math computation parameters
       const totalItems = domainsPool.length;
       const totalPages = Math.ceil(totalItems / pageSize) || 1;
       if (activeDomainGridPage > totalPages) activeDomainGridPage = totalPages;
@@ -735,7 +829,6 @@
         `;
       });
 
-      // Update Domain Pagination UI Components
       document.getElementById('domainPaginationStatusSummary').innerText = `Page ${activeDomainGridPage} of ${totalPages} (${totalItems} domains total)`;
       
       const domainPagerWrapper = document.getElementById('domainPaginationUINodeController');
