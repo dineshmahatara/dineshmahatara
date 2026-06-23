@@ -6,7 +6,6 @@
   <title>URL Shortener & Security Firewall Dashboard</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.2/font/bootstrap-icons.css" rel="stylesheet">
-  <script src="https://accounts.google.com/gsi/client" async defer></script>
   <style>
     [data-bs-theme="dark"] {
       --bg-primary: #0a0e1a;
@@ -174,22 +173,13 @@
       </header>
 
       <div class="content-body">
-        <div id="view-auth" class="app-view mx-auto" style="max-width: 420px; margin-top: 4rem;">
-          <div class="glass-card text-center shadow-lg border-primary">
-            <div class="bg-primary bg-opacity-10 text-primary p-3 rounded-circle d-inline-block mb-3 fs-2">
-              <i class="bi bi-shield-lock-fill"></i>
-            </div>
-            <h3 class="fw-bold mb-2">System Console Access</h3>
-            <p class="text-muted small mb-4">Please log in using your authorized Gmail account to verify credentials parameters.</p>
-            
-            <div class="d-flex justify-content-center py-2 my-1">
-              <div id="googleIdentityServicesButtonAnchorDiv"></div>
-            </div>
-            
-            <div class="mt-4 border-top pt-3 text-start">
-              <span class="text-muted text-uppercase tracking-wider fw-bold d-block mb-1" style="font-size:0.65rem;">System Notice</span>
-              <p class="m-0 text-muted small" style="font-size:0.75rem; line-height:1.3;">Access logs are kept transparently inside the analytics data sheet database matrix dynamically.</p>
-            </div>
+        <div id="view-auth" class="app-view mx-auto" style="max-width: 400px; margin-top: 4rem;">
+          <div class="glass-card text-center">
+            <h3 class="fw-bold mb-4" id="authInterfaceTitle">Account Login</h3>
+            <div class="mb-3"><input type="email" id="inputAuthEmail" class="form-control" placeholder="Email identity"></div>
+            <div class="mb-4"><input type="password" id="inputAuthPassword" class="form-control" placeholder="Password security key"></div>
+            <button class="btn btn-primary w-100 fw-bold mb-3 py-2" id="triggerAuthAction">Authenticate</button>
+            <p class="text-muted small m-0" id="toggleAuthLayout">New operator? <a href="#" id="linkToggleFormMode" class="text-primary text-decoration-none">Create Credentials</a></p>
           </div>
         </div>
 
@@ -217,10 +207,42 @@
 
           <div class="glass-card">
             <h5 class="fw-bold mb-3"><i class="bi bi-plus-circle-fill text-primary me-2"></i>Generate Dynamic Redirection Endpoint</h5>
-            <div class="row g-3">
-              <div class="col-md-4"><input type="text" id="linkShortSlug" class="form-control" placeholder="Custom Alias Slug (e.g., testslug)"></div>
-              <div class="col-md-6"><input type="url" id="linkLongUrl" class="form-control" placeholder="Long Target Destination URL (https://...)"></div>
-              <div class="col-md-2"><button class="btn btn-primary w-100 fw-bold" id="actionSaveLink">Deploy Path</button></div>
+            
+            <div class="row g-3 mb-3">
+              <div class="col-md-4">
+                <label class="form-label small text-muted fw-semibold">Custom Alias Slug</label>
+                <input type="text" id="linkShortSlug" class="form-control" placeholder="e.g., myslug">
+              </div>
+              <div class="col-md-8">
+                <label class="form-label small text-muted fw-semibold">Long Destination Target Link</label>
+                <input type="url" id="linkLongUrl" class="form-control" placeholder="https://example.com/very-long-link-address">
+              </div>
+            </div>
+
+            <div class="row g-3 align-items-end mb-3">
+              <div class="col-md-3">
+                <label class="form-label small text-muted fw-semibold">Link Lifespan Expiration</label>
+                <select id="linkExpirySelect" class="form-select" onchange="toggleCustomCreationDatePicker(this.value)">
+                  <option value="never" selected>Never Expire</option>
+                  <option value="1min">1 Minute</option>
+                  <option value="1day">1 Day</option>
+                  <option value="custom">Custom Date & Time</option>
+                </select>
+              </div>
+              <div class="col-md-3 d-none" id="customCreationDatePickerWrapper">
+                <label class="form-label small text-muted fw-semibold">Choose Expiration Date</label>
+                <input type="datetime-local" id="linkExpiryCustomDate" class="form-control">
+              </div>
+              <div class="col-md-4">
+                <label class="form-label small text-muted fw-semibold">Link Security Access Password (Optional)</label>
+                <div class="input-group">
+                  <span class="input-group-text bg-body-tertiary border-secondary"><i class="bi bi-lock-fill"></i></span>
+                  <input type="text" id="linkAccessPassword" class="form-control" placeholder="No password protection">
+                </div>
+              </div>
+              <div class="col-md-2">
+                <button class="btn btn-primary w-100 fw-bold py-2" id="actionSaveLink">Deploy Path</button>
+              </div>
             </div>
 
             <div id="generationSuccessDesk" class="mt-4 p-3 border rounded-3 bg-body-tertiary d-none">
@@ -277,6 +299,7 @@
                     <th>Short Slug Alias</th>
                     <th>Destination URL Target Path</th>
                     <th>Sharing Vectors & QR Actions</th>
+                    <th>Expiry/Lock Security</th>
                     <th>State</th>
                     <th class="text-end">Actions</th>
                   </tr>
@@ -412,15 +435,12 @@
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 
   <script>
-    const BACKEND_GATEWAY_URL = "https://script.google.com/macros/s/AKfycby1H3jP2uvF5vbQaEqVISG6fKTp5d_KB5o2htBVcbXDRZ8qoKRlij8RU5qrCvM7-7W9/exec";
+    const BACKEND_GATEWAY_URL = "https://script.google.com/macros/s/AKfycbwRQkyckFMd7SRxgsSgsXAa1eYi79fxvv7CU5gcVJ8QggiGOVK69OiG8EzrYa3on3BB/exec";
     const ENGINE_REDIRECT_BASE = "https://www.dineshmc.com.np/urlshortner/";
-    
-    // CRITICAL STEPS: Generate a Google OAuth Client ID inside Google Cloud Console 
-    // and add your dynamic dashboard URL into the Whitelisted Redirect JavaScript Origins array.
-    const GOOGLE_CLIENT_OAUTH_ID = "871247639084-h742v7vbpia5vd3mlos2tul40k6fgdgp.apps.googleusercontent.com";
 
     let sessionStateToken = JSON.parse(localStorage.getItem('shortener_session')) || null;
     let localCacheStore = { links: [], systemAds: [], whitelistedDomains: [], systemUsers: [], pagination: {} };
+    let registrationFlowMode = false;
     
     let activeNavigationGridPage = 1;
     let activeDomainGridPage = 1;
@@ -459,6 +479,23 @@
       }
     }
 
+    function toggleCustomCreationDatePicker(selection) {
+      const pickerWrapper = document.getElementById("customCreationDatePickerWrapper");
+      if (selection === "custom") {
+        pickerWrapper.classList.remove("d-none");
+      } else {
+        pickerWrapper.classList.add("d-none");
+      }
+    }
+
+    function toggleCustomModalDatePicker(selection) {
+      const pickerWrapper = document.getElementById("customModalDatePickerWrapper");
+      if (pickerWrapper) {
+        if (selection === "custom") pickerWrapper.classList.remove("d-none");
+        else pickerWrapper.classList.add("d-none");
+      }
+    }
+
     function configureGlobalEventBridges() {
       document.getElementById('toggleSidebar').addEventListener('click', () => {
         document.getElementById('sidebar').classList.toggle('collapsed');
@@ -478,18 +515,27 @@
         });
       });
 
+      document.getElementById('linkToggleFormMode').addEventListener('click', (e) => {
+        e.preventDefault();
+        registrationFlowMode = !registrationFlowMode;
+        document.getElementById('authInterfaceTitle').innerText = registrationFlowMode ? "Create Access Account" : "Account Login";
+        document.getElementById('toggleAuthLayout').innerHTML = registrationFlowMode ? 
+          `Registered? <a href="#" id="linkToggleFormMode" class="text-primary text-decoration-none">Log In</a>` : 
+          `New? <a href="#" id="linkToggleFormMode" class="text-primary text-decoration-none">Create Credentials</a>`;
+        configureGlobalEventBridges();
+      });
+
+      document.getElementById('triggerAuthAction').addEventListener('click', processAuthFormSubmission);
       document.getElementById('action-logout').addEventListener('click', executeTerminalSignOutSequence);
       document.getElementById('actionSaveLink').addEventListener('click', processDeployLinkRequestAction);
       document.getElementById('actionCreateAd').addEventListener('click', processInsertAdUnitRequestAction);
       document.getElementById('actionAddDomains').addEventListener('click', processAppendWhitelistDomainsRequestAction);
 
-      // Links Data Matrix Filters
       document.getElementById('searchFilterBox').addEventListener('input', () => { activeNavigationGridPage = 1; buildClientMutatedDataViewGrid(); });
       document.getElementById('statusFilterBox').addEventListener('change', () => { activeNavigationGridPage = 1; buildClientMutatedDataViewGrid(); });
       document.getElementById('sortRuleBox').addEventListener('change', buildClientMutatedDataViewGrid);
       document.getElementById('paginationSizeBox').addEventListener('change', () => { activeNavigationGridPage = 1; syncDashboardRemotePipelineData(); });
 
-      // Domain Whitelist Data Matrix Filters
       document.getElementById('domainSearchFilterBox').addEventListener('input', () => { activeDomainGridPage = 1; compileAdminSecurityFirewallUIList(); });
       document.getElementById('domainSortRuleBox').addEventListener('change', () => { compileAdminSecurityFirewallUIList(); });
       document.getElementById('domainPaginationSizeBox').addEventListener('change', () => { activeDomainGridPage = 1; compileAdminSecurityFirewallUIList(); });
@@ -500,7 +546,6 @@
         document.getElementById('sidebar').classList.add('collapsed');
         document.getElementById('toggleSidebar').classList.add('d-none');
         navigateSubWorkspaceView('view-auth');
-        initializeGoogleAuthPromptMarkup();
       } else {
         document.getElementById('sidebar').classList.remove('collapsed');
         document.getElementById('toggleSidebar').classList.remove('d-none');
@@ -511,52 +556,6 @@
         }
         navigateSubWorkspaceView('view-dashboard');
         syncDashboardRemotePipelineData();
-      }
-    }
-
-    /**
-     * Spawns explicit Google Identity wrapper elements onto the placeholder element layout
-     */
-    function initializeGoogleAuthPromptMarkup() {
-      try {
-        google.accounts.id.initialize({
-          client_id: "871247639084-h742v7vbpia5vd3mlos2tul40k6fgdgp.apps.googleusercontent.com",
-          callback: handleGoogleIdentityTokenResponsePayload
-        });
-        google.accounts.id.renderButton(
-          document.getElementById("googleIdentityServicesButtonAnchorDiv"),
-          { theme: "filled_blue", size: "large", text: "signin_with", shape: "pill" }
-        );
-      } catch(err) {
-        console.error("Identity Engine loading timeout exception.", err);
-      }
-    }
-
-    /**
-     * Decodes individual JWT token packets safely on client runtime execution mappings
-     */
-    function handleGoogleIdentityTokenResponsePayload(response) {
-      try {
-        const base64Url = response.credential.split('.')[1];
-        const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-        const jsonPayload = decodeURIComponent(window.atob(base64).split('').map(function(c) {
-          return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
-        }).join(''));
-
-        const parsedProfile = JSON.parse(jsonPayload);
-        const userEmail = parsedProfile.email;
-        const googleId = parsedProfile.sub;
-
-        // Route arguments right into the matching Apps Script backend controller
-        executeRemoteGatewayCall("verifyOrCreateGoogleUser", [userEmail, googleId], (profileDataPayload) => {
-          if(profileDataPayload && profileDataPayload.email) {
-            sessionStateToken = profileDataPayload;
-            localStorage.setItem('shortener_session', JSON.stringify(sessionStateToken));
-            evaluateGlobalAccessState();
-          }
-        });
-      } catch(e) {
-        alert("Payload verification error: " + e.toString());
       }
     }
 
@@ -586,6 +585,21 @@
       backgroundDOMScriptLoadingTag.id = synchronousUniqueTokenId;
       backgroundDOMScriptLoadingTag.src = BACKEND_GATEWAY_URL + structuredQueryParametersString;
       document.body.appendChild(backgroundDOMScriptLoadingTag);
+    }
+
+    function processAuthFormSubmission() {
+      const accountEmail = document.getElementById('inputAuthEmail').value;
+      const accountPassKey = document.getElementById('inputAuthPassword').value;
+      if(!accountEmail || !accountPassKey) return alert("Verify input credentials parameters completely.");
+      
+      // Auto register/login via Google Broker architecture
+      executeRemoteGatewayCall("verifyOrCreateGoogleUser", [accountEmail, accountPassKey], (profileDataPayload) => {
+        if(profileDataPayload && profileDataPayload.email) {
+          sessionStateToken = profileDataPayload;
+          localStorage.setItem('shortener_session', JSON.stringify(sessionStateToken));
+          evaluateGlobalAccessState();
+        }
+      });
     }
 
     function executeTerminalSignOutSequence() {
@@ -641,7 +655,7 @@
       tableOutputContainerNode.innerHTML = "";
       
       if(runningMutationArrayPool.length === 0) {
-        tableOutputContainerNode.innerHTML = `<tr><td colspan="5" class="text-center text-muted py-4">No matching routes configuration indices.</td></tr>`;
+        tableOutputContainerNode.innerHTML = `<tr><td colspan="6" class="text-center text-muted py-4">No matching routes configuration indices.</td></tr>`;
         return;
       }
 
@@ -649,10 +663,25 @@
         const fullShortenedDestinationLink = ENGINE_REDIRECT_BASE + linkObj.shortCode;
         const isPaused = linkObj.status === 'Inactive';
         
+        // Humanized processing layout indicators for expiration & password configs
+        let expiryIndicator = "Never";
+        if(linkObj.expiryDate && linkObj.expiryDate !== "Never") {
+          const expDate = new Date(linkObj.expiryDate);
+          if (new Date() > expDate) {
+            expiryIndicator = `<span class="text-danger fw-bold"><i class="bi bi-clock-fill"></i> Expired</span>`;
+          } else {
+            expiryIndicator = `<span class="text-warning small">${expDate.toLocaleDateString()} ${expDate.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</span>`;
+          }
+        }
+        
+        const lockIndicator = linkObj.password ? 
+          `<span class="badge bg-warning text-dark" title="Protected: ${linkObj.password}"><i class="bi bi-lock-fill"></i> Secure</span>` : 
+          `<span class="text-muted small">None</span>`;
+
         tableOutputContainerNode.innerHTML += `
           <tr>
             <td><span class="fw-bold text-primary">${linkObj.shortCode}</span></td>
-            <td><div class="text-truncate text-muted" style="max-width: 220px;" title="${linkObj.longUrl}">${linkObj.longUrl}</div></td>
+            <td><div class="text-truncate text-muted" style="max-width: 200px;" title="${linkObj.longUrl}">${linkObj.longUrl}</div></td>
             <td>
               <div class="btn-group btn-group-sm">
                 <button class="btn btn-outline-secondary" onclick="executeClipboardCopyRoutine('${fullShortenedDestinationLink}', this)" title="Copy Shortened URL"><i class="bi bi-copy"></i> Copy</button>
@@ -660,9 +689,13 @@
                 <button class="btn btn-outline-secondary" onclick="triggerQrPresentationModal('${fullShortenedDestinationLink}', '${linkObj.shortCode}')" title="QR Engine Operations"><i class="bi bi-qr-code"></i> QR</button>
               </div>
             </td>
+            <td>
+              <div class="small mb-1">Exp: ${expiryIndicator}</div>
+              <div>Lock: ${lockIndicator}</div>
+            </td>
             <td><span class="badge ${isPaused ? 'bg-danger text-danger bg-opacity-10' : 'bg-success text-success bg-opacity-10'}">${linkObj.status}</span></td>
             <td class="text-end text-nowrap">
-              <button class="btn btn-sm btn-outline-warning me-1" onclick="openEditLinkModalWindow('${linkObj.shortCode}', '${encodeURIComponent(linkObj.longUrl)}', '${linkObj.status}')">
+              <button class="btn btn-sm btn-outline-warning me-1" onclick="openEditLinkModalWindow('${linkObj.shortCode}', '${encodeURIComponent(linkObj.longUrl)}', '${linkObj.status}', '${linkObj.expiryDate || 'Never'}', '${linkObj.password || ''}')">
                 <i class="bi bi-pencil-square"></i>
               </button>
               <button class="btn btn-sm btn-outline-danger" onclick="triggerDeleteRouteLinkCall('${linkObj.shortCode}')">
@@ -702,7 +735,6 @@
       syncDashboardRemotePipelineData();
     }
 
-    // ADVANCED FIREWALL REGISTRY
     function compileAdminSecurityFirewallUIList() {
       const listContainerNode = document.getElementById('whitelistOutputListBody');
       listContainerNode.innerHTML = "";
@@ -819,11 +851,26 @@
       qrModalEngineRef.show();
     }
 
-    // CRUD REACTION ROUTINES
-    function openEditLinkModalWindow(oldSlugCode, currentEscapedUrl, activeState) {
+    // MODAL EDIT FOR REDIRECTION PIPELINES WITH ADVANCED TIMELINE VALUES
+    function openEditLinkModalWindow(oldSlugCode, currentEscapedUrl, activeState, currentExpiry, currentPassword) {
       const decodedUrlTarget = decodeURIComponent(currentEscapedUrl);
       document.getElementById('crudModalTitle').innerText = "Update Redirect Route Configuration";
       
+      let initialSelectValue = "never";
+      let dateValueString = "";
+      let hideDateInputClass = "d-none";
+
+      if (currentExpiry && currentExpiry !== "Never") {
+        initialSelectValue = "custom";
+        hideDateInputClass = "";
+        try {
+          const expDate = new Date(currentExpiry);
+          // Format ISO time specifically to local standard fit parameters for input[type="datetime-local"]
+          const offset = expDate.getTimezoneOffset() * 60000;
+          dateValueString = new Date(expDate.getTime() - offset).toISOString().slice(0, 16);
+        } catch(e){}
+      }
+
       const formInputFieldsBodyContainer = document.getElementById('crudModalDynamicBodyFields');
       formInputFieldsBodyContainer.innerHTML = `
         <div class="mb-3">
@@ -841,14 +888,47 @@
             <option value="Inactive" ${activeState === 'Inactive' ? 'selected' : ''}>Inactive Paused State</option>
           </select>
         </div>
+        <div class="mb-3">
+          <label class="form-label small fw-bold">Lifespan Link Expiration</label>
+          <select id="modalFieldLinkExpirySelect" class="form-select" onchange="toggleCustomModalDatePicker(this.value)">
+            <option value="never" ${initialSelectValue === 'never' ? 'selected' : ''}>Never Expire</option>
+            <option value="1min">Reset to 1 Minute from Now</option>
+            <option value="1day">Reset to 1 Day from Now</option>
+            <option value="custom" ${initialSelectValue === 'custom' ? 'selected' : ''}>Custom Date & Time</option>
+          </select>
+        </div>
+        <div class="mb-3 ${hideDateInputClass}" id="customModalDatePickerWrapper">
+          <label class="form-label small fw-bold">Specify Expiration Boundary</label>
+          <input type="datetime-local" id="modalFieldLinkExpiryCustomDate" class="form-control" value="${dateValueString}">
+        </div>
+        <div class="mb-3">
+          <label class="form-label small fw-bold">Route Lock Credentials Password (Optional)</label>
+          <input type="text" id="modalFieldLinkPassword" class="form-control" value="${currentPassword}" placeholder="No password security access set">
+        </div>
       `;
 
       document.getElementById('crudModalSubmitActionBtn').onclick = () => {
-        const mutatedSlug = document.getElementById('modalFieldLinkSlug').value;
-        const mutatedUrl = document.getElementById('modalFieldLinkUrl').value;
+        const mutatedSlug = document.getElementById('modalFieldLinkSlug').value.trim();
+        const mutatedUrl = document.getElementById('modalFieldLinkUrl').value.trim();
         const mutatedStatus = document.getElementById('modalFieldLinkStatus').value;
+        const expiryChoice = document.getElementById('modalFieldLinkExpirySelect').value;
+        const passwordVal = document.getElementById('modalFieldLinkPassword').value.trim();
         
-        executeRemoteGatewayCall("updateLinkDetails", [oldSlugCode, mutatedSlug, mutatedUrl, mutatedStatus, sessionStateToken.email, sessionStateToken.tier], () => {
+        let calculatedExpiry = "Never";
+        if (expiryChoice === "1min") {
+          calculatedExpiry = new Date(Date.now() + 60000).toISOString();
+        } else if (expiryChoice === "1day") {
+          calculatedExpiry = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString();
+        } else if (expiryChoice === "custom") {
+          const customVal = document.getElementById('modalFieldLinkExpiryCustomDate').value;
+          calculatedExpiry = customVal ? new Date(customVal).toISOString() : "Never";
+        } else if (expiryChoice === "never") {
+          calculatedExpiry = "Never";
+        } else {
+          calculatedExpiry = currentExpiry; // Retain fallback
+        }
+        
+        executeRemoteGatewayCall("updateLinkDetails", [oldSlugCode, mutatedSlug, mutatedUrl, mutatedStatus, sessionStateToken.email, sessionStateToken.tier, calculatedExpiry, passwordVal], () => {
           dynamicBootstrapModalRef.hide();
           syncDashboardRemotePipelineData();
         });
@@ -898,7 +978,7 @@
       
       formInputFieldsBodyContainer.innerHTML = `
         <div class="mb-3">
-          <label class="form-label small fw-bold">Allowed Domain</label>
+          <label class="form-label small fw-bold">Configured Allowed Domain</label>
           <input type="text" id="modalFieldDomainName" class="form-control" value="${oldDomainString}">
         </div>
       `;
@@ -925,9 +1005,9 @@
         <div class="mb-3">
           <label class="form-label small fw-bold">Allocated Account Subscription Matrix</label>
           <select id="modalFieldUserTier" class="form-select">
-            <option value="Free" ${currentAssignedTier === 'Free' ? 'selected' : ''}>Free</option>
-            <option value="Premium" ${currentAssignedTier === 'Premium' ? 'selected' : ''}>Premium</option>
-            <option value="Admin" ${currentAssignedTier === 'Admin' ? 'selected' : ''}>Admin</option>
+            <option value="Free" ${currentAssignedTier === 'Free' ? 'selected' : ''}>Free Accountability Node</option>
+            <option value="Premium" ${currentAssignedTier === 'Premium' ? 'selected' : ''}>Premium Accountability Node</option>
+            <option value="Admin" ${currentAssignedTier === 'Admin' ? 'selected' : ''}>Full System Administrator Clearance</option>
           </select>
         </div>
       `;
@@ -942,15 +1022,30 @@
       dynamicBootstrapModalRef.show();
     }
 
-    // CORE COMMITS PERSISTENCE SEQUENCES
+    // HANDLES PERSISTED DEPLOYMENT SUBMISSIONS WITH ADVANCED ATTRIBUTES
     function processDeployLinkRequestAction() {
       const code = document.getElementById('linkShortSlug').value.trim();
       const target = document.getElementById('linkLongUrl').value.trim();
+      const expiryChoice = document.getElementById('linkExpirySelect').value;
+      const passwordProtectedVal = document.getElementById('linkAccessPassword').value.trim();
+
       if(!code || !target) return alert("Verify all mandatory fields are populated.");
 
-      executeRemoteGatewayCall("saveLink", [code, target, sessionStateToken.tier, sessionStateToken.email], () => {
+      // Calculate the ISO String for target Expiry fields
+      let calculatedExpiryISO = "Never";
+      if (expiryChoice === "1min") {
+        calculatedExpiryISO = new Date(Date.now() + 60000).toISOString();
+      } else if (expiryChoice === "1day") {
+        calculatedExpiryISO = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString();
+      } else if (expiryChoice === "custom") {
+        const inputDateTime = document.getElementById('linkExpiryCustomDate').value;
+        if (!inputDateTime) return alert("Please select a valid custom expiration Date and Time.");
+        calculatedExpiryISO = new Date(inputDateTime).toISOString();
+      }
+
+      // Sends parameters safely into the expanded saveLink arguments array signature
+      executeRemoteGatewayCall("saveLink", [code, target, sessionStateToken.tier, sessionStateToken.email, calculatedExpiryISO, passwordProtectedVal], () => {
         const fullRuntimeShortLink = ENGINE_REDIRECT_BASE + code;
-        
         document.getElementById('outputShortenedUrlText').innerText = fullRuntimeShortLink;
         
         const utilityContainerRackNode = document.getElementById('outputUtilityActionRack');
@@ -962,6 +1057,10 @@
         document.getElementById('generationSuccessDesk').classList.remove('d-none');
         document.getElementById('linkShortSlug').value = "";
         document.getElementById('linkLongUrl').value = "";
+        document.getElementById('linkAccessPassword').value = "";
+        document.getElementById('linkExpirySelect').value = "never";
+        document.getElementById('customCreationDatePickerWrapper').classList.add('d-none');
+        
         syncDashboardRemotePipelineData();
       });
     }
@@ -998,7 +1097,7 @@
     function processInsertAdUnitRequestAction() {
       const target = document.getElementById('adRedirectLink').value;
       const img = document.getElementById('adGraphicLink').value;
-      if(!target || !img) return alert("Verify redirect marketing URLs exist.");
+      if(!target || !img) return alert("Verify redirect marketing URLs and configurations exist.");
 
       executeRemoteGatewayCall("createNewAdRecord", [sessionStateToken.tier, target, img], () => {
         document.getElementById('adRedirectLink').value = "";
@@ -1064,8 +1163,8 @@
         payload = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(localCacheStore.links, null, 2));
         filename += ".json";
       } else {
-        const csvRows = [["ShortCode", "LongUrl", "Status", "Date"].join(",")];
-        localCacheStore.links.forEach(l => csvRows.push(`"${l.shortCode}","${l.longUrl}","${l.status}","${l.date}"`));
+        const csvRows = [["ShortCode", "LongUrl", "Status", "Date", "ExpiryDate", "Password"].join(",")];
+        localCacheStore.links.forEach(l => csvRows.push(`"${l.shortCode}","${l.longUrl}","${l.status}","${l.date}","${l.expiryDate}","${l.password}"`));
         payload = "data:text/csv;charset=utf-8," + encodeURIComponent(csvRows.join("\n"));
         filename += ".csv";
       }
