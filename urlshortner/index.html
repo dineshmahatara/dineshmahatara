@@ -149,7 +149,6 @@
         <a href="#" class="menu-item admin-feature d-none" data-view="view-whitelist"><i class="bi bi-shield-check"></i> Firewall Domains</a>
         <a href="#" class="menu-item admin-feature d-none" data-view="view-users"><i class="bi bi-people-fill"></i> System Users</a>
         <hr class="mx-3 my-3">
-        <a href="#" class="menu-item text-warning" id="action-change-password-trigger"><i class="bi bi-key-fill"></i> Access Security Key</a>
         <a href="#" class="menu-item text-danger" id="action-logout"><i class="bi bi-box-arrow-left"></i> Sign Out</a>
       </nav>
     </aside>
@@ -169,7 +168,7 @@
               <li><button class="dropdown-item d-flex align-items-center gap-2" data-theme="system"><i class="bi bi-laptop"></i> System</button></li>
             </ul>
           </div>
-          <span class="badge bg-secondary px-3 py-2 rounded-pill" id="currentProfileBadge" style="cursor: pointer;" title="Click to modify key info">Guest Access</span>
+          <span class="badge bg-secondary px-3 py-2 rounded-pill" id="currentProfileBadge">Guest Access</span>
         </div>
       </header>
 
@@ -263,6 +262,7 @@
             <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-4">
               <h5 class="fw-bold m-0">Active Redirection Pipelines</h5>
               <div class="d-flex gap-2">
+                <button class="btn btn-sm btn-outline-success" onclick="processExportEngine('excel')"><i class="bi bi-file-earmark-excel"></i> Export Excel</button>
                 <button class="btn btn-sm btn-outline-secondary" onclick="processExportEngine('csv')"><i class="bi bi-filetype-csv"></i> CSV</button>
                 <button class="btn btn-sm btn-outline-secondary" onclick="processExportEngine('json')"><i class="bi bi-filetype-json"></i> JSON</button>
               </div>
@@ -299,7 +299,7 @@
                   <tr>
                     <th>Short Slug Alias</th>
                     <th>Destination URL Target Path</th>
-                    <th>Analytics (Clicks)</th>
+                    <th>Created By</th>
                     <th>Sharing Vectors & QR Actions</th>
                     <th>Expiry/Lock Security</th>
                     <th>State</th>
@@ -387,6 +387,7 @@
                   <tr>
                     <th>User Profile Identifier Signature Email</th>
                     <th>System Privilege Tier</th>
+                    <th>Link Conditions Breakdown Metrics</th>
                     <th>Account Sync Context Timestamp</th>
                     <th class="text-end">Modifications Matrix</th>
                   </tr>
@@ -437,7 +438,7 @@
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 
   <script>
-    const BACKEND_GATEWAY_URL = "https://script.google.com/macros/s/AKfycbxLYnoOIAdY71owTQqS8FKw8TuaaqurWKGJ2l8NBWDzCLtJjXPqnv73CqiCUpqOJULK/exec";
+    const BACKEND_GATEWAY_URL = "https://script.google.com/macros/s/AKfycbznpHxny9Z87fQI3CxpqTKmCdDNTKng4T5DwhwuPps6ONkPzbM08NGDyEpXHxCrqa--/exec";
     const ENGINE_REDIRECT_BASE = "https://www.dineshmc.com.np/urlshortner/";
 
     let sessionStateToken = JSON.parse(localStorage.getItem('shortener_session')) || null;
@@ -529,8 +530,6 @@
 
       document.getElementById('triggerAuthAction').addEventListener('click', processAuthFormSubmission);
       document.getElementById('action-logout').addEventListener('click', executeTerminalSignOutSequence);
-      document.getElementById('action-change-password-trigger').addEventListener('click', openUserSelfChangePasswordModalWindow);
-      document.getElementById('currentProfileBadge').addEventListener('click', openUserSelfChangePasswordModalWindow);
       document.getElementById('actionSaveLink').addEventListener('click', processDeployLinkRequestAction);
       document.getElementById('actionCreateAd').addEventListener('click', processInsertAdUnitRequestAction);
       document.getElementById('actionAddDomains').addEventListener('click', processAppendWhitelistDomainsRequestAction);
@@ -665,6 +664,7 @@
       runningMutationArrayPool.forEach(linkObj => {
         const fullShortenedDestinationLink = ENGINE_REDIRECT_BASE + linkObj.shortCode;
         const isPaused = linkObj.status === 'Inactive';
+        const linkCreatorOwner = linkObj.createdBy || "System Nodes";
         
         let expiryIndicator = "Never";
         if(linkObj.expiryDate && linkObj.expiryDate !== "Never") {
@@ -680,18 +680,11 @@
           `<span class="badge bg-warning text-dark" title="Protected: ${linkObj.password}"><i class="bi bi-lock-fill"></i> Secure</span>` : 
           `<span class="text-muted small">None</span>`;
 
-        // Render analytics click counter tracking column indices
-        const clickAnalyticsCounterCount = linkObj.clicks || 0;
-
         tableOutputContainerNode.innerHTML += `
           <tr>
             <td><span class="fw-bold text-primary">${linkObj.shortCode}</span></td>
             <td><div class="text-truncate text-muted" style="max-width: 200px;" title="${linkObj.longUrl}">${linkObj.longUrl}</div></td>
-            <td>
-              <div class="d-flex align-items-center gap-2">
-                <span class="badge bg-success bg-opacity-10 text-success fw-bold px-2 py-1.5"><i class="bi bi-graph-up me-1"></i> ${clickAnalyticsCounterCount}</span>
-              </div>
-            </td>
+            <td><span class="small text-muted text-break" style="max-width: 150px; display:inline-block;">${linkCreatorOwner}</span></td>
             <td>
               <div class="btn-group btn-group-sm">
                 <button class="btn btn-outline-secondary" onclick="executeClipboardCopyRoutine('${fullShortenedDestinationLink}', this)" title="Copy Shortened URL"><i class="bi bi-copy"></i> Copy</button>
@@ -743,55 +736,6 @@
       if(val < 1 || val > localCacheStore.pagination.totalPages) return;
       activeNavigationGridPage = val;
       syncDashboardRemotePipelineData();
-    }
-
-    // MODAL DIALOG ENGINE TO SECURELY OVERWRITE OPERATOR ACCOUNT SECURITY CRUMBS
-    function openUserSelfChangePasswordModalWindow(e) {
-      if(e) e.preventDefault();
-      if(!sessionStateToken) return;
-
-      document.getElementById('crudModalTitle').innerText = "Change Account Security Key Password";
-      const formInputFieldsBodyContainer = document.getElementById('crudModalDynamicBodyFields');
-      
-      formInputFieldsBodyContainer.innerHTML = `
-        <div class="mb-3">
-          <label class="form-label small fw-bold">Active Profile Identity</label>
-          <input type="text" class="form-control" value="${sessionStateToken.email}" disabled readonly>
-        </div>
-        <div class="mb-3">
-          <label class="form-label small fw-bold">Current Account Key Password</label>
-          <input type="password" id="modalSecChangeOldPass" class="form-control" placeholder="Enter existing validation key">
-        </div>
-        <div class="mb-3">
-          <label class="form-label small fw-bold">New Account Key Password</label>
-          <input type="password" id="modalSecChangeNewPass" class="form-control" placeholder="Enter updated secure string sequence">
-        </div>
-        <div class="mb-2">
-          <label class="form-label small fw-bold">Confirm New Account Key Password</label>
-          <input type="password" id="modalSecChangeConfirmPass" class="form-control" placeholder="Re-type secure string sequence">
-        </div>
-      `;
-
-      document.getElementById('crudModalSubmitActionBtn').onclick = () => {
-        const structuralOldPass = document.getElementById('modalSecChangeOldPass').value;
-        const structuralNewPass = document.getElementById('modalSecChangeNewPass').value;
-        const structuralConfirmPass = document.getElementById('modalSecChangeConfirmPass').value;
-
-        if(!structuralOldPass || !structuralNewPass || !structuralConfirmPass) {
-          return alert("All credential adjustment configurations must be supplied.");
-        }
-        if(structuralNewPass !== structuralConfirmPass) {
-          return alert("Mutation validation matrix mismatch. New fields must match perfectly.");
-        }
-
-        executeRemoteGatewayCall("changeUserPasswordInline", [sessionStateToken.email, structuralOldPass, structuralNewPass], (feedbackResponseInstance) => {
-          alert("Security credentials modified successfully!");
-          dynamicBootstrapModalRef.hide();
-          executeTerminalSignOutSequence();
-        });
-      };
-
-      dynamicBootstrapModalRef.show();
     }
 
     function compileAdminSecurityFirewallUIList() {
@@ -1186,11 +1130,37 @@
     function compileAdminUserMatrixUIGrid() {
       const userMatrixTableOutputNode = document.getElementById('userMatrixTableBody');
       userMatrixTableOutputNode.innerHTML = "";
+      
+      const linksRegistryPool = localCacheStore.links || [];
+
       localCacheStore.systemUsers.forEach(user => {
+        const parsedEmailKey = String(user.email).trim().toLowerCase();
+        
+        let activeCount = 0;
+        let inactiveCount = 0;
+        let protectedCount = 0;
+        let unProtectedCount = 0;
+
+        linksRegistryPool.forEach(link => {
+          if (String(link.createdBy).trim().toLowerCase() === parsedEmailKey) {
+            if (link.status === "Active") activeCount++;
+            else inactiveCount++;
+
+            if (link.password && link.password.trim() !== "") protectedCount++;
+            else unProtectedCount++;
+          }
+        });
+
         userMatrixTableOutputNode.innerHTML += `
           <tr>
             <td>${user.email}</td>
             <td><span class="badge bg-secondary">${user.tier}</span></td>
+            <td>
+              <div class="d-flex flex-column gap-1 small">
+                <div><span class="badge bg-success bg-opacity-10 text-success py-1 px-2">Active: ${activeCount}</span> <span class="badge bg-danger bg-opacity-10 text-danger py-1 px-2">Passive: ${inactiveCount}</span></div>
+                <div><span class="badge bg-warning bg-opacity-10 text-warning py-1 px-2">Locked: ${protectedCount}</span> <span class="badge bg-info bg-opacity-10 text-info py-1 px-2">Open: ${unProtectedCount}</span></div>
+              </div>
+            </td>
             <td><small class="text-muted">${user.joined}</small></td>
             <td class="text-end text-nowrap">
               <button class="btn btn-sm btn-outline-warning me-1" onclick="openEditUserMatrixModalWindow('${user.email}', '${user.tier}')"><i class="bi bi-pencil-square"></i></button>
@@ -1210,25 +1180,69 @@
 
     function processExportEngine(fileTypeKeyFormat) {
       if(!localCacheStore.links || localCacheStore.links.length === 0) return alert("No links found to export.");
-      let payload = "";
       let filename = `export_${new Date().getTime()}`;
 
-      if(fileTypeKeyFormat === 'json') {
-        payload = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(localCacheStore.links, null, 2));
-        filename += ".json";
-      } else {
-        const csvRows = [["ShortCode", "LongUrl", "Clicks", "Status", "Date", "ExpiryDate", "Password"].join(",")];
-        localCacheStore.links.forEach(l => csvRows.push(`"${l.shortCode}","${l.longUrl}","${l.clicks || 0}","${l.status}","${l.date}","${l.expiryDate}","${l.password}"`));
-        payload = "data:text/csv;charset=utf-8," + encodeURIComponent(csvRows.join("\n"));
-        filename += ".csv";
-      }
+      if (fileTypeKeyFormat === 'json') {
+        let payload = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(localCacheStore.links, null, 2));
+        const link = document.createElement('a');
+        link.setAttribute("href", payload);
+        link.setAttribute("download", filename + ".json");
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+      } 
+      else if (fileTypeKeyFormat === 'csv') {
+        const csvRows = [["ShortCode", "LongUrl", "CreatedBy", "Status", "Date", "ExpiryDate", "Password"].join(",")];
+        localCacheStore.links.forEach(l => csvRows.push(`"${l.shortCode}","${l.longUrl}","${l.createdBy || ''}","${l.status}","${l.date}","${l.expiryDate}","${l.password}"`));
+        let payload = "data:text/csv;charset=utf-8," + encodeURIComponent(csvRows.join("\n"));
+        const link = document.createElement('a');
+        link.setAttribute("href", payload);
+        link.setAttribute("download", filename + ".csv");
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+      } 
+      else if (fileTypeKeyFormat === 'excel') {
+        let excelTemplate = `
+          <xml xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40">
+          <head></head>
+          <body>
+            <table border="1">
+              <tr style="background-color: #2563eb; color: #ffffff; font-weight: bold;">
+                <th>Short Code Slug</th>
+                <th>Destination URL</th>
+                <th>Created By</th>
+                <th>Status</th>
+                <th>Creation Date</th>
+                <th>Expiration Link</th>
+                <th>Security Password</th>
+              </tr>
+        `;
+        
+        localCacheStore.links.forEach(l => {
+          excelTemplate += `
+            <tr>
+              <td>${l.shortCode}</td>
+              <td>${l.longUrl}</td>
+              <td>${l.createdBy || 'System User'}</td>
+              <td>${l.status}</td>
+              <td>${l.date}</td>
+              <td>${l.expiryDate}</td>
+              <td>${l.password || ''}</td>
+            </tr>
+          `;
+        });
 
-      const link = document.createElement('a');
-      link.setAttribute("href", payload);
-      link.setAttribute("download", filename);
-      document.body.appendChild(link);
-      link.click();
-      link.remove();
+        excelTemplate += `</table></body></html>`;
+        
+        const blobUri = 'data:application/vnd.ms-excel;charset=utf-8,' + encodeURIComponent(excelTemplate);
+        const link = document.createElement('a');
+        link.setAttribute("href", blobUri);
+        link.setAttribute("download", filename + ".xls");
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+      }
     }
   </script>
 </body>
