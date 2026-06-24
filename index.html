@@ -563,7 +563,6 @@
             <div class="row justify-content-center">
                 <div class="col-lg-8">
                     <div class="contact-box">
-                        <!-- Updated fields with specific 'name' attributes for structural script indexing -->
                         <form id="contactForm">
                             <div class="row">
                                 <div class="col-md-6 mb-4">
@@ -592,9 +591,49 @@
     </section>
 </main>
 
+<!-- RESTORED MULTI-COLUMN FOOTER STRUCTURE -->
 <footer class="pt-5 pb-4">
-    <div class="container text-center">
-        <p class="mb-0 text-secondary small">&copy; 2026 Dinesh Mahatara Chhetri. All Rights Reserved.</p>
+    <div class="container">
+        <div class="row g-4 text-start mb-5">
+            <div class="col-lg-4 col-md-6">
+                <h5 class="fw-bold mb-3 gradient-text">DINESH M. CHHETRI</h5>
+                <p class="small text-secondary pe-lg-4" style="line-height: 1.6;">
+                    Specialized Full Stack Engineer building automation workflows, custom responsive architectures, and optimized web environments.
+                </p>
+                <div class="footer-social-icons mt-3">
+                    <a href="#" aria-label="Facebook Profile"><i class="fa-brands fa-facebook-f"></i></a>
+                    <a href="#" aria-label="LinkedIn Profile"><i class="fa-brands fa-linkedin-in"></i></a>
+                    <a href="#" aria-label="GitHub Profile"><i class="fa-brands fa-github"></i></a>
+                </div>
+            </div>
+            <div class="col-lg-2 col-md-6">
+                <h6 class="fw-bold text-main small tracking-wider mb-3">NAVIGATION</h6>
+                <ul class="footer-link-list">
+                    <li><a href="#about">About Core</a></li>
+                    <li><a href="#roles">Expertise Domains</a></li>
+                    <li><a href="#projects">Project Registry</a></li>
+                    <li><a href="#contact">Get In Touch</a></li>
+                </ul>
+            </div>
+            <div class="col-lg-3 col-md-6">
+                <h6 class="fw-bold text-main small tracking-wider mb-3">LATEST ENDEAVORS</h6>
+                <ul class="footer-link-list">
+                    <li><a href="#">Smaran Buti Book</a></li>
+                    <li><a href="#">CRM Systems Development</a></li>
+                    <li><a href="#">UI Component Libraries</a></li>
+                </ul>
+            </div>
+            <div class="col-lg-3 col-md-6">
+                <h6 class="fw-bold text-main small tracking-wider mb-3">CONTACT CHANNELS</h6>
+                <p class="small text-secondary mb-2"><i class="fa-solid fa-location-dot text-primary me-2"></i> Kathmandu, Nepal</p>
+                <p class="small text-secondary mb-2"><i class="fa-solid fa-envelope text-primary me-2"></i> info@dineshmc.com.np</p>
+                <p class="small text-secondary"><i class="fa-solid fa-globe text-primary me-2"></i> www.dineshmc.com.np</p>
+            </div>
+        </div>
+        <hr class="border-secondary opacity-10 my-4">
+        <div class="text-center">
+            <p class="mb-0 text-secondary small">&copy; 2026 Dinesh Mahatara Chhetri. All Rights Reserved.</p>
+        </div>
     </div>
 </footer>
 
@@ -602,8 +641,7 @@
 
 <script>
     // --- APP SCRIPT HOOK VALUES ---
-    // PASTE YOUR GENERATED APPS SCRIPT WEB APP URL HERE:
-    const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbytxKPs7uWamhRbZJFFxrb26Q3tJfSCb50cTKdCWWA_6iYkc_VF7usEmJfkz09M9Nrd/exec";
+    const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbwsr2rLnfjz2ImfXJEy-SF7Klwsa2XG7d2472m1BugsFoQXC7N6hxMsAoQ9JjpOKXqk/exec";
 
     // --- NATIVE LIGHT / DARK THEME ENGINE ---
     const themeToggle = document.getElementById('themeToggle');
@@ -624,15 +662,15 @@
         themeIcon.className = theme === 'dark' ? 'fa-solid fa-sun' : 'fa-solid fa-moon';
     }
 
-    // --- FORM DATA ROUTING HANDLING ENGINE ---
-// --- OPTIMIZED FORM DATA ROUTING HANDLING ENGINE ---
+    // --- OPTIMIZED FORM DATA ROUTING HANDLING ENGINE ---
     const contactForm = document.getElementById('contactForm');
     const submitBtn = document.getElementById('submitBtn');
 
     contactForm.addEventListener('submit', function(e) {
         e.preventDefault();
         
-        if(WEB_APP_URL === "https://script.google.com/macros/s/AKfycbytxKPs7uWamhRbZJFFxrb26Q3tJfSCb50cTKdCWWA_6iYkc_VF7usEmJfkz09M9Nrd/exec" || WEB_APP_URL === "https://script.google.com/macros/s/AKfycbytxKPs7uWamhRbZJFFxrb26Q3tJfSCb50cTKdCWWA_6iYkc_VF7usEmJfkz09M9Nrd/exec") {
+        // Corrected placeholder check to avoid blocking valid deployment URLs
+        if(WEB_APP_URL === "YOUR_SCRIPT_DEPLOYMENT_URL_HERE" || WEB_APP_URL === "") {
             alert("Configuration Error: Replace WEB_APP_URL placeholder string with your valid Google Apps Script URL.");
             return;
         }
@@ -643,19 +681,17 @@
         const formData = new FormData(contactForm);
         const queryParams = new URLSearchParams(formData).toString();
 
-        // Bypasses browser CORS preflight issues by sending via an optimized request structure
+        // Bypasses browser CORS preflight blocks by executing via a no-cors runtime mode
         fetch(`${WEB_APP_URL}?${queryParams}`, { 
             method: 'POST',
-            mode: 'no-cors' // Prevents CORS redirect blocks from interrupting the transmission
+            mode: 'no-cors'
         })
         .then(() => {
-            // With 'no-cors', the browser securely routes data to your sheet but blocks reading responses back.
-            // We assume success if the fetch promise resolves without hitting the network .catch block.
             alert("Thank you! Your details were stored on Google Sheets successfully.");
             contactForm.reset();
         })
         .catch(err => {
-            console.error("Connection Error Detalled Logs: ", err);
+            console.error("Connection Error Detailed Logs: ", err);
             alert("Connectivity fault detected. Check internet connections or verification setups.");
         })
         .finally(() => {
@@ -664,12 +700,18 @@
         });
     });
     
+    // --- ASYNCHRONOUS RANDOM QUOTE TOAST ENGINE ---
+    // FIXED: Declared and initialized fallback runtime quote storage correctly in the global scope
+    let runtimeQuotes = [
+        "“You cannot have a positive life and a negative mind.” — Joyce Meyer"
+    ];
+
     const bootstrapToastElement = document.getElementById('quoteToast');
     const toastBodyNode = document.getElementById('quoteToastBody');
     const nativeToastObject = new bootstrap.Toast(bootstrapToastElement);
 
     function fetchPhilosopherQuotes() {
-        if(WEB_APP_URL === "https://script.google.com/macros/s/AKfycbytxKPs7uWamhRbZJFFxrb26Q3tJfSCb50cTKdCWWA_6iYkc_VF7usEmJfkz09M9Nrd/exec") return;
+        if(WEB_APP_URL === "https://script.google.com/macros/s/AKfycbwsr2rLnfjz2ImfXJEy-SF7Klwsa2XG7d2472m1BugsFoQXC7N6hxMsAoQ9JjpOKXqk/exec" || WEB_APP_URL === "https://script.google.com/macros/s/AKfycbwsr2rLnfjz2ImfXJEy-SF7Klwsa2XG7d2472m1BugsFoQXC7N6hxMsAoQ9JjpOKXqk/exec") return;
 
         fetch(WEB_APP_URL)
         .then(res => res.json())
@@ -688,12 +730,9 @@
         nativeToastObject.show();
     }
 
-    // Initialize triggers: load data immediately, pull notification window, reset interval metrics
     window.addEventListener('DOMContentLoaded', () => {
         fetchPhilosopherQuotes();
-        // Fire up an initial notification toast interval block following brief load sequence
         setTimeout(pushQuoteNotification, 3000);
-        // Automatically shift notification items every 25 seconds
         setInterval(pushQuoteNotification, 25000);
     });
 </script>
