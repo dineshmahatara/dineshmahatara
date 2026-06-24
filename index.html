@@ -696,7 +696,7 @@
     let currentQuoteIndex = 0;    
 
     function fetchPhilosopherQuotes() {
-        if(WEB_APP_URL.trim() === "") return;
+        if(WEB_APP_URL.trim() === "https://script.google.com/macros/s/AKfycbz5lDo69djTckZ6hHWB7nAs5VdQafvhdJaNZ74cUhbVE0C10PwaRVCI5jDflSj6wvrL/exec") return;
 
         // FIXED: Cache-buster parameters bypass sticky browser proxies to download fresh cell sheets
         const cacheBuster = WEB_APP_URL.includes('?') ? '&_cb=' + Date.now() : '?_cb=' + Date.now();
