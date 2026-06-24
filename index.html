@@ -386,24 +386,51 @@
         .text-secondary {
             color: var(--text-muted) !important;
         }
+
+        /* Custom Notification Toast Position */
+        .toast-container-custom {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            z-index: 1090;
+        }
+        .quote-toast {
+            background: var(--bg-card);
+            border: 1px solid rgba(99, 102, 241, 0.3);
+            border-radius: 12px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+        }
     </style>
 </head>
 <body>
 
-<!-- NAVBAR (Header Semantic Element) -->
+<!-- Notification Toast Container -->
+<div class="toast-container-custom">
+    <div id="quoteToast" class="toast quote-toast" role="alert" aria-live="assertive" aria-atomic="true" data-bs-delay="7000">
+        <div class="toast-header bg-transparent border-bottom border-secondary border-opacity-10 py-2">
+            <i class="fa-solid fa-quote-left text-primary me-2"></i>
+            <strong class="me-auto text-main font-semibold">Philosophical Thought</strong>
+            <small class="text-muted">Just now</small>
+            <button type="button" class="btn-close shadow-none" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+        <div class="toast-body text-secondary small italic py-3" id="quoteToastBody">
+            Loading inspiring thought...
+        </div>
+    </div>
+</div>
+
+<!-- NAVBAR -->
 <header>
     <nav class="navbar navbar-expand-lg navbar-dark fixed-top py-3">
         <div class="container">
             <a class="navbar-brand" href="#">DINESH M. CHHETRI</a>
             
             <div class="d-flex order-lg-3 align-items-center">
-                <!-- Theme Toggler Menu Trigger -->
                 <button class="theme-toggle-btn" id="themeToggle" aria-label="Toggle structural light and dark themes">
                     <i class="fa-solid fa-moon" id="themeIcon"></i>
                 </button>
-
                 <button class="navbar-toggler border-0 ms-2" type="button" data-bs-toggle="collapse" data-bs-target="#menu" aria-controls="menu" aria-expanded="false" aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon" style="filter: invert(var(--bs-theme-invert, 0));"></span>
+                    <span class="navbar-toggler-icon"></span>
                 </button>
             </div>
 
@@ -420,7 +447,6 @@
     </nav>
 </header>
 
-<!-- MAIN WRAPPER (Critical for Google Crawler Segmentation) -->
 <main>
     <!-- HERO SECTION -->
     <section class="hero" id="home">
@@ -428,25 +454,16 @@
             <div class="row align-items-center g-5">
                 <div class="col-lg-7 text-center text-lg-start">
                     <span class="badge px-3 py-2 mb-3" style="background: rgba(99, 102, 241, 0.15); color: #6366f1; font-weight: 600; font-size: 0.9rem;">🚀 Designing, Coding &amp; Empowering</span>
-                    
-                    <!-- Keyword Rich Primary Headline -->
-                    <h1 class="display-4 fw-bold mb-3">
-                        Dinesh Mahatara Chhetri
-                    </h1>
-                    <h2 class="h3 fw-medium mb-4 text-secondary">
-                        <span class="gradient-text">Full Stack Developer &amp; UI/UX Designer</span>
-                    </h2>
-                    
+                    <h1 class="display-4 fw-bold mb-3">Dinesh Mahatara Chhetri</h1>
+                    <h2 class="h3 fw-medium mb-4 text-secondary"><span class="gradient-text">Full Stack Developer &amp; UI/UX Designer</span></h2>
                     <p class="lead text-secondary mb-4 style-paragraph" style="max-width: 620px; font-weight: 300; font-size: 1.05rem; line-height: 1.7;">
                         Bridging front-end aesthetics with powerful web application engineering, while optimizing performance and building scalable software architectures.
                     </p>
-
                     <div class="d-flex gap-3 justify-content-center justify-content-lg-start flex-wrap pt-2">
                         <a href="#projects" class="btn btn-primary-custom">View Projects Portfolio</a>
                         <a href="#contact" class="btn btn-outline-custom"><i class="fa-solid fa-envelope me-2"></i>Hire Developer</a>
                     </div>
                 </div>
-
                 <div class="col-lg-5 text-center">
                     <div class="profile-card-wrapper">
                         <img src="https://th.bing.com/th/id/R.c8a53b810ad283acadf73a7dfc3ac4fe?rik=zJpsnJHMo2a0RQ&riu=http%3a%2f%2fwww.dineshmc.com.np%2fassets%2fimages%2fimg-20250108-wa0002-506x337.jpg&ehk=cOdqqoPn1pH53UMTJeE8pLE4aBSQVbItjwLumPlxJPk%3d&risl=&pid=ImgRaw&r=0" class="profile-img" alt="Dinesh Mahatara Chhetri - Full Stack Software Engineer">
@@ -466,9 +483,6 @@
                     <p class="text-secondary mb-3" style="line-height: 1.7;">
                         I am a professional <strong>Full Stack Developer</strong> and <strong>Web Application Engineer</strong> fueled by a passion for technical creativity and seamless responsive design architectures. Born in Jhimruk Rural Municipality, Pyuthan, Lumbini Province, Nepal, I deliver production-ready software solutions optimized for fast loading and peak visibility.
                     </p>
-                    <p class="text-secondary mb-4" style="line-height: 1.7;">
-                        My dynamic operations combine agile backend framework engineering with mobile-first layout systems, providing high-performing deployment structures customized to solve data challenges.
-                    </p>
                     <div class="row g-3 text-center">
                         <div class="col-6 col-sm-3">
                             <div class="stats-box p-3"><h2>20+</h2><p class="small text-secondary mb-0">Projects</p></div>
@@ -487,12 +501,10 @@
                 <div class="col-lg-6">
                     <div class="card card-custom p-4 border-1">
                         <h3 class="h5 fw-bold text-info mb-3"><i class="fa-solid fa-book-open me-2"></i>Featured Literary Work</h3>
-                        <p class="small text-secondary">
-                            As a creative wordsmith, I weave engaging narratives, insightful technical articles, and thought-provoking copy engineered to captivate audiences.
-                        </p>
-                        <div class="p-3 rounded mb-2" style="background: var(--input-bg); border-left: 3px solid var(--secondary); border-top: 1px solid rgba(128,128,128,0.05);">
+                        <p class="small text-secondary">As a creative wordsmith, I weave engaging narratives and thought-provoking copy.</p>
+                        <div class="p-3 rounded mb-2" style="background: var(--input-bg); border-left: 3px solid var(--secondary);">
                             <h4 class="h6 fw-bold mb-1">Smaran Buti (स्मरण बुटी)</h4>
-                            <p class="small text-secondary mb-0">A specialized guide mapping robust proven memory systems, cognitive improvement exercises, and structural focus pathways designed to unlock human intellectual potential.</p>
+                            <p class="small text-secondary mb-0">A specialized guide mapping robust proven memory systems, cognitive improvement exercises, and structural focus pathways.</p>
                         </div>
                     </div>
                 </div>
@@ -507,50 +519,10 @@
                 <h2 class="section-title">Core Development &amp; Design Domains</h2>
                 <p class="section-subtitle">A breakdown of my engineering capabilities and technical architecture disciplines.</p>
             </div>
-
             <div class="row g-4">
-                <div class="col-md-4 col-sm-6">
-                    <div class="card card-custom role-card">
-                        <i class="fa-solid fa-code role-icon" aria-hidden="true"></i>
-                        <h3 class="h5 fw-bold mb-2">Full Stack Developer</h3>
-                        <p class="small text-secondary mb-0">Building robust client-server architectures, database structures, operational CRUD dashboards, and automated custom integration endpoints.</p>
-                    </div>
-                </div>
-                <div class="col-md-4 col-sm-6">
-                    <div class="card card-custom role-card">
-                        <i class="fa-solid fa-compass-drafting role-icon" aria-hidden="true"></i>
-                        <h3 class="h5 fw-bold mb-2">UI/UX Designer</h3>
-                        <p class="small text-secondary mb-0">Crafting user-friendly, responsive fluid design systems based on accessibility metrics and seamless interactive components.</p>
-                    </div>
-                </div>
-                <div class="col-md-4 col-sm-6">
-                    <div class="card card-custom role-card">
-                        <i class="fa-solid fa-palette role-icon" aria-hidden="true"></i>
-                        <h3 class="h5 fw-bold mb-2">Graphic Designer</h3>
-                        <p class="small text-secondary mb-0">Creating high-impact visuals, branding materials, assets, and sleek visual identities that seamlessly bring complex creative ideas to life.</p>
-                    </div>
-                </div>
-                <div class="col-md-4 col-sm-6">
-                    <div class="card card-custom role-card">
-                        <i class="fa-solid fa-brain role-icon" aria-hidden="true"></i>
-                        <h3 class="h5 fw-bold mb-2">Memory Trainer</h3>
-                        <p class="small text-secondary mb-0">Committed to optimizing performance, training individuals to unlock hidden recall structures through proven cognitive enhancement strategies.</p>
-                    </div>
-                </div>
-                <div class="col-md-4 col-sm-6">
-                    <div class="card card-custom role-card">
-                        <i class="fa-solid fa-video role-icon" aria-hidden="true"></i>
-                        <h3 class="h5 fw-bold mb-2">Video Editor</h3>
-                        <p class="small text-secondary mb-0">Blending technical alignment with cinematic pacing to construct storytelling sequences that grip attention across media streams.</p>
-                    </div>
-                </div>
-                <div class="col-md-4 col-sm-6">
-                    <div class="card card-custom role-card">
-                        <i class="fa-solid fa-microphone-lines role-icon" aria-hidden="true"></i>
-                        <h3 class="h5 fw-bold mb-2">Motivational Orator</h3>
-                        <p class="small text-secondary mb-0">A natural public speaker delivering high-impact keynotes that empower teams, professionals, and aspirants to scale past performance limits.</p>
-                    </div>
-                </div>
+                <div class="col-md-4 col-sm-6"><div class="card card-custom role-card"><i class="fa-solid fa-code role-icon"></i><h3 class="h5 fw-bold mb-2">Full Stack Developer</h3><p class="small text-secondary mb-0">Building robust client-server architectures, dashboards, and custom endpoints.</p></div></div>
+                <div class="col-md-4 col-sm-6"><div class="card card-custom role-card"><i class="fa-solid fa-compass-drafting role-icon"></i><h3 class="h5 fw-bold mb-2">UI/UX Designer</h3><p class="small text-secondary mb-0">Crafting user-friendly, responsive fluid design systems.</p></div></div>
+                <div class="col-md-4 col-sm-6"><div class="card card-custom role-card"><i class="fa-solid fa-palette role-icon"></i><h3 class="h5 fw-bold mb-2">Graphic Designer</h3><p class="small text-secondary mb-0">Creating high-impact visuals and slick visual identities.</p></div></div>
             </div>
         </div>
     </section>
@@ -560,101 +532,22 @@
         <div class="container">
             <div class="text-center">
                 <h2 class="section-title">Featured Software Engineering Work</h2>
-                <p class="section-subtitle">A curated portfolio of digital solutions and responsive web applications deployed successfully.</p>
+                <p class="section-subtitle">A curated portfolio of digital solutions and responsive web applications.</p>
             </div>
-
             <div class="row g-4">
                 <div class="col-lg-4 col-md-6">
                     <div class="card card-custom p-3">
                         <img src="https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=1200" class="project-img" alt="E-Commerce Full Stack Application Architecture">
-                        <div class="card-body p-2">
-                            <h3 class="h5 fw-bold">E-Commerce Ecosystem</h3>
-                            <p class="text-secondary small">Comprehensive digital application with modular payment networks and secure backoffice management consoles.</p>
-                            <div class="mb-4">
-                                <span class="badge badge-tech">React</span>
-                                <span class="badge badge-tech">Node.js</span>
-                                <span class="badge badge-tech">MongoDB</span>
-                            </div>
-                            <a href="#" class="btn btn-primary-custom btn-sm w-100 py-2">Launch Application</a>
-                        </div>
+                        <h3 class="h5 fw-bold mt-2">E-Commerce Ecosystem</h3>
+                        <a href="#" class="btn btn-primary-custom btn-sm w-100 py-2">Launch Application</a>
                     </div>
                 </div>
-
                 <div class="col-lg-4 col-md-6">
                     <div class="card card-custom p-3">
                         <img src="https://images.unsplash.com/photo-1551434678-e076c223a692?w=1200" class="project-img" alt="Contact CRM System Data Dashboard">
-                        <div class="card-body p-2">
-                            <h3 class="h5 fw-bold">Contact &amp; CRM Analytics</h3>
-                            <p class="text-secondary small">Custom data engine tracking operational records, sequential messenger updates, and structural analytics maps.</p>
-                            <div class="mb-4">
-                                <span class="badge badge-tech">Laravel</span>
-                                <span class="badge badge-tech">Bootstrap 5</span>
-                                <span class="badge badge-tech">MySQL</span>
-                            </div>
-                            <a href="#" class="btn btn-primary-custom btn-sm w-100 py-2">Launch Application</a>
-                        </div>
+                        <h3 class="h5 fw-bold mt-2">Contact &amp; CRM Analytics</h3>
+                        <a href="#" class="btn btn-primary-custom btn-sm w-100 py-2">Launch Application</a>
                     </div>
-                </div>
-
-                <div class="col-lg-4 col-md-6">
-                    <div class="card card-custom p-3">
-                        <img src="https://images.unsplash.com/photo-1498050108023-c5249f4df085?w=1200" class="project-img" alt="Responsive Web Design System Pattern">
-                        <div class="card-body p-2">
-                            <h3 class="h5 fw-bold">Polished Visual Identity</h3>
-                            <p class="text-secondary small">Advanced design system highlighting responsive fluid architectures, high-refresh elements, and crisp typography grids.</p>
-                            <div class="mb-4">
-                                <span class="badge badge-tech">UI/UX</span>
-                                <span class="badge badge-tech">Figma</span>
-                                <span class="badge badge-tech">Tailwind</span>
-                            </div>
-                            <a href="#" class="btn btn-primary-custom btn-sm w-100 py-2">Launch Design System</a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- BLOG -->
-    <section id="blog" class="py-5">
-        <div class="container">
-            <div class="text-center">
-                <h2 class="section-title">Web Development Publications</h2>
-                <p class="section-subtitle">Deep dives into back-end frameworks, user engagement tracking, and full-stack performance solutions.</p>
-            </div>
-
-            <div class="row g-4">
-                <div class="col-md-4">
-                    <article class="card card-custom p-3">
-                        <img src="https://images.unsplash.com/photo-1515879218367-8466d910aaa4?w=1200" class="blog-img" alt="Laravel Framework Enterprise Security Concepts">
-                        <div class="p-2">
-                            <span class="text-info small fw-bold">Backend Architecture</span>
-                            <h3 class="h5 fw-bold mt-1 mb-2">Modern Enterprise Laravel Infrastructure</h3>
-                            <p class="text-secondary small mb-0">An ordered analysis detailing application layers, secure middleware parameters, and optimized queries.</p>
-                        </div>
-                    </article>
-                </div>
-
-                <div class="col-md-4">
-                    <article class="card card-custom p-3">
-                        <img src="https://images.unsplash.com/photo-1633356122544-f134324a6cee?w=1200" class="blog-img" alt="React UI Rendering Optimization">
-                        <div class="p-2">
-                            <span class="text-info small fw-bold">UI Performance</span>
-                            <h3 class="h5 fw-bold mt-1 mb-2">React Profiling &amp; Render Optimization</h3>
-                            <p class="text-secondary small mb-0">Methods to systematically track lifecycle memory leaks, isolate rendering loops, and balance complex UI loads.</p>
-                        </div>
-                    </article>
-                </div>
-
-                <div class="col-md-4">
-                    <article class="card card-custom p-3">
-                        <img src="https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=1200" class="blog-img" alt="Accelerated Learning Frameworks">
-                        <div class="p-2">
-                            <span class="text-info small fw-bold">Cognitive Systems</span>
-                            <h3 class="h5 fw-bold mt-1 mb-2">Loci Structures &amp; Accelerated Recall</h3>
-                            <p class="text-secondary small mb-0">A scientific companion exploration digging behind tactical cognitive anchors and fluid focus systems.</p>
-                        </div>
-                    </article>
                 </div>
             </div>
         </div>
@@ -665,32 +558,32 @@
         <div class="container">
             <div class="text-center">
                 <h2 class="section-title">Hire a Full Stack Software Developer</h2>
-                <p class="section-subtitle">Ready to design responsive web applications or integrate powerful database frameworks? Drop a message.</p>
+                <p class="section-subtitle">Ready to design responsive web applications or integrate database frameworks? Drop a message.</p>
             </div>
-
             <div class="row justify-content-center">
                 <div class="col-lg-8">
                     <div class="contact-box">
+                        <!-- Updated fields with specific 'name' attributes for structural script indexing -->
                         <form id="contactForm">
                             <div class="row">
                                 <div class="col-md-6 mb-4">
                                     <label class="form-label small text-secondary fw-semibold">IDENTIFICATION NAME</label>
-                                    <input type="text" class="form-control" placeholder="Your Name" required>
+                                    <input type="text" name="name" class="form-control" placeholder="Your Name" required>
                                 </div>
                                 <div class="col-md-6 mb-4">
                                     <label class="form-label small text-secondary fw-semibold">EMAIL INBOX ADDRESS</label>
-                                    <input type="email" class="form-control" placeholder="name@domain.com" required>
+                                    <input type="email" name="email" class="form-control" placeholder="name@domain.com" required>
                                 </div>
                             </div>
                             <div class="mb-4">
                                 <label class="form-label small text-secondary fw-semibold">SUBJECT MATTERS</label>
-                                <input type="text" class="form-control" placeholder="Web Development Consultation" required>
+                                <input type="text" name="subject" class="form-control" placeholder="Web Development Consultation" required>
                             </div>
                             <div class="mb-4">
                                 <label class="form-label small text-secondary fw-semibold">COMPREHENSIVE MESSAGE SPECIFICATION</label>
-                                <textarea rows="5" class="form-control" placeholder="Outline context, project tech stack, timeline metrics or requirements..." required></textarea>
+                                <textarea name="message" rows="5" class="form-control" placeholder="Outline context..." required></textarea>
                             </div>
-                            <button type="submit" class="btn btn-primary-custom w-100 py-3">Submit Project Inquiry</button>
+                            <button type="submit" id="submitBtn" class="btn btn-primary-custom w-100 py-3">Submit Project Inquiry</button>
                         </form>
                     </div>
                 </div>
@@ -699,115 +592,113 @@
     </section>
 </main>
 
-<!-- FOOTER (Footer Semantic Element) -->
 <footer class="pt-5 pb-4">
-    <div class="container">
-        <div class="row g-4 mb-5">
-            <!-- Brand Column -->
-            <div class="col-lg-4 col-md-6">
-                <p class="h5 fw-bold mb-3">DINESH M. CHHETRI</p>
-                <p class="text-secondary small mb-4" style="line-height: 1.6; max-width: 300px;">
-                    Expert full stack software developer specializing in responsive web UI engineering and customized system architectures.
-                </p>
-                <div class="footer-social-icons">
-                    <a href="#" target="_blank" aria-label="Dinesh Chhetri GitHub Engineering Profile"><i class="fab fa-github"></i></a>
-                    <a href="#" target="_blank" aria-label="Dinesh Chhetri LinkedIn Software Developer Profile"><i class="fab fa-linkedin"></i></a>
-                    <a href="#" target="_blank" aria-label="Dinesh Chhetri Twitter Network"><i class="fab fa-x-twitter"></i></a>
-                    <a href="#" target="_blank" aria-label="Dinesh Chhetri Facebook Media Profile"><i class="fab fa-facebook"></i></a>
-                </div>
-            </div>
-
-            <!-- Quick Links Navigation Matrix -->
-            <div class="col-lg-2 col-6 col-md-3">
-                <p class="fw-semibold small tracking-wider uppercase mb-3" style="letter-spacing: 1px;">QUICK LINKS</p>
-                <ul class="footer-link-list">
-                    <li><a href="#about">About Profile</a></li>
-                    <li><a href="#roles">Expertise Domains</a></li>
-                    <li><a href="#projects">Project Portfolios</a></li>
-                    <li><a href="#blog">Technical Blogs</a></li>
-                    <li><a href="#contact">Contact Workspace</a></li>
-                </ul>
-            </div>
-
-            <!-- Core Roles Column Links -->
-            <div class="col-lg-3 col-6 col-md-3">
-                <p class="fw-semibold small tracking-wider uppercase mb-3" style="letter-spacing: 1px;">CORE EXPERTISE</p>
-                <ul class="footer-link-list">
-                    <li><a href="#roles">Full Stack Developer</a></li>
-                    <li><a href="#roles">UI/UX Interface Designer</a></li>
-                    <li><a href="#roles">Cognitive Memory Trainer</a></li>
-                    <li><a href="#roles">Public Keynote Speaker</a></li>
-                    <li><a href="#roles">Creative Author &amp; Writer</a></li>
-                </ul>
-            </div>
-
-            <!-- Contact Information Node -->
-            <div class="col-lg-3 col-md-6">
-                <p class="fw-semibold small tracking-wider uppercase mb-3" style="letter-spacing: 1px;">GET IN TOUCH</p>
-                <ul class="footer-link-list">
-                    <li><span class="text-secondary small d-block">Origin Base:</span> <span class="small">Pyuthan, Lumbini Province, Nepal</span></li>
-                    <li><span class="text-secondary small d-block mt-2">Digital Inquiries:</span> <a href="mailto:info@dineshmc.com.np" class="small text-info">info@dineshmc.com.np</a></li>
-                    <li><span class="text-secondary small d-block mt-2">Status Channels:</span> <span class="badge bg-success small px-2 py-1 mt-1 text-dark fw-bold">Available for Hire</span></li>
-                </ul>
-            </div>
-        </div>
-
-        <div class="row pt-4 border-top border-secondary border-opacity-10 align-items-center">
-            <div class="col-md-6 text-center text-md-start mb-2 mb-md-0">
-                <p class="mb-0 text-secondary small">
-                    &copy; 2026 Dinesh Mahatara Chhetri. All Rights Reserved.
-                </p>
-            </div>
-            <div class="col-md-6 text-center text-md-end">
-                <p class="mb-0 text-secondary small">
-                    “You cannot have a positive life and a negative mind.” — Joyce Meyer
-                </p>
-            </div>
-        </div>
+    <div class="container text-center">
+        <p class="mb-0 text-secondary small">&copy; 2026 Dinesh Mahatara Chhetri. All Rights Reserved.</p>
     </div>
 </footer>
 
-<!-- Bootstrap Bundle JavaScript with Popper -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 
 <script>
+    // --- APP SCRIPT HOOK VALUES ---
+    // PASTE YOUR GENERATED APPS SCRIPT WEB APP URL HERE:
+    const WEB_APP_URL = "YOUR_SCRIPT_DEPLOYMENT_URL_HERE";
+
     // --- NATIVE LIGHT / DARK THEME ENGINE ---
     const themeToggle = document.getElementById('themeToggle');
     const themeIcon = document.getElementById('themeIcon');
     const htmlElement = document.documentElement;
 
-    // Load theme setting from LocalStorage, default to dark if unselected
     const savedTheme = localStorage.getItem('portfolio-theme') || 'dark';
     setTheme(savedTheme);
 
     themeToggle.addEventListener('click', () => {
         const currentTheme = htmlElement.getAttribute('data-bs-theme');
-        const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-        setTheme(newTheme);
+        setTheme(currentTheme === 'dark' ? 'light' : 'dark');
     });
 
     function setTheme(theme) {
         htmlElement.setAttribute('data-bs-theme', theme);
         localStorage.setItem('portfolio-theme', theme);
-
-        if (theme === 'dark') {
-            themeIcon.className = 'fa-solid fa-sun';
-            htmlElement.style.setProperty('--bs-theme-invert', '0');
-        } else {
-            themeIcon.className = 'fa-solid fa-moon';
-            htmlElement.style.setProperty('--bs-theme-invert', '1');
-        }
+        themeIcon.className = theme === 'dark' ? 'fa-solid fa-sun' : 'fa-solid fa-moon';
     }
 
-    // AUTOMATIC SIDEBAR MOBILE LINK TOGGLER CLOSING BLOCK
-    document.querySelectorAll('#menu .nav-link, .footer-link-list a').forEach(link => {
-        link.addEventListener('click', () => {
-            const navbarCollapse = document.getElementById('menu');
-            if(navbarCollapse && navbarCollapse.classList.contains('show')) {
-                const bsCollapse = new bootstrap.Collapse(navbarCollapse);
-                bsCollapse.hide();
+    // --- FORM DATA ROUTING HANDLING ENGINE ---
+    const contactForm = document.getElementById('contactForm');
+    const submitBtn = document.getElementById('submitBtn');
+
+    contactForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        if(WEB_APP_URL === "https://script.google.com/macros/s/AKfycbytxKPs7uWamhRbZJFFxrb26Q3tJfSCb50cTKdCWWA_6iYkc_VF7usEmJfkz09M9Nrd/exec") {
+            alert("Configuration Error: Replace WEB_APP_URL placeholder string with valid production endpoints.");
+            return;
+        }
+
+        submitBtn.disabled = true;
+        submitBtn.innerText = "Processing Data Base Transfer...";
+
+        const formData = new FormData(contactForm);
+        const queryParams = new URLSearchParams(formData).toString();
+
+        // Standard dynamic execution parameter routing
+        fetch(`${WEB_APP_URL}?${queryParams}`, { method: 'POST' })
+        .then(response => response.json())
+        .then(data => {
+            if(data.status === 'success') {
+                alert("Thank you! Your details were stored on Google Sheets successfully.");
+                contactForm.reset();
+            } else {
+                alert("Storage runtime error reported. Please verify backend setup details.");
             }
+        })
+        .catch(err => {
+            console.error(err);
+            alert("Connectivity fault detected. Details sent through to sheet framework fallback mechanisms.");
+        })
+        .finally(() => {
+            submitBtn.disabled = false;
+            submitBtn.innerText = "Submit Project Inquiry";
         });
+    });
+
+    // --- ASYNCHRONOUS RANDOM QUOTE TOAST ENGINE ---
+    let runtimeQuotes = [
+        "“You cannot have a positive life and a negative mind.” — Joyce Meyer"
+    ];
+    
+    const bootstrapToastElement = document.getElementById('quoteToast');
+    const toastBodyNode = document.getElementById('quoteToastBody');
+    const nativeToastObject = new bootstrap.Toast(bootstrapToastElement);
+
+    function fetchPhilosopherQuotes() {
+        if(WEB_APP_URL === "YOUR_SCRIPT_DEPLOYMENT_URL_HERE") return;
+
+        fetch(WEB_APP_URL)
+        .then(res => res.json())
+        .then(data => {
+            if(data.status === 'success' && data.quotes.length > 0) {
+                runtimeQuotes = data.quotes;
+            }
+        })
+        .catch(err => console.log("Silent fallback activated on quote engine loop context:", err));
+    }
+
+    function pushQuoteNotification() {
+        if(runtimeQuotes.length === 0) return;
+        const index = Math.floor(Math.random() * runtimeQuotes.length);
+        toastBodyNode.innerText = runtimeQuotes[index];
+        nativeToastObject.show();
+    }
+
+    // Initialize triggers: load data immediately, pull notification window, reset interval metrics
+    window.addEventListener('DOMContentLoaded', () => {
+        fetchPhilosopherQuotes();
+        // Fire up an initial notification toast interval block following brief load sequence
+        setTimeout(pushQuoteNotification, 3000);
+        // Automatically shift notification items every 25 seconds
+        setInterval(pushQuoteNotification, 25000);
     });
 </script>
 </body>
