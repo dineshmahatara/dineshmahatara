@@ -9,12 +9,14 @@
     <meta name="description" content="Portfolio of Dinesh Mahatara Chhetri, Memory trainer, Trainer in Nepal, Memory power Training in Nepal, Memory power, increase memory power, Loksewa class, IT officer, Dinesh, Dinesh Mahatara, a skilled Full Stack Developer, UI/UX Designer, and Web Application Engineer based in Nepal. Explore custom enterprise platforms and responsive designs.">
     <meta name="keywords" content="Full Stack Developer, Memory trainer, Trainer in Nepal, Memory power Training in Nepal, Memory power, increase memory power, Loksewa class, IT officer, Dinesh, Dinesh Mahatara, UI/UX Designer, Web Application Engineer, Responsive Design, Custom Web Apps, Software Developer Nepal">
 
+    <!-- Bootstrap 5.3.2 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome 6.5.2 -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 
     <style>
-        /* Theme Transition Engine */
         *, *::before, *::after {
             transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease, box-shadow 0.3s ease;
         }
@@ -23,8 +25,6 @@
             --primary: #6366f1;
             --secondary: #8b5cf6;
             --border-glow: rgba(99, 102, 241, 0.15);
-            
-            /* Dark Theme Variables (Default) */
             --bg-dark: #0f172a;
             --bg-card: #1e293b;
             --bg-card-gradient: linear-gradient(145deg, #1e293b 0%, #0f172a 100%);
@@ -39,7 +39,6 @@
         }
 
         [data-bs-theme="light"] {
-            /* Light Theme Variables overrides */
             --bg-dark: #f8fafc;
             --bg-card: #ffffff;
             --bg-card-gradient: linear-gradient(145deg, #ffffff 0%, #f1f5f9 100%);
@@ -70,7 +69,6 @@
             overflow-x: hidden;
         }
 
-        /* Custom Scrollbar */
         ::-webkit-scrollbar {
             width: 10px;
         }
@@ -85,13 +83,11 @@
             background: var(--primary);
         }
 
-        /* Navbar Styling */
         .navbar {
             background: var(--navbar-bg) !important;
             backdrop-filter: blur(12px);
             -webkit-backdrop-filter: blur(12px);
             border-bottom: 1px solid rgba(128, 128, 128, 0.1);
-            transition: all 0.3s ease;
         }
 
         .navbar-brand {
@@ -113,14 +109,12 @@
             color: var(--text-muted) !important;
             font-weight: 500;
             padding: 0.5rem 1.2rem !important;
-            transition: color 0.3s ease;
         }
 
         .nav-link:hover, .nav-link.active {
             color: var(--primary) !important;
         }
 
-        /* Hero Section */
         .hero {
             min-height: 100vh;
             display: flex;
@@ -138,7 +132,6 @@
             -webkit-text-fill-color: transparent;
         }
 
-        /* Theme Switcher Button UI */
         .theme-toggle-btn {
             background: none;
             border: none;
@@ -159,7 +152,6 @@
             background: rgba(99, 102, 241, 0.1);
         }
 
-        /* Buttons styling */
         .btn-primary-custom {
             background: linear-gradient(135deg, var(--primary), var(--secondary));
             border: none;
@@ -167,7 +159,6 @@
             padding: 12px 32px;
             border-radius: 12px;
             font-weight: 600;
-            transition: all 0.3s ease;
             box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);
         }
 
@@ -184,7 +175,6 @@
             border-radius: 12px;
             padding: 12px 32px;
             font-weight: 600;
-            transition: all 0.3s ease;
         }
 
         .btn-outline-custom:hover {
@@ -194,7 +184,6 @@
             transform: translateY(-2px);
         }
 
-        /* Profile Image Container */
         .profile-card-wrapper {
             position: relative;
             display: inline-block;
@@ -216,7 +205,6 @@
             100% { border-radius: 30% 70% 70% 30% / 30% 30% 70% 70%; }
         }
 
-        /* Global Sections Layout */
         .section-title {
             font-size: 2.5rem;
             font-weight: 800;
@@ -231,7 +219,6 @@
             margin: 0 auto 60px auto;
         }
 
-        /* Custom Cards Layout */
         .card-custom {
             background: var(--bg-card-gradient);
             border: 1px solid rgba(128, 128, 128, 0.1);
@@ -247,14 +234,12 @@
             box-shadow: 0 12px 30px rgba(0, 0, 0, 0.15);
         }
 
-        /* Stats Blocks */
         .stats-box {
             background: var(--stats-bg);
             border: 1px solid rgba(128, 128, 128, 0.05);
             padding: 30px 20px;
             border-radius: 16px;
             text-align: center;
-            transition: all 0.3s ease;
         }
         .stats-box:hover {
             background: var(--stats-hover);
@@ -269,7 +254,6 @@
             margin-bottom: 5px;
         }
 
-        /* Role Cards Configuration */
         .role-card {
             padding: 30px 25px;
             border-left: 3px solid transparent;
@@ -286,7 +270,6 @@
             display: inline-block;
         }
 
-        /* Display Layout Project Cards */
         .project-img {
             height: 200px;
             width: 100%;
@@ -295,7 +278,6 @@
             margin-bottom: 15px;
         }
 
-        /* Form & Contact Details */
         .contact-box {
             background: var(--stats-bg);
             border: 1px solid rgba(128, 128, 128, 0.1);
@@ -310,7 +292,6 @@
             color: var(--text-main);
             padding: 14px 18px;
             border-radius: 12px;
-            transition: all 0.3s ease;
         }
 
         .form-control:focus {
@@ -320,7 +301,6 @@
             border-color: var(--primary);
         }
 
-        /* Structural Footer Configs */
         .footer-link-list {
             list-style: none;
             padding-left: 0;
@@ -332,7 +312,6 @@
         .footer-link-list a {
             color: var(--text-muted);
             text-decoration: none;
-            transition: all 0.3s ease;
             font-size: 0.95rem;
             display: inline-block;
         }
@@ -344,7 +323,6 @@
             color: var(--text-muted);
             font-size: 20px;
             margin-right: 16px;
-            transition: all 0.3s ease;
             display: inline-block;
             background: rgba(128, 128, 128, 0.05);
             width: 42px;
@@ -366,7 +344,6 @@
             border-top: 1px solid rgba(128, 128, 128, 0.1);
         }
 
-        /* Dual Side Toast Enhancements */
         .quote-toast {
             background: var(--bg-card);
             border: 1px solid rgba(99, 102, 241, 0.3);
@@ -378,6 +355,7 @@
 </head>
 <body>
 
+<!-- DUAL POSITION NOTIFICATION CONTAINERS -->
 <div id="leftQuoteContainer" style="position: fixed; top: 50%; left: 24px; transform: translateY(-50%); z-index: 1090; max-width: 320px;">
     <div id="leftQuoteToast" class="toast quote-toast" role="alert" aria-live="assertive" aria-atomic="true" data-bs-autohide="false">
         <div class="toast-header bg-transparent border-bottom border-secondary border-opacity-10 py-2">
@@ -404,6 +382,7 @@
     </div>
 </div>
 
+<!-- NAVBAR -->
 <header>
     <nav class="navbar navbar-expand-lg navbar-dark fixed-top py-3">
         <div class="container">
@@ -431,6 +410,7 @@
 </header>
 
 <main>
+    <!-- HERO SECTION -->
     <section class="hero" id="home">
         <div class="container">
             <div class="row align-items-center g-5">
@@ -455,6 +435,7 @@
         </div>
     </section>
 
+    <!-- ABOUT SECTION -->
     <section id="about" class="py-5 my-4" style="background: var(--sub-section-bg); border-top: 1px solid rgba(128,128,128,0.1); border-bottom: 1px solid rgba(128,128,128,0.1);">
         <div class="container py-4">
             <div class="row align-items-center g-5">
@@ -493,6 +474,7 @@
         </div>
     </section>
 
+    <!-- ROLES & EXPERTISE -->
     <section id="roles" class="py-5">
         <div class="container">
             <div class="text-center">
@@ -507,6 +489,7 @@
         </div>
     </section>
 
+    <!-- PROJECTS -->
     <section id="projects" class="py-5 my-4">
         <div class="container">
             <div class="text-center">
@@ -532,6 +515,7 @@
         </div>
     </section>
 
+    <!-- CONTACT -->
     <section id="contact" class="py-5 my-4">
         <div class="container">
             <div class="text-center">
@@ -569,6 +553,7 @@
     </section>
 </main>
 
+<!-- FOOTER -->
 <footer class="pt-5 pb-4">
     <div class="container">
         <div class="row g-4 text-start mb-5">
@@ -617,11 +602,15 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 
 <script>
-    // --- APP SCRIPT HOOK VALUES ---
-    // PLACE YOUR EXACT LIVE WEB APP DEPLOYMENT URL HERE:
+    // =========================================================================
+    // 1. MASTER APPLICATION ENGINE INITIALIZATION CONFIGURATION
+    // =========================================================================
+    // Put your active Google Apps Script web app URL deployment string here:
     const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbz5lDo69djTckZ6hHWB7nAs5VdQafvhdJaNZ74cUhbVE0C10PwaRVCI5jDflSj6wvrL/exec";
 
-    // --- NATIVE LIGHT / DARK THEME ENGINE ---
+    // =========================================================================
+    // 2. LIGHT / DARK THEME ENGINE
+    // =========================================================================
     const themeToggle = document.getElementById('themeToggle');
     const themeIcon = document.getElementById('themeIcon');
     const htmlElement = document.documentElement;
@@ -640,14 +629,16 @@
         themeIcon.className = theme === 'dark' ? 'fa-solid fa-sun' : 'fa-solid fa-moon';
     }
 
-    // --- OPTIMIZED FORM DATA ROUTING HANDLING ENGINE ---
+    // =========================================================================
+    // 3. POST HANDLING FORM ENGINE (Google Sheets Integration)
+    // =========================================================================
     const contactForm = document.getElementById('contactForm');
     const submitBtn = document.getElementById('submitBtn');
 
     contactForm.addEventListener('submit', function(e) {
         e.preventDefault();
         
-        if(WEB_APP_URL.trim() === "https://script.google.com/macros/s/AKfycbz5lDo69djTckZ6hHWB7nAs5VdQafvhdJaNZ74cUhbVE0C10PwaRVCI5jDflSj6wvrL/exec") {
+        if (!WEB_APP_URL || WEB_APP_URL.trim() === "") {
             alert("Configuration Error: Please update the WEB_APP_URL variable inside the script tag.");
             return;
         }
@@ -676,8 +667,9 @@
         });
     });
     
-    // --- ALTERNATING DUAL-SIDE SEQUENTIAL QUOTE ENGINE ---
-    // Hardcoded initial values act as secondary network protection arrays
+    // =========================================================================
+    // 4. GET HANDLING STREAMING QUOTE ENGINE (Live Alternating Notifications)
+    // =========================================================================
     let runtimeQuotes = [
         "“The only way to do great work is to love what you do.” — Steve Jobs",
         "“Simplicity is the ultimate sophistication.” — Leonardo da Vinci",
@@ -696,9 +688,9 @@
     let currentQuoteIndex = 0;    
 
     function fetchPhilosopherQuotes() {
-        if(WEB_APP_URL.trim() === "https://script.google.com/macros/s/AKfycbz5lDo69djTckZ6hHWB7nAs5VdQafvhdJaNZ74cUhbVE0C10PwaRVCI5jDflSj6wvrL/exec") return;
+        if (!WEB_APP_URL || WEB_APP_URL.trim() === "") return;
 
-        // FIXED: Cache-buster parameters bypass sticky browser proxies to download fresh cell sheets
+        // Bypasses local browser proxy caching structures to grab accurate changes
         const cacheBuster = WEB_APP_URL.includes('?') ? '&_cb=' + Date.now() : '?_cb=' + Date.now();
 
         fetch(WEB_APP_URL + cacheBuster)
@@ -709,7 +701,7 @@
         .then(data => {
             console.log("Database Sync Data Payload Received:", data);
             if(data.status === 'success' && data.quotes && data.quotes.length > 0) {
-                runtimeQuotes = data.quotes; // Overwrites temporary fallbacks with sheet data completely
+                runtimeQuotes = data.quotes; 
                 console.log("Successfully connected! Loaded " + runtimeQuotes.length + " real-time entries.");
             }
         })
@@ -722,7 +714,6 @@
         const activeQuote = runtimeQuotes[currentQuoteIndex];
         currentQuoteIndex = (currentQuoteIndex + 1) % runtimeQuotes.length;
 
-        // Dismiss open elements cleanly before updating nodes
         leftToastInstance.hide();
         rightToastInstance.hide();
 
@@ -740,17 +731,12 @@
     }
 
     window.addEventListener('DOMContentLoaded', () => {
-        // Run database pull immediately
         fetchPhilosopherQuotes();
-        
-        // Initial delayed popup trigger
         setTimeout(pushQuoteNotification, 3000);
-        
-        // Fixed looping timeline set for exactly 30 seconds (30000ms)
         setInterval(pushQuoteNotification, 30000);
     });
 
-    // Mobile sidebar auto-collapse optimization
+    // Mobile menu collapsing mechanism optimization
     document.querySelectorAll('#menu .nav-link').forEach(link => {
         link.addEventListener('click', () => {
             const navbarCollapse = document.getElementById('menu');
