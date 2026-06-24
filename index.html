@@ -286,26 +286,13 @@
             display: inline-block;
         }
 
-        /* Display Layout Project & Blogs Cards */
-        .project-img, .blog-img {
+        /* Display Layout Project Cards */
+        .project-img {
             height: 200px;
             width: 100%;
             object-fit: cover;
             border-radius: 14px;
             margin-bottom: 15px;
-        }
-
-        .badge-tech {
-            background: rgba(99, 102, 241, 0.08);
-            color: var(--primary);
-            font-weight: 600;
-            padding: 6px 14px;
-            border-radius: 8px;
-            font-size: 0.8rem;
-            margin-right: 6px;
-            margin-top: 6px;
-            display: inline-block;
-            border: 1px solid rgba(99, 102, 241, 0.15);
         }
 
         /* Form & Contact Details */
@@ -378,9 +365,6 @@
             background: var(--bg-footer);
             border-top: 1px solid rgba(128, 128, 128, 0.1);
         }
-        .text-secondary {
-            color: var(--text-muted) !important;
-        }
 
         /* Dual Side Toast Enhancements */
         .quote-toast {
@@ -402,7 +386,7 @@
             <button type="button" class="btn-close shadow-none" data-bs-dismiss="toast" aria-label="Close"></button>
         </div>
         <div class="toast-body text-secondary small italic py-3" id="leftQuoteBody">
-            Loading perspective tracking loop...
+            Synchronizing live cloud resources...
         </div>
     </div>
 </div>
@@ -415,7 +399,7 @@
             <button type="button" class="btn-close shadow-none" data-bs-dismiss="toast" aria-label="Close"></button>
         </div>
         <div class="toast-body text-secondary small italic py-3" id="rightQuoteBody">
-            Loading database runtime matrix...
+            Fetching spreadsheet metrics database...
         </div>
     </div>
 </div>
@@ -634,7 +618,7 @@
 
 <script>
     // --- APP SCRIPT HOOK VALUES ---
-    // PASTE YOUR GENERATED APPS SCRIPT WEB APP URL BETWEEN THE QUOTES BELOW:
+    // PLACE YOUR EXACT LIVE WEB APP DEPLOYMENT URL HERE:
     const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbz5lDo69djTckZ6hHWB7nAs5VdQafvhdJaNZ74cUhbVE0C10PwaRVCI5jDflSj6wvrL/exec";
 
     // --- NATIVE LIGHT / DARK THEME ENGINE ---
@@ -663,8 +647,8 @@
     contactForm.addEventListener('submit', function(e) {
         e.preventDefault();
         
-        if(WEB_APP_URL === "https://script.google.com/macros/s/AKfycbz5lDo69djTckZ6hHWB7nAs5VdQafvhdJaNZ74cUhbVE0C10PwaRVCI5jDflSj6wvrL/exec" || WEB_APP_URL === "https://script.google.com/macros/s/AKfycbz5lDo69djTckZ6hHWB7nAs5VdQafvhdJaNZ74cUhbVE0C10PwaRVCI5jDflSj6wvrL/exec") {
-            alert("Configuration Error: Replace WEB_APP_URL placeholder string with your valid Google Apps Script URL.");
+        if(WEB_APP_URL.trim() === "") {
+            alert("Configuration Error: Please update the WEB_APP_URL variable inside the script tag.");
             return;
         }
 
@@ -684,7 +668,7 @@
         })
         .catch(err => {
             console.error("Connection Error Detailed Logs: ", err);
-            alert("Connectivity fault detected. Check internet connections or verification setups.");
+            alert("Connectivity fault detected. Check your configuration setups.");
         })
         .finally(() => {
             submitBtn.disabled = false;
@@ -693,8 +677,11 @@
     });
     
     // --- ALTERNATING DUAL-SIDE SEQUENTIAL QUOTE ENGINE ---
+    // Hardcoded initial values act as secondary network protection arrays
     let runtimeQuotes = [
-        "“You cannot have a positive life and a negative mind.” — Joyce Meyer"
+        "“The only way to do great work is to love what you do.” — Steve Jobs",
+        "“Simplicity is the ultimate sophistication.” — Leonardo da Vinci",
+        "“First, solve the problem. Then, write the code.” — John Johnson"
     ];
 
     const leftToastNode = document.getElementById('leftQuoteToast');
@@ -709,16 +696,24 @@
     let currentQuoteIndex = 0;    
 
     function fetchPhilosopherQuotes() {
-        if(WEB_APP_URL === "https://script.google.com/macros/s/AKfycbz5lDo69djTckZ6hHWB7nAs5VdQafvhdJaNZ74cUhbVE0C10PwaRVCI5jDflSj6wvrL/exec" || WEB_APP_URL === "https://script.google.com/macros/s/AKfycbz5lDo69djTckZ6hHWB7nAs5VdQafvhdJaNZ74cUhbVE0C10PwaRVCI5jDflSj6wvrL/exec") return;
+        if(WEB_APP_URL.trim() === "") return;
 
-        fetch(WEB_APP_URL)
-        .then(res => res.json())
+        // FIXED: Cache-buster parameters bypass sticky browser proxies to download fresh cell sheets
+        const cacheBuster = WEB_APP_URL.includes('?') ? '&_cb=' + Date.now() : '?_cb=' + Date.now();
+
+        fetch(WEB_APP_URL + cacheBuster)
+        .then(res => {
+            if(!res.ok) throw new Error("HTTP Handshake error status code: " + res.status);
+            return res.json();
+        })
         .then(data => {
-            if(data.status === 'success' && data.quotes.length > 0) {
-                runtimeQuotes = data.quotes;
+            console.log("Database Sync Data Payload Received:", data);
+            if(data.status === 'success' && data.quotes && data.quotes.length > 0) {
+                runtimeQuotes = data.quotes; // Overwrites temporary fallbacks with sheet data completely
+                console.log("Successfully connected! Loaded " + runtimeQuotes.length + " real-time entries.");
             }
         })
-        .catch(err => console.log("Background synchronization delay fallback activated:", err));
+        .catch(err => console.error("Database connection fallback loop logging error: ", err));
     }
 
     function pushQuoteNotification() {
@@ -727,7 +722,7 @@
         const activeQuote = runtimeQuotes[currentQuoteIndex];
         currentQuoteIndex = (currentQuoteIndex + 1) % runtimeQuotes.length;
 
-        // Dismiss open elements cleanly before rendering new items
+        // Dismiss open elements cleanly before updating nodes
         leftToastInstance.hide();
         rightToastInstance.hide();
 
@@ -745,6 +740,7 @@
     }
 
     window.addEventListener('DOMContentLoaded', () => {
+        // Run database pull immediately
         fetchPhilosopherQuotes();
         
         // Initial delayed popup trigger
@@ -754,7 +750,7 @@
         setInterval(pushQuoteNotification, 30000);
     });
 
-    // Mobile sidebar toggle closing layout optimization
+    // Mobile sidebar auto-collapse optimization
     document.querySelectorAll('#menu .nav-link').forEach(link => {
         link.addEventListener('click', () => {
             const navbarCollapse = document.getElementById('menu');
