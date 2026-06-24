@@ -635,7 +635,7 @@
 <script>
     // --- APP SCRIPT HOOK VALUES ---
     // PASTE YOUR GENERATED APPS SCRIPT WEB APP URL BETWEEN THE QUOTES BELOW:
-    const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbwsr2rLnfjz2ImfXJEy-SF7Klwsa2XG7d2472m1BugsFoQXC7N6hxMsAoQ9JjpOKXqk/exec";
+    const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbz5lDo69djTckZ6hHWB7nAs5VdQafvhdJaNZ74cUhbVE0C10PwaRVCI5jDflSj6wvrL/exec";
 
     // --- NATIVE LIGHT / DARK THEME ENGINE ---
     const themeToggle = document.getElementById('themeToggle');
@@ -663,7 +663,7 @@
     contactForm.addEventListener('submit', function(e) {
         e.preventDefault();
         
-        if(WEB_APP_URL === "https://script.google.com/macros/s/AKfycbwsr2rLnfjz2ImfXJEy-SF7Klwsa2XG7d2472m1BugsFoQXC7N6hxMsAoQ9JjpOKXqk/exec" || WEB_APP_URL === "https://script.google.com/macros/s/AKfycbwsr2rLnfjz2ImfXJEy-SF7Klwsa2XG7d2472m1BugsFoQXC7N6hxMsAoQ9JjpOKXqk/exec") {
+        if(WEB_APP_URL === "https://script.google.com/macros/s/AKfycbz5lDo69djTckZ6hHWB7nAs5VdQafvhdJaNZ74cUhbVE0C10PwaRVCI5jDflSj6wvrL/exec" || WEB_APP_URL === "https://script.google.com/macros/s/AKfycbz5lDo69djTckZ6hHWB7nAs5VdQafvhdJaNZ74cUhbVE0C10PwaRVCI5jDflSj6wvrL/exec") {
             alert("Configuration Error: Replace WEB_APP_URL placeholder string with your valid Google Apps Script URL.");
             return;
         }
@@ -709,7 +709,7 @@
     let currentQuoteIndex = 0;    
 
     function fetchPhilosopherQuotes() {
-        if(WEB_APP_URL === "https://script.google.com/macros/s/AKfycbwsr2rLnfjz2ImfXJEy-SF7Klwsa2XG7d2472m1BugsFoQXC7N6hxMsAoQ9JjpOKXqk/exec" || WEB_APP_URL === "") return;
+        if(WEB_APP_URL === "https://script.google.com/macros/s/AKfycbz5lDo69djTckZ6hHWB7nAs5VdQafvhdJaNZ74cUhbVE0C10PwaRVCI5jDflSj6wvrL/exec" || WEB_APP_URL === "https://script.google.com/macros/s/AKfycbz5lDo69djTckZ6hHWB7nAs5VdQafvhdJaNZ74cUhbVE0C10PwaRVCI5jDflSj6wvrL/exec") return;
 
         fetch(WEB_APP_URL)
         .then(res => res.json())
