@@ -1,0 +1,814 @@
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Search Engine Indexing Controls -->
+    <meta name="robots" content="noindex, nofollow">
+    
+    <title>Dinesh Mahatara Chhetri | Expert Full Stack Developer & UI/UX Designer Portfolio</title>
+    <meta name="description" content="Portfolio of Dinesh Mahatara Chhetri,, Memory trainner, Trainner in Nepal, Memory power Training in Nepal, Memory power, increase memory power, Loksewa class, IT officer, Dinesh, Dinesh Mahatara, a skilled Full Stack Developer, UI/UX Designer, and Web Application Engineer based in Nepal. Explore custom enterprise platforms and responsive designs.">
+    <meta name="keywords" content="Full Stack Developer, Memory trainner, Trainner in Nepal, Memory power Training in Nepal, Memory power, increase memory power, Loksewa class, IT officer, Dinesh, Dinesh Mahatara, UI/UX Designer, Web Application Engineer, Responsive Design, Custom Web Apps, Software Developer Nepal">
+
+    <!-- Bootstrap 5.3.2 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome 6.5.2 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <style>
+        /* Theme Transition Engine */
+        *, *::before, *::after {
+            transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        :root {
+            --primary: #6366f1;
+            --secondary: #8b5cf6;
+            --border-glow: rgba(99, 102, 241, 0.15);
+            
+            /* Dark Theme Variables (Default) */
+            --bg-dark: #0f172a;
+            --bg-card: #1e293b;
+            --bg-card-gradient: linear-gradient(145deg, #1e293b 0%, #0f172a 100%);
+            --bg-footer: #090d16;
+            --text-main: #f1f5f9;
+            --text-muted: #94a3b8;
+            --navbar-bg: rgba(15, 23, 42, 0.8);
+            --input-bg: #0f172a;
+            --stats-bg: rgba(30, 41, 59, 0.5);
+            --stats-hover: rgba(30, 41, 59, 0.8);
+            --sub-section-bg: rgba(30, 41, 59, 0.2);
+        }
+
+        [data-bs-theme="light"] {
+            /* Light Theme Variables overrides */
+            --bg-dark: #f8fafc;
+            --bg-card: #ffffff;
+            --bg-card-gradient: linear-gradient(145deg, #ffffff 0%, #f1f5f9 100%);
+            --bg-footer: #f1f5f9;
+            --text-main: #0f172a;
+            --text-muted: #64748b;
+            --navbar-bg: rgba(248, 250, 252, 0.85);
+            --input-bg: #f1f5f9;
+            --stats-bg: rgba(226, 232, 240, 0.6);
+            --stats-hover: rgba(226, 232, 240, 0.9);
+            --sub-section-bg: rgba(226, 232, 240, 0.3);
+            --border-glow: rgba(99, 102, 241, 0.1);
+        }
+
+        * {
+            font-family: 'Poppins', sans-serif;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+            scroll-padding-top: 80px;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            overflow-x: hidden;
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 10px;
+        }
+        ::-webkit-scrollbar-track {
+            background: var(--bg-dark);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #334155;
+            border-radius: 5px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--primary);
+        }
+
+        /* Navbar Styling */
+        .navbar {
+            background: var(--navbar-bg) !important;
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(128, 128, 128, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        /* Fixed Brand Gradient for Light/Dark mode compatibility */
+        .navbar-brand {
+            font-weight: 800;
+            letter-spacing: 1px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            display: inline-block;
+        }
+
+        [data-bs-theme="dark"] .navbar-brand {
+            background: linear-gradient(135deg, #ffffff 0%, #cbd5e1 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .nav-link {
+            color: var(--text-muted) !important;
+            font-weight: 500;
+            padding: 0.5rem 1.2rem !important;
+            transition: color 0.3s ease;
+        }
+
+        .nav-link:hover, .nav-link.active {
+            color: var(--primary) !important;
+        }
+
+        /* Hero Section */
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            position: relative;
+            background: 
+                radial-gradient(circle at 80% 20%, rgba(99, 102, 241, 0.12), transparent 50%),
+                radial-gradient(circle at 20% 80%, rgba(139, 92, 246, 0.12), transparent 50%);
+            padding-top: 100px;
+        }
+
+        .gradient-text {
+            background: linear-gradient(135deg, #818cf8 0%, #c084fc 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        /* Theme Switcher Button UI */
+        .theme-toggle-btn {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            font-size: 1.2rem;
+            padding: 8px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            margin-left: 10px;
+        }
+        .theme-toggle-btn:hover {
+            color: var(--primary);
+            background: rgba(99, 102, 241, 0.1);
+        }
+
+        /* Buttons styling */
+        .btn-primary-custom {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            border: none;
+            color: white;
+            padding: 12px 32px;
+            border-radius: 12px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);
+        }
+
+        .btn-primary-custom:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(99, 102, 241, 0.5);
+            color: white;
+        }
+
+        .btn-outline-custom {
+            border: 1px solid rgba(129, 140, 248, 0.4);
+            background: rgba(255, 255, 255, 0.02);
+            color: var(--text-main);
+            border-radius: 12px;
+            padding: 12px 32px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .btn-outline-custom:hover {
+            background: rgba(99, 102, 241, 0.1);
+            border-color: var(--primary);
+            color: var(--primary);
+            transform: translateY(-2px);
+        }
+
+        /* Profile Image Container */
+        .profile-card-wrapper {
+            position: relative;
+            display: inline-block;
+        }
+
+        .profile-img {
+            width: 340px;
+            height: 340px;
+            object-fit: cover;
+            border-radius: 30% 70% 70% 30% / 30% 30% 70% 70%;
+            border: 4px solid rgba(128, 128, 128, 0.1);
+            animation: morphing 8s infinite ease-in-out;
+            box-shadow: 0 0 50px rgba(99, 102, 241, 0.25);
+        }
+
+        @keyframes morphing {
+            0% { border-radius: 30% 70% 70% 30% / 30% 30% 70% 70%; }
+            50% { border-radius: 70% 30% 30% 70% / 70% 70% 30% 30%; }
+            100% { border-radius: 30% 70% 70% 30% / 30% 30% 70% 70%; }
+        }
+
+        /* Global Sections Layout */
+        .section-title {
+            font-size: 2.5rem;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+            margin-bottom: 12px;
+        }
+
+        .section-subtitle {
+            color: var(--text-muted);
+            font-size: 1.1rem;
+            max-width: 600px;
+            margin: 0 auto 60px auto;
+        }
+
+        /* Custom Cards Layout */
+        .card-custom {
+            background: var(--bg-card-gradient);
+            border: 1px solid rgba(128, 128, 128, 0.1);
+            border-radius: 20px;
+            color: var(--text-main);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            height: 100%;
+        }
+
+        .card-custom:hover {
+            transform: translateY(-6px);
+            border-color: var(--border-glow);
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.15);
+        }
+
+        /* Stats Blocks */
+        .stats-box {
+            background: var(--stats-bg);
+            border: 1px solid rgba(128, 128, 128, 0.05);
+            padding: 30px 20px;
+            border-radius: 16px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+        .stats-box:hover {
+            background: var(--stats-hover);
+            border-color: rgba(99, 102, 241, 0.2);
+        }
+        .stats-box h2 {
+            font-size: 2.8rem;
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+
+        /* Role Cards Configuration */
+        .role-card {
+            padding: 30px 25px;
+            border-left: 3px solid transparent;
+        }
+        .role-card:hover {
+            border-left-color: var(--primary);
+        }
+        .role-icon {
+            font-size: 28px;
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 15px;
+            display: inline-block;
+        }
+
+        /* Display Layout Project & Blogs Cards */
+        .project-img, .blog-img {
+            height: 200px;
+            width: 100%;
+            object-fit: cover;
+            border-radius: 14px;
+            margin-bottom: 15px;
+        }
+
+        .badge-tech {
+            background: rgba(99, 102, 241, 0.08);
+            color: var(--primary);
+            font-weight: 600;
+            padding: 6px 14px;
+            border-radius: 8px;
+            font-size: 0.8rem;
+            margin-right: 6px;
+            margin-top: 6px;
+            display: inline-block;
+            border: 1px solid rgba(99, 102, 241, 0.15);
+        }
+
+        /* Form & Contact Details */
+        .contact-box {
+            background: var(--stats-bg);
+            border: 1px solid rgba(128, 128, 128, 0.1);
+            backdrop-filter: blur(10px);
+            padding: 45px;
+            border-radius: 24px;
+        }
+
+        .form-control {
+            background: var(--input-bg);
+            border: 1px solid rgba(128, 128, 128, 0.2);
+            color: var(--text-main);
+            padding: 14px 18px;
+            border-radius: 12px;
+            transition: all 0.3s ease;
+        }
+
+        .form-control:focus {
+            background: var(--input-bg);
+            color: var(--text-main);
+            box-shadow: 0 0 15px rgba(99, 102, 241, 0.15);
+            border-color: var(--primary);
+        }
+
+        /* Structural Footer Configs */
+        .footer-link-list {
+            list-style: none;
+            padding-left: 0;
+            margin-bottom: 0;
+        }
+        .footer-link-list li {
+            margin-bottom: 12px;
+        }
+        .footer-link-list a {
+            color: var(--text-muted);
+            text-decoration: none;
+            transition: all 0.3s ease;
+            font-size: 0.95rem;
+            display: inline-block;
+        }
+        .footer-link-list a:hover {
+            color: var(--primary);
+            transform: translateX(4px);
+        }
+        .footer-social-icons a {
+            color: var(--text-muted);
+            font-size: 20px;
+            margin-right: 16px;
+            transition: all 0.3s ease;
+            display: inline-block;
+            background: rgba(128, 128, 128, 0.05);
+            width: 42px;
+            height: 42px;
+            line-height: 42px;
+            text-align: center;
+            border-radius: 10px;
+            border: 1px solid rgba(128, 128, 128, 0.1);
+        }
+        .footer-social-icons a:hover {
+            color: #fff;
+            background: var(--primary);
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(99, 102, 241, 0.3);
+        }
+
+        footer {
+            background: var(--bg-footer);
+            border-top: 1px solid rgba(128, 128, 128, 0.1);
+        }
+        .text-secondary {
+            color: var(--text-muted) !important;
+        }
+    </style>
+</head>
+<body>
+
+<!-- NAVBAR (Header Semantic Element) -->
+<header>
+    <nav class="navbar navbar-expand-lg navbar-dark fixed-top py-3">
+        <div class="container">
+            <a class="navbar-brand" href="#">DINESH M. CHHETRI</a>
+            
+            <div class="d-flex order-lg-3 align-items-center">
+                <!-- Theme Toggler Menu Trigger -->
+                <button class="theme-toggle-btn" id="themeToggle" aria-label="Toggle structural light and dark themes">
+                    <i class="fa-solid fa-moon" id="themeIcon"></i>
+                </button>
+
+                <button class="navbar-toggler border-0 ms-2" type="button" data-bs-toggle="collapse" data-bs-target="#menu" aria-controls="menu" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon" style="filter: invert(var(--bs-theme-invert, 0));"></span>
+                </button>
+            </div>
+
+            <div class="collapse navbar-collapse order-lg-2" id="menu">
+                <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+                    <li class="nav-item"><a class="nav-link" href="#about">About</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#roles">Expertise</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#projects">Projects</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#blog">Blog</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#contact">Contact</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+</header>
+
+<!-- MAIN WRAPPER (Critical for Google Crawler Segmentation) -->
+<main>
+    <!-- HERO SECTION -->
+    <section class="hero" id="home">
+        <div class="container">
+            <div class="row align-items-center g-5">
+                <div class="col-lg-7 text-center text-lg-start">
+                    <span class="badge px-3 py-2 mb-3" style="background: rgba(99, 102, 241, 0.15); color: #6366f1; font-weight: 600; font-size: 0.9rem;">🚀 Designing, Coding &amp; Empowering</span>
+                    
+                    <!-- Keyword Rich Primary Headline -->
+                    <h1 class="display-4 fw-bold mb-3">
+                        Dinesh Mahatara Chhetri
+                    </h1>
+                    <h2 class="h3 fw-medium mb-4 text-secondary">
+                        <span class="gradient-text">Full Stack Developer &amp; UI/UX Designer</span>
+                    </h2>
+                    
+                    <p class="lead text-secondary mb-4 style-paragraph" style="max-width: 620px; font-weight: 300; font-size: 1.05rem; line-height: 1.7;">
+                        Bridging front-end aesthetics with powerful web application engineering, while optimizing performance and building scalable software architectures.
+                    </p>
+
+                    <div class="d-flex gap-3 justify-content-center justify-content-lg-start flex-wrap pt-2">
+                        <a href="#projects" class="btn btn-primary-custom">View Projects Portfolio</a>
+                        <a href="#contact" class="btn btn-outline-custom"><i class="fa-solid fa-envelope me-2"></i>Hire Developer</a>
+                    </div>
+                </div>
+
+                <div class="col-lg-5 text-center">
+                    <div class="profile-card-wrapper">
+                        <img src="https://th.bing.com/th/id/R.c8a53b810ad283acadf73a7dfc3ac4fe?rik=zJpsnJHMo2a0RQ&riu=http%3a%2f%2fwww.dineshmc.com.np%2fassets%2fimages%2fimg-20250108-wa0002-506x337.jpg&ehk=cOdqqoPn1pH53UMTJeE8pLE4aBSQVbItjwLumPlxJPk%3d&risl=&pid=ImgRaw&r=0" class="profile-img" alt="Dinesh Mahatara Chhetri - Full Stack Software Engineer">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ABOUT SECTION -->
+    <section id="about" class="py-5 my-4" style="background: var(--sub-section-bg); border-top: 1px solid rgba(128,128,128,0.1); border-bottom: 1px solid rgba(128,128,128,0.1);">
+        <div class="container py-4">
+            <div class="row align-items-center g-5">
+                <div class="col-lg-6">
+                    <span class="text-info uppercase small fw-bold tracking-wider">THE MAN BEHIND THE BIO</span>
+                    <h2 class="fw-bold display-6 mt-1 mb-4">About Me</h2>
+                    <p class="text-secondary mb-3" style="line-height: 1.7;">
+                        I am a professional <strong>Full Stack Developer</strong> and <strong>Web Application Engineer</strong> fueled by a passion for technical creativity and seamless responsive design architectures. Born in Jhimruk Rural Municipality, Pyuthan, Lumbini Province, Nepal, I deliver production-ready software solutions optimized for fast loading and peak visibility.
+                    </p>
+                    <p class="text-secondary mb-4" style="line-height: 1.7;">
+                        My dynamic operations combine agile backend framework engineering with mobile-first layout systems, providing high-performing deployment structures customized to solve data challenges.
+                    </p>
+                    <div class="row g-3 text-center">
+                        <div class="col-6 col-sm-3">
+                            <div class="stats-box p-3"><h2>20+</h2><p class="small text-secondary mb-0">Projects</p></div>
+                        </div>
+                        <div class="col-6 col-sm-3">
+                            <div class="stats-box p-3"><h2>3+</h2><p class="small text-secondary mb-0">Years Exp</p></div>
+                        </div>
+                        <div class="col-6 col-sm-3">
+                            <div class="stats-box p-3"><h2>10+</h2><p class="small text-secondary mb-0">Stacks</p></div>
+                        </div>
+                        <div class="col-6 col-sm-3">
+                            <div class="stats-box p-3"><h2>100%</h2><p class="small text-secondary mb-0">Success</p></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-6">
+                    <div class="card card-custom p-4 border-1">
+                        <h3 class="h5 fw-bold text-info mb-3"><i class="fa-solid fa-book-open me-2"></i>Featured Literary Work</h3>
+                        <p class="small text-secondary">
+                            As a creative wordsmith, I weave engaging narratives, insightful technical articles, and thought-provoking copy engineered to captivate audiences.
+                        </p>
+                        <div class="p-3 rounded mb-2" style="background: var(--input-bg); border-left: 3px solid var(--secondary); border-top: 1px solid rgba(128,128,128,0.05);">
+                            <h4 class="h6 fw-bold mb-1">Smaran Buti (स्मरण बुटी)</h4>
+                            <p class="small text-secondary mb-0">A specialized guide mapping robust proven memory systems, cognitive improvement exercises, and structural focus pathways designed to unlock human intellectual potential.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ROLES & EXPERTISE -->
+    <section id="roles" class="py-5">
+        <div class="container">
+            <div class="text-center">
+                <h2 class="section-title">Core Development &amp; Design Domains</h2>
+                <p class="section-subtitle">A breakdown of my engineering capabilities and technical architecture disciplines.</p>
+            </div>
+
+            <div class="row g-4">
+                <div class="col-md-4 col-sm-6">
+                    <div class="card card-custom role-card">
+                        <i class="fa-solid fa-code role-icon" aria-hidden="true"></i>
+                        <h3 class="h5 fw-bold mb-2">Full Stack Developer</h3>
+                        <p class="small text-secondary mb-0">Building robust client-server architectures, database structures, operational CRUD dashboards, and automated custom integration endpoints.</p>
+                    </div>
+                </div>
+                <div class="col-md-4 col-sm-6">
+                    <div class="card card-custom role-card">
+                        <i class="fa-solid fa-compass-drafting role-icon" aria-hidden="true"></i>
+                        <h3 class="h5 fw-bold mb-2">UI/UX Designer</h3>
+                        <p class="small text-secondary mb-0">Crafting user-friendly, responsive fluid design systems based on accessibility metrics and seamless interactive components.</p>
+                    </div>
+                </div>
+                <div class="col-md-4 col-sm-6">
+                    <div class="card card-custom role-card">
+                        <i class="fa-solid fa-palette role-icon" aria-hidden="true"></i>
+                        <h3 class="h5 fw-bold mb-2">Graphic Designer</h3>
+                        <p class="small text-secondary mb-0">Creating high-impact visuals, branding materials, assets, and sleek visual identities that seamlessly bring complex creative ideas to life.</p>
+                    </div>
+                </div>
+                <div class="col-md-4 col-sm-6">
+                    <div class="card card-custom role-card">
+                        <i class="fa-solid fa-brain role-icon" aria-hidden="true"></i>
+                        <h3 class="h5 fw-bold mb-2">Memory Trainer</h3>
+                        <p class="small text-secondary mb-0">Committed to optimizing performance, training individuals to unlock hidden recall structures through proven cognitive enhancement strategies.</p>
+                    </div>
+                </div>
+                <div class="col-md-4 col-sm-6">
+                    <div class="card card-custom role-card">
+                        <i class="fa-solid fa-video role-icon" aria-hidden="true"></i>
+                        <h3 class="h5 fw-bold mb-2">Video Editor</h3>
+                        <p class="small text-secondary mb-0">Blending technical alignment with cinematic pacing to construct storytelling sequences that grip attention across media streams.</p>
+                    </div>
+                </div>
+                <div class="col-md-4 col-sm-6">
+                    <div class="card card-custom role-card">
+                        <i class="fa-solid fa-microphone-lines role-icon" aria-hidden="true"></i>
+                        <h3 class="h5 fw-bold mb-2">Motivational Orator</h3>
+                        <p class="small text-secondary mb-0">A natural public speaker delivering high-impact keynotes that empower teams, professionals, and aspirants to scale past performance limits.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- PROJECTS -->
+    <section id="projects" class="py-5 my-4">
+        <div class="container">
+            <div class="text-center">
+                <h2 class="section-title">Featured Software Engineering Work</h2>
+                <p class="section-subtitle">A curated portfolio of digital solutions and responsive web applications deployed successfully.</p>
+            </div>
+
+            <div class="row g-4">
+                <div class="col-lg-4 col-md-6">
+                    <div class="card card-custom p-3">
+                        <img src="https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=1200" class="project-img" alt="E-Commerce Full Stack Application Architecture">
+                        <div class="card-body p-2">
+                            <h3 class="h5 fw-bold">E-Commerce Ecosystem</h3>
+                            <p class="text-secondary small">Comprehensive digital application with modular payment networks and secure backoffice management consoles.</p>
+                            <div class="mb-4">
+                                <span class="badge badge-tech">React</span>
+                                <span class="badge badge-tech">Node.js</span>
+                                <span class="badge badge-tech">MongoDB</span>
+                            </div>
+                            <a href="#" class="btn btn-primary-custom btn-sm w-100 py-2">Launch Application</a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-4 col-md-6">
+                    <div class="card card-custom p-3">
+                        <img src="https://images.unsplash.com/photo-1551434678-e076c223a692?w=1200" class="project-img" alt="Contact CRM System Data Dashboard">
+                        <div class="card-body p-2">
+                            <h3 class="h5 fw-bold">Contact &amp; CRM Analytics</h3>
+                            <p class="text-secondary small">Custom data engine tracking operational records, sequential messenger updates, and structural analytics maps.</p>
+                            <div class="mb-4">
+                                <span class="badge badge-tech">Laravel</span>
+                                <span class="badge badge-tech">Bootstrap 5</span>
+                                <span class="badge badge-tech">MySQL</span>
+                            </div>
+                            <a href="#" class="btn btn-primary-custom btn-sm w-100 py-2">Launch Application</a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-4 col-md-6">
+                    <div class="card card-custom p-3">
+                        <img src="https://images.unsplash.com/photo-1498050108023-c5249f4df085?w=1200" class="project-img" alt="Responsive Web Design System Pattern">
+                        <div class="card-body p-2">
+                            <h3 class="h5 fw-bold">Polished Visual Identity</h3>
+                            <p class="text-secondary small">Advanced design system highlighting responsive fluid architectures, high-refresh elements, and crisp typography grids.</p>
+                            <div class="mb-4">
+                                <span class="badge badge-tech">UI/UX</span>
+                                <span class="badge badge-tech">Figma</span>
+                                <span class="badge badge-tech">Tailwind</span>
+                            </div>
+                            <a href="#" class="btn btn-primary-custom btn-sm w-100 py-2">Launch Design System</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- BLOG -->
+    <section id="blog" class="py-5">
+        <div class="container">
+            <div class="text-center">
+                <h2 class="section-title">Web Development Publications</h2>
+                <p class="section-subtitle">Deep dives into back-end frameworks, user engagement tracking, and full-stack performance solutions.</p>
+            </div>
+
+            <div class="row g-4">
+                <div class="col-md-4">
+                    <article class="card card-custom p-3">
+                        <img src="https://images.unsplash.com/photo-1515879218367-8466d910aaa4?w=1200" class="blog-img" alt="Laravel Framework Enterprise Security Concepts">
+                        <div class="p-2">
+                            <span class="text-info small fw-bold">Backend Architecture</span>
+                            <h3 class="h5 fw-bold mt-1 mb-2">Modern Enterprise Laravel Infrastructure</h3>
+                            <p class="text-secondary small mb-0">An ordered analysis detailing application layers, secure middleware parameters, and optimized queries.</p>
+                        </div>
+                    </article>
+                </div>
+
+                <div class="col-md-4">
+                    <article class="card card-custom p-3">
+                        <img src="https://images.unsplash.com/photo-1633356122544-f134324a6cee?w=1200" class="blog-img" alt="React UI Rendering Optimization">
+                        <div class="p-2">
+                            <span class="text-info small fw-bold">UI Performance</span>
+                            <h3 class="h5 fw-bold mt-1 mb-2">React Profiling &amp; Render Optimization</h3>
+                            <p class="text-secondary small mb-0">Methods to systematically track lifecycle memory leaks, isolate rendering loops, and balance complex UI loads.</p>
+                        </div>
+                    </article>
+                </div>
+
+                <div class="col-md-4">
+                    <article class="card card-custom p-3">
+                        <img src="https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=1200" class="blog-img" alt="Accelerated Learning Frameworks">
+                        <div class="p-2">
+                            <span class="text-info small fw-bold">Cognitive Systems</span>
+                            <h3 class="h5 fw-bold mt-1 mb-2">Loci Structures &amp; Accelerated Recall</h3>
+                            <p class="text-secondary small mb-0">A scientific companion exploration digging behind tactical cognitive anchors and fluid focus systems.</p>
+                        </div>
+                    </article>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CONTACT -->
+    <section id="contact" class="py-5 my-4">
+        <div class="container">
+            <div class="text-center">
+                <h2 class="section-title">Hire a Full Stack Software Developer</h2>
+                <p class="section-subtitle">Ready to design responsive web applications or integrate powerful database frameworks? Drop a message.</p>
+            </div>
+
+            <div class="row justify-content-center">
+                <div class="col-lg-8">
+                    <div class="contact-box">
+                        <form id="contactForm">
+                            <div class="row">
+                                <div class="col-md-6 mb-4">
+                                    <label class="form-label small text-secondary fw-semibold">IDENTIFICATION NAME</label>
+                                    <input type="text" class="form-control" placeholder="Your Name" required>
+                                </div>
+                                <div class="col-md-6 mb-4">
+                                    <label class="form-label small text-secondary fw-semibold">EMAIL INBOX ADDRESS</label>
+                                    <input type="email" class="form-control" placeholder="name@domain.com" required>
+                                </div>
+                            </div>
+                            <div class="mb-4">
+                                <label class="form-label small text-secondary fw-semibold">SUBJECT MATTERS</label>
+                                <input type="text" class="form-control" placeholder="Web Development Consultation" required>
+                            </div>
+                            <div class="mb-4">
+                                <label class="form-label small text-secondary fw-semibold">COMPREHENSIVE MESSAGE SPECIFICATION</label>
+                                <textarea rows="5" class="form-control" placeholder="Outline context, project tech stack, timeline metrics or requirements..." required></textarea>
+                            </div>
+                            <button type="submit" class="btn btn-primary-custom w-100 py-3">Submit Project Inquiry</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</main>
+
+<!-- FOOTER (Footer Semantic Element) -->
+<footer class="pt-5 pb-4">
+    <div class="container">
+        <div class="row g-4 mb-5">
+            <!-- Brand Column -->
+            <div class="col-lg-4 col-md-6">
+                <p class="h5 fw-bold mb-3">DINESH M. CHHETRI</p>
+                <p class="text-secondary small mb-4" style="line-height: 1.6; max-width: 300px;">
+                    Expert full stack software developer specializing in responsive web UI engineering and customized system architectures.
+                </p>
+                <div class="footer-social-icons">
+                    <a href="#" target="_blank" aria-label="Dinesh Chhetri GitHub Engineering Profile"><i class="fab fa-github"></i></a>
+                    <a href="#" target="_blank" aria-label="Dinesh Chhetri LinkedIn Software Developer Profile"><i class="fab fa-linkedin"></i></a>
+                    <a href="#" target="_blank" aria-label="Dinesh Chhetri Twitter Network"><i class="fab fa-x-twitter"></i></a>
+                    <a href="#" target="_blank" aria-label="Dinesh Chhetri Facebook Media Profile"><i class="fab fa-facebook"></i></a>
+                </div>
+            </div>
+
+            <!-- Quick Links Navigation Matrix -->
+            <div class="col-lg-2 col-6 col-md-3">
+                <p class="fw-semibold small tracking-wider uppercase mb-3" style="letter-spacing: 1px;">QUICK LINKS</p>
+                <ul class="footer-link-list">
+                    <li><a href="#about">About Profile</a></li>
+                    <li><a href="#roles">Expertise Domains</a></li>
+                    <li><a href="#projects">Project Portfolios</a></li>
+                    <li><a href="#blog">Technical Blogs</a></li>
+                    <li><a href="#contact">Contact Workspace</a></li>
+                </ul>
+            </div>
+
+            <!-- Core Roles Column Links -->
+            <div class="col-lg-3 col-6 col-md-3">
+                <p class="fw-semibold small tracking-wider uppercase mb-3" style="letter-spacing: 1px;">CORE EXPERTISE</p>
+                <ul class="footer-link-list">
+                    <li><a href="#roles">Full Stack Developer</a></li>
+                    <li><a href="#roles">UI/UX Interface Designer</a></li>
+                    <li><a href="#roles">Cognitive Memory Trainer</a></li>
+                    <li><a href="#roles">Public Keynote Speaker</a></li>
+                    <li><a href="#roles">Creative Author &amp; Writer</a></li>
+                </ul>
+            </div>
+
+            <!-- Contact Information Node -->
+            <div class="col-lg-3 col-md-6">
+                <p class="fw-semibold small tracking-wider uppercase mb-3" style="letter-spacing: 1px;">GET IN TOUCH</p>
+                <ul class="footer-link-list">
+                    <li><span class="text-secondary small d-block">Origin Base:</span> <span class="small">Pyuthan, Lumbini Province, Nepal</span></li>
+                    <li><span class="text-secondary small d-block mt-2">Digital Inquiries:</span> <a href="mailto:info@dineshmc.com.np" class="small text-info">info@dineshmc.com.np</a></li>
+                    <li><span class="text-secondary small d-block mt-2">Status Channels:</span> <span class="badge bg-success small px-2 py-1 mt-1 text-dark fw-bold">Available for Hire</span></li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="row pt-4 border-top border-secondary border-opacity-10 align-items-center">
+            <div class="col-md-6 text-center text-md-start mb-2 mb-md-0">
+                <p class="mb-0 text-secondary small">
+                    &copy; 2026 Dinesh Mahatara Chhetri. All Rights Reserved.
+                </p>
+            </div>
+            <div class="col-md-6 text-center text-md-end">
+                <p class="mb-0 text-secondary small">
+                    Engineered using precision Bootstrap fluid layout grids.
+                </p>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<!-- Bootstrap Bundle JavaScript with Popper -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+    // --- NATIVE LIGHT / DARK THEME ENGINE ---
+    const themeToggle = document.getElementById('themeToggle');
+    const themeIcon = document.getElementById('themeIcon');
+    const htmlElement = document.documentElement;
+
+    // Load theme setting from LocalStorage, default to dark if unselected
+    const savedTheme = localStorage.getItem('portfolio-theme') || 'dark';
+    setTheme(savedTheme);
+
+    themeToggle.addEventListener('click', () => {
+        const currentTheme = htmlElement.getAttribute('data-bs-theme');
+        const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+        setTheme(newTheme);
+    });
+
+    function setTheme(theme) {
+        htmlElement.setAttribute('data-bs-theme', theme);
+        localStorage.setItem('portfolio-theme', theme);
+
+        if (theme === 'dark') {
+            themeIcon.className = 'fa-solid fa-sun';
+            htmlElement.style.setProperty('--bs-theme-invert', '0');
+        } else {
+            themeIcon.className = 'fa-solid fa-moon';
+            htmlElement.style.setProperty('--bs-theme-invert', '1');
+        }
+    }
+
+    // AUTOMATIC SIDEBAR MOBILE LINK TOGGLER CLOSING BLOCK
+    document.querySelectorAll('#menu .nav-link, .footer-link-list a').forEach(link => {
+        link.addEventListener('click', () => {
+            const navbarCollapse = document.getElementById('menu');
+            if(navbarCollapse && navbarCollapse.classList.contains('show')) {
+                const bsCollapse = new bootstrap.Collapse(navbarCollapse);
+                bsCollapse.hide();
+            }
+        });
+    });
+</script>
+</body>
+</html>
