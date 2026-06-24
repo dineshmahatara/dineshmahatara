@@ -3,18 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <!-- Search Engine Indexing Controls -->
     <meta name="robots" content="noindex, nofollow">
     
     <title>Dinesh Mahatara Chhetri | Expert Full Stack Developer & UI/UX Designer Portfolio</title>
-    <meta name="description" content="Portfolio of Dinesh Mahatara Chhetri,, Memory trainner, Trainner in Nepal, Memory power Training in Nepal, Memory power, increase memory power, Loksewa class, IT officer, Dinesh, Dinesh Mahatara, a skilled Full Stack Developer, UI/UX Designer, and Web Application Engineer based in Nepal. Explore custom enterprise platforms and responsive designs.">
-    <meta name="keywords" content="Full Stack Developer, Memory trainner, Trainner in Nepal, Memory power Training in Nepal, Memory power, increase memory power, Loksewa class, IT officer, Dinesh, Dinesh Mahatara, UI/UX Designer, Web Application Engineer, Responsive Design, Custom Web Apps, Software Developer Nepal">
+    <meta name="description" content="Portfolio of Dinesh Mahatara Chhetri, Memory trainer, Trainer in Nepal, Memory power Training in Nepal, Memory power, increase memory power, Loksewa class, IT officer, Dinesh, Dinesh Mahatara, a skilled Full Stack Developer, UI/UX Designer, and Web Application Engineer based in Nepal. Explore custom enterprise platforms and responsive designs.">
+    <meta name="keywords" content="Full Stack Developer, Memory trainer, Trainer in Nepal, Memory power Training in Nepal, Memory power, increase memory power, Loksewa class, IT officer, Dinesh, Dinesh Mahatara, UI/UX Designer, Web Application Engineer, Responsive Design, Custom Web Apps, Software Developer Nepal">
 
-    <!-- Bootstrap 5.3.2 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Font Awesome 6.5.2 -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
-    <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 
     <style>
@@ -98,7 +94,6 @@
             transition: all 0.3s ease;
         }
 
-        /* Fixed Brand Gradient for Light/Dark mode compatibility */
         .navbar-brand {
             font-weight: 800;
             letter-spacing: 1px;
@@ -387,39 +382,44 @@
             color: var(--text-muted) !important;
         }
 
-        /* Custom Notification Toast Position */
-        .toast-container-custom {
-            position: fixed;
-            bottom: 24px;
-            right: 24px;
-            z-index: 1090;
-        }
+        /* Dual Side Toast Enhancements */
         .quote-toast {
             background: var(--bg-card);
             border: 1px solid rgba(99, 102, 241, 0.3);
             border-radius: 12px;
-            box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+            box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+            backdrop-filter: blur(8px);
         }
     </style>
 </head>
 <body>
 
-<!-- Notification Toast Container -->
-<div class="toast-container-custom">
-    <div id="quoteToast" class="toast quote-toast" role="alert" aria-live="assertive" aria-atomic="true" data-bs-delay="7000">
+<div id="leftQuoteContainer" style="position: fixed; top: 50%; left: 24px; transform: translateY(-50%); z-index: 1090; max-width: 320px;">
+    <div id="leftQuoteToast" class="toast quote-toast" role="alert" aria-live="assertive" aria-atomic="true" data-bs-autohide="false">
         <div class="toast-header bg-transparent border-bottom border-secondary border-opacity-10 py-2">
             <i class="fa-solid fa-quote-left text-primary me-2"></i>
-            <strong class="me-auto text-main font-semibold">Philosophical Thought</strong>
-            <small class="text-muted">Just now</small>
+            <strong class="me-auto text-main font-semibold">Reflections</strong>
             <button type="button" class="btn-close shadow-none" data-bs-dismiss="toast" aria-label="Close"></button>
         </div>
-        <div class="toast-body text-secondary small italic py-3" id="quoteToastBody">
-            Loading inspiring thought...
+        <div class="toast-body text-secondary small italic py-3" id="leftQuoteBody">
+            Loading perspective tracking loop...
         </div>
     </div>
 </div>
 
-<!-- NAVBAR -->
+<div id="rightQuoteContainer" style="position: fixed; top: 50%; right: 24px; transform: translateY(-50%); z-index: 1090; max-width: 320px;">
+    <div id="rightQuoteToast" class="toast quote-toast" role="alert" aria-live="assertive" aria-atomic="true" data-bs-autohide="false">
+        <div class="toast-header bg-transparent border-bottom border-secondary border-opacity-10 py-2">
+            <i class="fa-solid fa-quote-right text-secondary me-2"></i>
+            <strong class="me-auto text-main font-semibold">Perspectives</strong>
+            <button type="button" class="btn-close shadow-none" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+        <div class="toast-body text-secondary small italic py-3" id="rightQuoteBody">
+            Loading database runtime matrix...
+        </div>
+    </div>
+</div>
+
 <header>
     <nav class="navbar navbar-expand-lg navbar-dark fixed-top py-3">
         <div class="container">
@@ -439,7 +439,6 @@
                     <li class="nav-item"><a class="nav-link" href="#about">About</a></li>
                     <li class="nav-item"><a class="nav-link" href="#roles">Expertise</a></li>
                     <li class="nav-item"><a class="nav-link" href="#projects">Projects</a></li>
-                    <li class="nav-item"><a class="nav-link" href="#blog">Blog</a></li>
                     <li class="nav-item"><a class="nav-link" href="#contact">Contact</a></li>
                 </ul>
             </div>
@@ -448,7 +447,6 @@
 </header>
 
 <main>
-    <!-- HERO SECTION -->
     <section class="hero" id="home">
         <div class="container">
             <div class="row align-items-center g-5">
@@ -473,7 +471,6 @@
         </div>
     </section>
 
-    <!-- ABOUT SECTION -->
     <section id="about" class="py-5 my-4" style="background: var(--sub-section-bg); border-top: 1px solid rgba(128,128,128,0.1); border-bottom: 1px solid rgba(128,128,128,0.1);">
         <div class="container py-4">
             <div class="row align-items-center g-5">
@@ -512,7 +509,6 @@
         </div>
     </section>
 
-    <!-- ROLES & EXPERTISE -->
     <section id="roles" class="py-5">
         <div class="container">
             <div class="text-center">
@@ -527,7 +523,6 @@
         </div>
     </section>
 
-    <!-- PROJECTS -->
     <section id="projects" class="py-5 my-4">
         <div class="container">
             <div class="text-center">
@@ -553,7 +548,6 @@
         </div>
     </section>
 
-    <!-- CONTACT -->
     <section id="contact" class="py-5 my-4">
         <div class="container">
             <div class="text-center">
@@ -591,7 +585,6 @@
     </section>
 </main>
 
-<!-- RESTORED MULTI-COLUMN FOOTER STRUCTURE -->
 <footer class="pt-5 pb-4">
     <div class="container">
         <div class="row g-4 text-start mb-5">
@@ -641,6 +634,7 @@
 
 <script>
     // --- APP SCRIPT HOOK VALUES ---
+    // PASTE YOUR GENERATED APPS SCRIPT WEB APP URL BETWEEN THE QUOTES BELOW:
     const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbwsr2rLnfjz2ImfXJEy-SF7Klwsa2XG7d2472m1BugsFoQXC7N6hxMsAoQ9JjpOKXqk/exec";
 
     // --- NATIVE LIGHT / DARK THEME ENGINE ---
@@ -669,9 +663,8 @@
     contactForm.addEventListener('submit', function(e) {
         e.preventDefault();
         
-        // Corrected placeholder check to avoid blocking valid deployment URLs
         if(WEB_APP_URL === "https://script.google.com/macros/s/AKfycbwsr2rLnfjz2ImfXJEy-SF7Klwsa2XG7d2472m1BugsFoQXC7N6hxMsAoQ9JjpOKXqk/exec" || WEB_APP_URL === "https://script.google.com/macros/s/AKfycbwsr2rLnfjz2ImfXJEy-SF7Klwsa2XG7d2472m1BugsFoQXC7N6hxMsAoQ9JjpOKXqk/exec") {
-            alert("Sorry Due to Server Error your Message can not Stored");
+            alert("Configuration Error: Replace WEB_APP_URL placeholder string with your valid Google Apps Script URL.");
             return;
         }
 
@@ -681,7 +674,6 @@
         const formData = new FormData(contactForm);
         const queryParams = new URLSearchParams(formData).toString();
 
-        // Bypasses browser CORS preflight blocks by executing via a no-cors runtime mode
         fetch(`${WEB_APP_URL}?${queryParams}`, { 
             method: 'POST',
             mode: 'no-cors'
@@ -700,18 +692,24 @@
         });
     });
     
-    // --- ASYNCHRONOUS RANDOM QUOTE TOAST ENGINE ---
-    // FIXED: Declared and initialized fallback runtime quote storage correctly in the global scope
+    // --- ALTERNATING DUAL-SIDE SEQUENTIAL QUOTE ENGINE ---
     let runtimeQuotes = [
         "“You cannot have a positive life and a negative mind.” — Joyce Meyer"
     ];
 
-    const bootstrapToastElement = document.getElementById('quoteToast');
-    const toastBodyNode = document.getElementById('quoteToastBody');
-    const nativeToastObject = new bootstrap.Toast(bootstrapToastElement);
+    const leftToastNode = document.getElementById('leftQuoteToast');
+    const rightToastNode = document.getElementById('rightQuoteToast');
+    const leftBodyNode = document.getElementById('leftQuoteBody');
+    const rightBodyNode = document.getElementById('rightQuoteBody');
+
+    const leftToastInstance = new bootstrap.Toast(leftToastNode);
+    const rightToastInstance = new bootstrap.Toast(rightToastNode);
+
+    let nextDisplaySide = 'left'; 
+    let currentQuoteIndex = 0;    
 
     function fetchPhilosopherQuotes() {
-        if(WEB_APP_URL === "https://script.google.com/macros/s/AKfycbwsr2rLnfjz2ImfXJEy-SF7Klwsa2XG7d2472m1BugsFoQXC7N6hxMsAoQ9JjpOKXqk/exec" || WEB_APP_URL === "https://script.google.com/macros/s/AKfycbwsr2rLnfjz2ImfXJEy-SF7Klwsa2XG7d2472m1BugsFoQXC7N6hxMsAoQ9JjpOKXqk/exec") return;
+        if(WEB_APP_URL === "https://script.google.com/macros/s/AKfycbwsr2rLnfjz2ImfXJEy-SF7Klwsa2XG7d2472m1BugsFoQXC7N6hxMsAoQ9JjpOKXqk/exec" || WEB_APP_URL === "") return;
 
         fetch(WEB_APP_URL)
         .then(res => res.json())
@@ -720,20 +718,51 @@
                 runtimeQuotes = data.quotes;
             }
         })
-        .catch(err => console.log("Silent fallback activated on quote engine loop context:", err));
+        .catch(err => console.log("Background synchronization delay fallback activated:", err));
     }
 
     function pushQuoteNotification() {
-        if(runtimeQuotes.length === 0) return;
-        const index = Math.floor(Math.random() * runtimeQuotes.length);
-        toastBodyNode.innerText = runtimeQuotes[index];
-        nativeToastObject.show();
+        if (runtimeQuotes.length === 0) return;
+
+        const activeQuote = runtimeQuotes[currentQuoteIndex];
+        currentQuoteIndex = (currentQuoteIndex + 1) % runtimeQuotes.length;
+
+        // Dismiss open elements cleanly before rendering new items
+        leftToastInstance.hide();
+        rightToastInstance.hide();
+
+        setTimeout(() => {
+            if (nextDisplaySide === 'left') {
+                leftBodyNode.innerText = activeQuote;
+                leftToastInstance.show();
+                nextDisplaySide = 'right'; 
+            } else {
+                rightBodyNode.innerText = activeQuote;
+                rightToastInstance.show();
+                nextDisplaySide = 'left';  
+            }
+        }, 400); 
     }
 
     window.addEventListener('DOMContentLoaded', () => {
         fetchPhilosopherQuotes();
+        
+        // Initial delayed popup trigger
         setTimeout(pushQuoteNotification, 3000);
-        setInterval(pushQuoteNotification, 25000);
+        
+        // Fixed looping timeline set for exactly 30 seconds (30000ms)
+        setInterval(pushQuoteNotification, 30000);
+    });
+
+    // Mobile sidebar toggle closing layout optimization
+    document.querySelectorAll('#menu .nav-link').forEach(link => {
+        link.addEventListener('click', () => {
+            const navbarCollapse = document.getElementById('menu');
+            if(navbarCollapse && navbarCollapse.classList.contains('show')) {
+                const bsCollapse = new bootstrap.Collapse(navbarCollapse);
+                bsCollapse.hide();
+            }
+        });
     });
 </script>
 </body>
