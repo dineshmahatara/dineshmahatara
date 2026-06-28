@@ -29,7 +29,7 @@
             <div class="text-center mb-4">
               <i class="fa-solid fa-building-columns text-primary fa-3x mb-2"></i>
               <h3 class="fw-bold">Parbhat Bachat System</h3>
-              <p class="text-muted small">Secure External Database Portal</p>
+              <p class="text-muted small">CORS-Free Dynamic Access Node</p>
             </div>
             <div id="loginAlert" class="alert alert-danger d-none"></div>
             <form id="authForm" onsubmit="handleLogin(event)">
@@ -62,7 +62,7 @@
               <div class="mb-3"><label class="form-label">Full Name</label><input type="text" id="reg_name" class="form-control" required></div>
               <div class="mb-3"><label class="form-label">Email Address</label><input type="email" id="reg_email" class="form-control" required></div>
               <div class="mb-3"><label class="form-label">Mobile Number</label><input type="tel" id="reg_phone" class="form-control" required></div>
-              <div class="text-muted small mb-3">Note: The phone number will act as your default password.</div>
+              <div class="text-muted small mb-3">Note: Your phone number will act as your default password.</div>
               <button type="submit" class="btn btn-success w-100 mb-2">Submit Profile</button>
               <button type="button" class="btn btn-light w-100" onclick="toggleView('loginContext', 'registrationContext')">Return to Login</button>
             </form>
@@ -252,39 +252,51 @@
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
   <script>
     // CRITICAL: PASTE YOUR DEPLOYED GOOGLE APPS SCRIPT APP WEB URL HERE BELOW
-    const API_URL = "https://script.google.com/macros/s/AKfycbwO-dRmZ-ODdbZpH-hNte0UVApCI0fIO5ipj1cxNResqcESFhCL4JPInVEnczvo4LK25w/exec";
+    const API_URL = "https://script.google.com/macros/s/AKfycbzuvGjBIuX-xVm2K9iVsNKv9OiNven7WmaMWDxQqswyF0lcx42StQgKvWuqBppyt4ndmg/exec";
 
     let SESSION = null;
     let CACHED_DATA = null;
 
-    // Secure Pipeline Data Pipeline Execution Interface Adapter Bridge
-    async function remoteCall(payload) {
+    // Secure JSONP implementation that bypasses browser CORS locks on any environment
+    function remoteCall(payload) {
       if (SESSION) {
         payload.sessionUser = SESSION.username;
         payload.sessionRole = SESSION.role;
       }
       toggleSpinner(true);
-      try {
-        const response = await fetch(API_URL, {
-          method: "POST",
-          mode: "cors",
-          redirect: "follow", // CRITICAL: Forces browser framework engine to map Google 302 endpoint hops
-          headers: { "Content-Type": "text/plain;charset=utf-8" }, // CRITICAL: Avoids triggering standard preflight OPTIONS checks
-          body: JSON.stringify(payload)
-        });
-        const resParsed = await response.json();
-        toggleSpinner(false);
-        if (resParsed.success === false && resParsed.msg && resParsed.msg.includes("REJECTION")) {
-          alert(resParsed.msg);
-          terminateSession();
-          return null;
-        }
-        return resParsed;
-      } catch (err) {
-        toggleSpinner(false);
-        alert("Cross-Origin Network connection interface pipeline fault: " + err.toString());
-        return null;
-      }
+
+      return new Promise((resolve, reject) => {
+        // Generate a random unique callback name
+        const callbackName = "jsonp_callback_" + Math.round(100000 * Math.random());
+        
+        // Define it globally so Google Script can access it upon script load execution
+        window[callbackName] = function(data) {
+          delete window[callbackName];
+          document.body.removeChild(script);
+          toggleSpinner(false);
+          
+          if (data && data.success === false && data.msg && data.msg.includes("REJECTION")) {
+            alert(data.msg);
+            terminateSession();
+            resolve(null);
+          }
+          resolve(data);
+        };
+
+        // Create structural script element target node
+        const script = document.createElement("script");
+        script.src = API_URL + "?callback=" + callbackName + "&payload=" + encodeURIComponent(JSON.stringify(payload));
+        
+        script.onerror = function() {
+          delete window[callbackName];
+          document.body.removeChild(script);
+          toggleSpinner(false);
+          alert("Pipeline allocation failure. Check Web App URL deployment properties.");
+          resolve(null);
+        };
+
+        document.body.appendChild(script);
+      });
     }
 
     function toggleView(showId, hideId) {
