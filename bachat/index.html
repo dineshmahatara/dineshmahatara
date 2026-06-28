@@ -1,0 +1,576 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Parbhat Bachat Management</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+  <style>
+    :root { --primary-color: #1e3d59; --accent-color: #ff6e40; --bg-light: #f5f7fa; }
+    body { background-color: var(--bg-light); font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+    .navbar-custom { background-color: var(--primary-color); }
+    .card-metric { border-left: 5px solid var(--accent-color); transition: transform 0.2s; }
+    .card-metric:hover { transform: translateY(-3px); }
+    .sidebar-sticky { position: sticky; top: 0; height: 100vh; background: white; border-right: 1px solid #e3e6f0; }
+    .nav-link.active { background-color: rgba(30, 61, 89, 0.1); color: var(--primary-color) !important; font-weight: bold; }
+    .app-loading { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255,255,255,0.8); z-index: 9999; display: flex; align-items: center; justify-content: center; }
+  </style>
+</head>
+<body>
+
+  <div id="loadingSpinner" class="app-loading d-none">
+    <div class="spinner-border text-primary" role="status"></div>
+  </div>
+
+  <!-- Auth Module Layout -->
+  <div id="loginContext" class="container mt-5">
+    <div class="row justify-content-center">
+      <div class="col-md-5">
+        <div class="card shadow-lg border-0 rounded-4">
+          <div class="card-body p-5">
+            <div class="text-center mb-4">
+              <i class="fa-solid fa-building-columns text-primary fa-3x mb-2"></i>
+              <h3 class="fw-bold">Parbhat Bachat System</h3>
+              <p class="text-muted small">External Node Access Point</p>
+            </div>
+            <div id="loginAlert" class="alert alert-danger d-none"></div>
+            <form id="authForm" onsubmit="handleLogin(event)">
+              <div class="mb-3">
+                <label class="form-label fw-bold">Username</label>
+                <input type="text" id="auth_user" class="form-control" required>
+              </div>
+              <div class="mb-4">
+                <label class="form-label fw-bold">Password Key</label>
+                <input type="password" id="auth_pwd" class="form-control" required>
+              </div>
+              <button type="submit" class="btn btn-primary w-100 py-2 rounded-3 mb-3">Authorize Session</button>
+            </form>
+            <hr>
+            <button class="btn btn-outline-secondary btn-sm w-100" onclick="toggleView('registrationContext', 'loginContext')">Register New Profile Account</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Public Registration Module -->
+  <div id="registrationContext" class="container mt-5 d-none">
+    <div class="row justify-content-center">
+      <div class="col-md-6">
+        <div class="card shadow border-0 rounded-4">
+          <div class="card-body p-4">
+            <h4 class="fw-bold mb-3"><i class="fa-user-plus me-2 text-success"></i>Account Profile Registration</h4>
+            <form id="registerForm" onsubmit="handleSelfRegistration(event)">
+              <div class="mb-3"><label class="form-label">Username</label><input type="text" id="reg_user" class="form-control" required></div>
+              <div class="mb-3"><label class="form-label">Full Name</label><input type="text" id="reg_name" class="form-control" required></div>
+              <div class="mb-3"><label class="form-label">Email Address</label><input type="email" id="reg_email" class="form-control" required></div>
+              <div class="mb-3"><label class="form-label">Mobile Contact Number</label><input type="tel" id="reg_phone" class="form-control" required></div>
+              <div class="text-muted small mb-3">Note: The phone number will become the default temporary password key.</div>
+              <button type="submit" class="btn btn-success w-100 mb-2">Submit Profile Registration</button>
+              <button type="button" class="btn btn-light w-100" onclick="toggleView('loginContext', 'registrationContext')">Return to Login</button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Operational Interface Shell -->
+  <div id="appDashboard" class="container-fluid d-none px-0">
+    <nav class="navbar navbar-dark navbar-custom px-4 py-2">
+      <span class="navbar-brand fw-bold"><i class="fa-solid fa-chart-line me-2"></i>Parbhat Web Console Node</span>
+      <div class="d-flex align-items-center">
+        <span id="sessionLabel" class="text-white me-3 d-none d-md-inline"></span>
+        <button class="btn btn-sm btn-outline-light" onclick="terminateSession()"><i class="fa-sign-out-alt"></i></button>
+      </div>
+    </nav>
+
+    <div class="row mx-0">
+      <nav id="sidebarMenu" class="col-md-3 col-lg-2 d-md-block bg-white sidebar-sticky p-3">
+        <div class="nav flex-column nav-pills" id="v-pills-tab" role="tablist">
+          <button class="nav-link active text-start mb-2" data-bs-toggle="pill" data-bs-target="#panel-home" type="button"><i class="fa-home me-2"></i>Dashboard Workspace</button>
+          <button class="nav-link text-start mb-2" data-bs-toggle="pill" data-bs-target="#panel-payments" type="button"><i class="fa-receipt me-2"></i>Remittance Registry</button>
+          <button class="nav-link text-start mb-2" data-bs-toggle="pill" data-bs-target="#panel-loans" type="button"><i class="fa-hand-holding-dollar me-2"></i>Capital Assistance</button>
+          <button class="nav-link text-start mb-2" data-bs-toggle="pill" data-bs-target="#panel-profile" type="button"><i class="fa-user-cog me-2"></i>Personal Security</button>
+          <button id="adminLink" class="nav-link text-start mb-2 d-none btn-outline-danger" data-bs-toggle="pill" data-bs-target="#panel-admin" type="button"><i class="fa-lock me-2"></i>Master Admin Engine</button>
+        </div>
+      </nav>
+
+      <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 py-4">
+        <div class="tab-content" id="v-pills-tabContent">
+          
+          <div class="tab-pane fade show active" id="panel-home">
+            <div class="row g-3 mb-4" id="notificationsArea"></div>
+            <h2 class="fw-bold mb-4">Account Status Tracking</h2>
+            <div class="row g-3 mb-4">
+              <div class="col-sm-6 col-xl-3">
+                <div class="card card-metric shadow-sm border-0 p-3 bg-white">
+                  <div class="text-muted small fw-bold text-uppercase">Initial Setup Deposit Status</div>
+                  <h4 class="fw-bold my-2" id="statInitialState">Retrieving...</h4>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="tab-pane fade" id="panel-payments">
+            <div class="card border-0 shadow-sm p-4 mb-4">
+              <h4 class="fw-bold mb-3">Deposit Remittance Dispatch</h4>
+              <form id="paymentSubmissionForm" onsubmit="executePaymentSubmission(event)">
+                <div class="row g-3">
+                  <div class="col-md-3">
+                    <label class="form-label">Nepali Year</label>
+                    <select id="pay_year" class="form-select"><option>2083</option><option>2084</option></select>
+                  </div>
+                  <div class="col-md-3">
+                    <label class="form-label">Target Month</label>
+                    <select id="pay_month" class="form-select">
+                      <option>Baishakh</option><option>Jeth</option><option>Asar</option><option>Shrawan</option>
+                      <option>Bhadau</option><option>Aashwin</option><option>Kartik</option><option>Mangsir</option>
+                      <option>Poush</option><option>Magh</option><option>Falgun</option><option>Chaitra</option>
+                    </select>
+                  </div>
+                  <div class="col-md-3">
+                    <label class="form-label">Classification Type</label>
+                    <select id="pay_type" class="form-select" onchange="adaptFormToPaymentType()">
+                      <option value="regular">Regular Savings Deposit</option>
+                      <option value="loan">Loan Installment Repayment</option>
+                      <option value="fine">Penalty Assessment / Fine</option>
+                      <option id="optInitial" value="initial">Initial Capital Configuration Setup Asset</option>
+                    </select>
+                  </div>
+                  <div class="col-md-3">
+                    <label class="form-label">Valuation Amount (NPR)</label>
+                    <input type="number" id="pay_amt" class="form-control" required>
+                  </div>
+                  <div class="col-12"><button type="submit" class="btn btn-primary px-4">Transmit Validation Request</button></div>
+                </div>
+              </form>
+            </div>
+            
+            <div class="card border-0 shadow-sm p-4">
+              <h5 class="fw-bold mb-3">My Processing Records</h5>
+              <div class="table-responsive"><table class="table align-middle" id="userPaymentsTable"><thead><tr><th>Payment ID</th><th>Period Block</th><th>Amount</th><th>Category</th><th>Verification State</th></tr></thead><tbody></tbody></table></div>
+            </div>
+          </div>
+
+          <div class="tab-pane fade" id="panel-loans">
+            <div class="card border-0 shadow-sm p-4 mb-4">
+              <h4 class="fw-bold mb-3">Request Capital Loan</h4>
+              <form onsubmit="executeLoanApplication(event)">
+                <div class="row g-3">
+                  <div class="col-md-4"><label class="form-label">Target Funds Request</label><input type="number" id="loan_amt" class="form-control" required></div>
+                  <div class="col-md-4"><label class="form-label">Maturity Horizon Window (Months)</label><input type="number" id="loan_period" class="form-control" required></div>
+                  <div class="col-md-4"><label class="form-label">Business Purpose Context</label><input type="text" id="loan_reason" class="form-control" required></div>
+                  <div class="col-12"><button type="submit" class="btn btn-warning px-4 text-dark fw-bold">Submit Request</button></div>
+                </div>
+              </form>
+            </div>
+            <div class="card border-0 shadow-sm p-4">
+              <h5 class="fw-bold mb-3">Loan Records History</h5>
+              <div class="table-responsive"><table class="table" id="userLoansTable"><thead><tr><th>Tracking ID</th><th>Principal</th><th>Term Duration</th><th>Reason Statement</th><th>Status Context</th><th>Management Notes</th></tr></thead><tbody></tbody></table></div>
+            </div>
+          </div>
+
+          <div class="tab-pane fade" id="panel-profile">
+            <div class="row g-3">
+              <div class="col-md-6">
+                <div class="card border-0 shadow-sm p-4">
+                  <h4 class="fw-bold mb-3">Profile Data Customization</h4>
+                  <form id="profileEditForm" onsubmit="executeProfileUpdate(event)">
+                    <div class="mb-3"><label class="form-label">Full Name</label><input type="text" id="prof_name" class="form-control" required></div>
+                    <div class="mb-3"><label class="form-label">Email Interface</label><input type="email" id="prof_email" class="form-control" required></div>
+                    <div class="mb-3"><label class="form-label">Mobile Verification Number</label><input type="text" id="prof_phone" class="form-control" required></div>
+                    <button type="submit" id="profileSaveBtn" class="btn btn-primary">Save Local Profiles</button>
+                  </form>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="card border-0 shadow-sm p-4">
+                  <h4 class="fw-bold mb-3">Update Access Password</h4>
+                  <form onsubmit="executePasswordModification(event)">
+                    <div class="mb-3"><label class="form-label">New Password String</label><input type="password" id="prof_pwd" class="form-control" required></div>
+                    <button type="submit" class="btn btn-dark">Commit Password Swap</button>
+                  </form>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Strict Admin View Components Template Area -->
+          <div class="tab-pane fade" id="panel-admin">
+            <h2 class="fw-bold mb-4 text-danger"><i class="fa-shield-halved me-2"></i>System Master Administration Hub</h2>
+            
+            <div class="card border-0 shadow-sm p-4 mb-4">
+              <h5 class="fw-bold text-dark"><i class="fa-sliders me-2"></i>Global Rules Parameter Overrides</h5>
+              <div class="row g-3 align-items-end">
+                <div class="col-md-4"><label class="form-label">Base Setup Required Deposit Evaluation (NPR)</label><input type="number" id="adm_init_cfg" class="form-control"></div>
+                <div class="col-md-2"><button class="btn btn-success w-100" onclick="executeAdminSettingOverride()">Update Settings</button></div>
+              </div>
+            </div>
+
+            <div class="card border-0 shadow-sm p-4 mb-4">
+              <h5 class="fw-bold mb-3">Auditor Verification Control Panel View Grid</h5>
+              <div class="row g-3 mb-3">
+                <div class="col-md-3"><input type="text" id="f_year" class="form-control" placeholder="Filter Year"></div>
+                <div class="col-md-3"><input type="text" id="f_month" class="form-control" placeholder="Filter Month"></div>
+                <div class="col-md-3"><input type="text" id="f_user" class="form-control" placeholder="Filter User"></div>
+                <div class="col-md-3 d-flex gap-2">
+                  <button class="btn btn-secondary w-100" onclick="applySystemDataFilters()">Apply Filter</button>
+                  <button class="btn btn-dark w-100" onclick="downloadAdminReportCSV()">Export CSV</button>
+                </div>
+              </div>
+              <div class="table-responsive">
+                <table class="table table-hover" id="admPaymentsMasterTable">
+                  <thead><tr><th>ID</th><th>User</th><th>Period</th><th>Valuation</th><th>Type</th><th>Verification Status</th><th>Operational Controls</th></tr></thead>
+                  <tbody></tbody>
+                </table>
+              </div>
+            </div>
+
+            <div class="card border-0 shadow-sm p-4 mb-4">
+              <h5 class="fw-bold mb-3">System Directory Identity Access Matrix Management</h5>
+              <div class="table-responsive">
+                <table class="table align-middle" id="admUsersMasterTable">
+                  <thead><tr><th>Username</th><th>Legal Name</th><th>Contact Phone</th><th>Initial Asset State</th><th>Modifications Permissions Status</th><th>Administrative Core Functions Utility Actions</th></tr></thead>
+                  <tbody></tbody>
+                </table>
+              </div>
+            </div>
+
+            <div class="card border-0 shadow-sm p-4">
+              <h5 class="fw-bold mb-3">Loan Underwriting Allocations Open Processing Queue</h5>
+              <div class="table-responsive">
+                <table class="table" id="admLoansMasterTable">
+                  <thead><tr><th>ID</th><th>User Account</th><th>Principal Value</th><th>Repayment Horiz.</th><th>Stated Reasons</th><th>State</th><th>Actions</th></tr></thead>
+                  <tbody></tbody>
+                </table>
+              </div>
+            </div>
+
+          </div>
+
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    // PASTE YOUR GOOGLE APPS SCRIPT DEPLOYMENT WEB APP URL HERE:
+    const API_URL = "https://script.google.com/macros/s/AKfycbyvDxh3_gJZ2CTo1sfEFIuPykCEfojuVUUOb7yt6LJPc5F1ZgeLubWd8kDWZKRtpEvbnw/exec";
+
+    let SESSION = null;
+    let CACHED_DATA = null;
+
+    // Standard POST Request wrapper handler for Google Apps Script Web App Engine execution
+    async function remoteCall(payload) {
+      if (SESSION) {
+        payload.sessionUser = SESSION.username;
+        payload.sessionRole = SESSION.role;
+      }
+      toggleSpinner(true);
+      try {
+        const response = await fetch(API_URL, {
+          method: "POST",
+          mode: "cors",
+          headers: { "Content-Type": "text/plain;charset=utf-8" },
+          body: JSON.stringify(payload)
+        });
+        const resParsed = await response.json();
+        toggleSpinner(false);
+        if (resParsed.success === false && resParsed.msg && resParsed.msg.includes("REJECTION")) {
+          alert(resParsed.msg);
+          terminateSession();
+          return null;
+        }
+        return resParsed;
+      } catch (err) {
+        toggleSpinner(false);
+        alert("Cross-Origin Network connection interface pipeline fault: " + err.toString());
+        return null;
+      }
+    }
+
+    function toggleView(showId, hideId) {
+      document.getElementById(showId).classList.remove('d-none');
+      document.getElementById(hideId).classList.add('d-none');
+    }
+
+    function toggleSpinner(show) {
+      const spinner = document.getElementById('loadingSpinner');
+      show ? spinner.classList.remove('d-none') : spinner.classList.add('d-none');
+    }
+
+    async function handleLogin(e) {
+      e.preventDefault();
+      const u = document.getElementById('auth_user').value;
+      const p = document.getElementById('auth_pwd').value;
+      
+      const res = await remoteCall({ action: "authenticateUser", username: u, password: p });
+      if(res && res.success) {
+        SESSION = res;
+        document.getElementById('loginContext').classList.add('d-none');
+        document.getElementById('appDashboard').classList.remove('d-none');
+        document.getElementById('sessionLabel').innerText = `Authorized Node: ${res.fullName} (${res.role.toUpperCase()})`;
+        if(res.role === 'admin') document.getElementById('adminLink').classList.remove('d-none');
+        refreshSystemWorkspace();
+      } else if (res) {
+        const alertBox = document.getElementById('loginAlert');
+        alertBox.innerText = res.msg;
+        alertBox.classList.remove('d-none');
+      }
+    }
+
+    async function handleSelfRegistration(e) {
+      e.preventDefault();
+      const payload = {
+        username: document.getElementById('reg_user').value,
+        fullName: document.getElementById('reg_name').value,
+        email: document.getElementById('reg_email').value,
+        phone: document.getElementById('reg_phone').value
+      };
+      const res = await remoteCall({ action: "registerUserProfile", userForm: payload });
+      if(res) {
+        alert(res.msg);
+        if(res.success) toggleView('loginContext', 'registrationContext');
+      }
+    }
+
+    async function refreshSystemWorkspace() {
+      const data = await remoteCall({ action: "getDashboardData", username: SESSION.username, role: SESSION.role });
+      if (data) {
+        CACHED_DATA = data;
+        renderDashboardView();
+      }
+    }
+
+    function renderDashboardView() {
+      document.getElementById('statInitialState').innerText = SESSION.initialPaid === 'yes' ? 'Settled Complete' : 'Pending Initial Registration Payment';
+      if(SESSION.initialPaid === 'yes') {
+        document.getElementById('optInitial').classList.add('d-none');
+      } else {
+        document.getElementById('optInitial').classList.remove('d-none');
+      }
+
+      if(SESSION.profileLocked === 'yes') {
+        document.getElementById('prof_name').disabled = true;
+        document.getElementById('prof_email').disabled = true;
+        document.getElementById('prof_phone').disabled = true;
+        document.getElementById('profileSaveBtn').disabled = true;
+        document.getElementById('profileSaveBtn').innerText = "Locked by Admin";
+      } else {
+        document.getElementById('prof_name').disabled = false;
+        document.getElementById('prof_email').disabled = false;
+        document.getElementById('prof_phone').disabled = false;
+        document.getElementById('profileSaveBtn').disabled = false;
+        document.getElementById('profileSaveBtn').innerText = "Save Local Profiles";
+      }
+
+      const pBody = document.querySelector('#userPaymentsTable tbody');
+      pBody.innerHTML = '';
+      CACHED_DATA.payments.forEach(p => {
+        if(p.user === SESSION.username) {
+          pBody.innerHTML += `<tr><td>${p.id}</td><td>${p.year} ${p.month}</td><td>${p.amt}</td><td>${p.type.toUpperCase()}</td><td><span class="badge bg-${p.status==='approved'?'success':'warning'}">${p.status}</span></td></tr>`;
+        }
+      });
+
+      const nArea = document.getElementById('notificationsArea');
+      nArea.innerHTML = '';
+      CACHED_DATA.notifications.forEach(n => {
+        nArea.innerHTML += `<div class="alert alert-info alert-dismissible fade show" role="alert"><i class="fa-bell me-2"></i>${n.msg}<button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>`;
+      });
+
+      const lBody = document.querySelector('#userLoansTable tbody');
+      lBody.innerHTML = '';
+      CACHED_DATA.loans.forEach(l => {
+        if(l.user === SESSION.username) {
+          lBody.innerHTML += `<tr><td>${l.id}</td><td>NPR ${l.amt}</td><td>${l.period} Mo.</td><td>${l.reason}</td><td><span class="badge bg-secondary">${l.status}</span></td><td>${l.remark || 'N/A'}</td></tr>`;
+        }
+      });
+
+      if(SESSION.role === 'admin') {
+        document.getElementById('adm_init_cfg').value = CACHED_DATA.initialAmt;
+        renderAdminMasterViews(CACHED_DATA.payments, CACHED_DATA.users, CACHED_DATA.loans);
+      }
+    }
+
+    function renderAdminMasterViews(payments, users, loans) {
+      const masterPBody = document.querySelector('#admPaymentsMasterTable tbody');
+      masterPBody.innerHTML = '';
+      payments.forEach(p => {
+        const isLocked = p.lock === 'yes';
+        masterPBody.innerHTML += `<tr>
+          <td>${p.id}</td><td><strong>${p.user}</strong></td><td>${p.year} ${p.month}</td><td>NPR ${p.amt}</td><td>${p.type}</td>
+          <td><span class="badge bg-${p.status==='approved'?'success':(p.status==='pending'?'warning':'danger')}">${p.status}</span></td>
+          <td>
+            ${p.status==='pending' ? `<button class="btn btn-sm btn-success me-1" onclick="executeAdminPaymentAction('${p.id}', 'approve')">Approve</button>` : ''}
+            <button class="btn btn-sm btn-${isLocked?'dark':'outline-dark'}" onclick="executeAdminPaymentLockToggle('${p.id}', '${isLocked?'no':'yes'}')">
+              <i class="fa-${isLocked?'lock':'unlock'}"></i> ${isLocked?'Unlock':'Lock'}
+            </button>
+          </td>
+        </tr>`;
+      });
+
+      const masterUBody = document.querySelector('#admUsersMasterTable tbody');
+      masterUBody.innerHTML = '';
+      users.forEach(u => {
+        masterUBody.innerHTML += `<tr>
+          <td>${u.username}</td><td>${u.name}</td><td>${u.phone}</td>
+          <td><span class="badge bg-${u.initial==='yes'?'success':'danger'}">${u.initial==='yes'?'Settled':'Pending'}</span></td>
+          <td><span class="badge bg-${u.locked==='yes'?'danger':'secondary'}">${u.locked==='yes'?'Locked':'Open'}</span></td>
+          <td>
+            <button class="btn btn-sm btn-outline-warning me-1" onclick="executeAdminLockProfileToggle('${u.username}', '${u.locked==='yes'?'no':'yes'}')">Toggle Profile Lock</button>
+            <button class="btn btn-sm btn-outline-danger" onclick="executeAdminUserPasswordReset('${u.username}', '${u.phone}')">Reset Pwd</button>
+          </td>
+        </tr>`;
+      });
+
+      const masterLBody = document.querySelector('#admLoansMasterTable tbody');
+      masterLBody.innerHTML = '';
+      loans.forEach(l => {
+        masterLBody.innerHTML += `<tr>
+          <td>${l.id}</td><td>${l.user}</td><td>NPR ${l.amt}</td><td>${l.period} Months</td><td>${l.reason}</td><td>${l.status}</td>
+          <td>
+            ${l.status === 'pending' ? `
+              <button class="btn btn-sm btn-success me-1" onclick="executeAdminLoanAction('${l.id}', 'approved')">Approve</button>
+              <button class="btn btn-sm btn-danger" onclick="executeAdminLoanAction('${l.id}', 'rejected')">Reject</button>
+            `: `Processed`}
+          </td>
+        </tr>`;
+      });
+    }
+
+    async function executePaymentSubmission(e) {
+      e.preventDefault();
+      const res = await remoteCall({
+        action: "submitPayment",
+        username: SESSION.username,
+        year: document.getElementById('pay_year').value,
+        month: document.getElementById('pay_month').value,
+        amount: document.getElementById('pay_amt').value,
+        type: document.getElementById('pay_type').value
+      });
+      if(res) {
+        alert('Deposit application verification sequence log appended.');
+        document.getElementById('paymentSubmissionForm').reset();
+        refreshSystemWorkspace();
+      }
+    }
+
+    async function executeLoanApplication(e) {
+      e.preventDefault();
+      const res = await remoteCall({
+        action: "submitLoanRequest",
+        username: SESSION.username,
+        amount: document.getElementById('loan_amt').value,
+        period: document.getElementById('loan_period').value,
+        reason: document.getElementById('loan_reason').value
+      });
+      if(res) {
+        alert('Capital assistance application processing dispatched.');
+        refreshSystemWorkspace();
+      }
+    }
+
+    async function executeProfileUpdate(e) {
+      e.preventDefault();
+      const res = await remoteCall({
+        action: "updateUserProfile",
+        username: SESSION.username,
+        fullName: document.getElementById('prof_name').value,
+        email: document.getElementById('prof_email').value,
+        phone: document.getElementById('prof_phone').value
+      });
+      if(res) {
+        if(res.success === false) alert(res.msg);
+        else alert('Profile data altered updated successfully.');
+        refreshSystemWorkspace();
+      }
+    }
+
+    async function executePasswordModification(e) {
+      e.preventDefault();
+      const res = await remoteCall({ action: "changeUserPassword", username: SESSION.username, newPwd: document.getElementById('prof_pwd').value });
+      if(res) alert('Security authentication access keys shifted.');
+    }
+
+    // Administrative Authorization Endpoint Interfaces
+    async function executeAdminPaymentAction(pId, targetAction) {
+      const res = await remoteCall({ action: "processPaymentAction", pId: pId, paymentAction: targetAction });
+      if(res) refreshSystemWorkspace();
+    }
+
+    async function executeAdminPaymentLockToggle(pId, targetState) {
+      const res = await remoteCall({ action: "togglePaymentLock", pId: pId, lockState: targetState });
+      if(res) refreshSystemWorkspace();
+    }
+
+    async function executeAdminLockProfileToggle(username, targetState) {
+      const res = await remoteCall({ action: "adminLockProfile", username: username, lockState: targetState });
+      if(res) refreshSystemWorkspace();
+    }
+
+    async function executeAdminUserPasswordReset(username, defaultPhone) {
+      if(confirm(`Reset user credentials tracking values for ${username}?`)) {
+        const res = await remoteCall({ action: "adminResetPassword", username: username, phoneDefault: defaultPhone });
+        if(res) alert('Password Reset successful.');
+      }
+    }
+
+    async function executeAdminLoanAction(lId, targetAction) {
+      const remark = prompt("Provide decision context administrative summary tracking logs details:");
+      if(remark !== null) {
+        const res = await remoteCall({ action: "processLoanAction", lId: lId, loanAction: targetAction, remark: remark });
+        if(res) refreshSystemWorkspace();
+      }
+    }
+
+    async function executeAdminSettingOverride() {
+      const res = await remoteCall({ action: "updateInitialDepositConfig", newAmt: document.getElementById('adm_init_cfg').value });
+      if(res) { alert('Base configuration parameter metrics altered.'); refreshSystemWorkspace(); }
+    }
+
+    function applySystemDataFilters() {
+      const y = document.getElementById('f_year').value.toLowerCase();
+      const m = document.getElementById('f_month').value.toLowerCase();
+      const u = document.getElementById('f_user').value.toLowerCase();
+      
+      const filtered = CACHED_DATA.payments.filter(p => {
+        return (!y || p.year.toLowerCase().includes(y)) && (!m || p.month.toLowerCase().includes(m)) && (!u || p.user.toLowerCase().includes(u));
+      });
+      renderAdminMasterViews(filtered, CACHED_DATA.users, CACHED_DATA.loans);
+    }
+
+    function downloadAdminReportCSV() {
+      let csv = 'Payment ID,User Account,Year,Month,Amount,Type,Status\n';
+      CACHED_DATA.payments.forEach(p => { csv += `${p.id},${p.user},${p.year},${p.month},${p.amt},${p.type},${p.status}\n`; });
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+      const link = document.createElement("a");
+      link.href = URL.createObjectURL(blob);
+      link.setAttribute("download", "parbhat_bachat_report.csv");
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+
+    function adaptFormToPaymentType() {
+      const type = document.getElementById('pay_type').value;
+      if(type === 'initial') {
+        document.getElementById('pay_amt').value = CACHED_DATA.initialAmt;
+        document.getElementById('pay_amt').disabled = true;
+      } else {
+        document.getElementById('pay_amt').disabled = false;
+        document.getElementById('pay_amt').value = '';
+      }
+    }
+
+    function terminateSession() {
+      SESSION = null;
+      CACHED_DATA = null;
+      document.getElementById('appDashboard').classList.add('d-none');
+      document.getElementById('loginContext').classList.remove('d-none');
+      document.getElementById('authForm').reset();
+    }
+  </script>
+</body>
+</html>
