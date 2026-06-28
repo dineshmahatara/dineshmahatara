@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Parbhat Bachat Management</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
@@ -11,18 +12,15 @@
     .navbar-custom { background-color: var(--primary-color); }
     .card-metric { border-left: 5px solid var(--accent-color); transition: transform 0.2s; }
     .card-metric:hover { transform: translateY(-3px); }
-    .sidebar-sticky { position: sticky; top: 0; height: 100vh; background: white; border-right: 1px solid #e3e6f0; }
+    .sidebar-sticky { background: white; border-right: 1px solid #e3e6f0; min-height: calc(100vh - 56px); }
     .nav-link.active { background-color: rgba(30, 61, 89, 0.1); color: var(--primary-color) !important; font-weight: bold; }
     .app-loading { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255,255,255,0.8); z-index: 9999; display: flex; align-items: center; justify-content: center; }
   </style>
 </head>
 <body>
 
-  <div id="loadingSpinner" class="app-loading d-none">
-    <div class="spinner-border text-primary" role="status"></div>
-  </div>
+  <div id="loadingSpinner" class="app-loading d-none"><div class="spinner-border text-primary" role="status"></div></div>
 
-  <!-- Auth Module Layout -->
   <div id="loginContext" class="container mt-5">
     <div class="row justify-content-center">
       <div class="col-md-5">
@@ -31,7 +29,7 @@
             <div class="text-center mb-4">
               <i class="fa-solid fa-building-columns text-primary fa-3x mb-2"></i>
               <h3 class="fw-bold">Parbhat Bachat System</h3>
-              <p class="text-muted small">External Node Access Point</p>
+              <p class="text-muted small">Secure External Database Portal</p>
             </div>
             <div id="loginAlert" class="alert alert-danger d-none"></div>
             <form id="authForm" onsubmit="handleLogin(event)">
@@ -40,33 +38,32 @@
                 <input type="text" id="auth_user" class="form-control" required>
               </div>
               <div class="mb-4">
-                <label class="form-label fw-bold">Password Key</label>
+                <label class="form-label fw-bold">Password</label>
                 <input type="password" id="auth_pwd" class="form-control" required>
               </div>
-              <button type="submit" class="btn btn-primary w-100 py-2 rounded-3 mb-3">Authorize Session</button>
+              <button type="submit" class="btn btn-primary w-100 py-2 rounded-3 mb-3">Authorize Login</button>
             </form>
             <hr>
-            <button class="btn btn-outline-secondary btn-sm w-100" onclick="toggleView('registrationContext', 'loginContext')">Register New Profile Account</button>
+            <button class="btn btn-outline-secondary btn-sm w-100" onclick="toggleView('registrationContext', 'loginContext')">Register New Account Profile</button>
           </div>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- Public Registration Module -->
   <div id="registrationContext" class="container mt-5 d-none">
     <div class="row justify-content-center">
       <div class="col-md-6">
         <div class="card shadow border-0 rounded-4">
           <div class="card-body p-4">
-            <h4 class="fw-bold mb-3"><i class="fa-user-plus me-2 text-success"></i>Account Profile Registration</h4>
+            <h4 class="fw-bold mb-3"><i class="fa-user-plus me-2 text-success"></i>Profile Registration</h4>
             <form id="registerForm" onsubmit="handleSelfRegistration(event)">
               <div class="mb-3"><label class="form-label">Username</label><input type="text" id="reg_user" class="form-control" required></div>
               <div class="mb-3"><label class="form-label">Full Name</label><input type="text" id="reg_name" class="form-control" required></div>
               <div class="mb-3"><label class="form-label">Email Address</label><input type="email" id="reg_email" class="form-control" required></div>
-              <div class="mb-3"><label class="form-label">Mobile Contact Number</label><input type="tel" id="reg_phone" class="form-control" required></div>
-              <div class="text-muted small mb-3">Note: The phone number will become the default temporary password key.</div>
-              <button type="submit" class="btn btn-success w-100 mb-2">Submit Profile Registration</button>
+              <div class="mb-3"><label class="form-label">Mobile Number</label><input type="tel" id="reg_phone" class="form-control" required></div>
+              <div class="text-muted small mb-3">Note: The phone number will act as your default password.</div>
+              <button type="submit" class="btn btn-success w-100 mb-2">Submit Profile</button>
               <button type="button" class="btn btn-light w-100" onclick="toggleView('loginContext', 'registrationContext')">Return to Login</button>
             </form>
           </div>
@@ -75,7 +72,6 @@
     </div>
   </div>
 
-  <!-- Operational Interface Shell -->
   <div id="appDashboard" class="container-fluid d-none px-0">
     <nav class="navbar navbar-dark navbar-custom px-4 py-2">
       <span class="navbar-brand fw-bold"><i class="fa-solid fa-chart-line me-2"></i>Parbhat Web Console Node</span>
@@ -90,9 +86,9 @@
         <div class="nav flex-column nav-pills" id="v-pills-tab" role="tablist">
           <button class="nav-link active text-start mb-2" data-bs-toggle="pill" data-bs-target="#panel-home" type="button"><i class="fa-home me-2"></i>Dashboard Workspace</button>
           <button class="nav-link text-start mb-2" data-bs-toggle="pill" data-bs-target="#panel-payments" type="button"><i class="fa-receipt me-2"></i>Remittance Registry</button>
-          <button class="nav-link text-start mb-2" data-bs-toggle="pill" data-bs-target="#panel-loans" type="button"><i class="fa-hand-holding-dollar me-2"></i>Capital Assistance</button>
+          <button class="nav-link text-start mb-2" data-bs-toggle="pill" data-bs-target="#panel-loans" type="button"><i class="fa-hand-holding-dollar me-2"></i>Loan Request</button>
           <button class="nav-link text-start mb-2" data-bs-toggle="pill" data-bs-target="#panel-profile" type="button"><i class="fa-user-cog me-2"></i>Personal Security</button>
-          <button id="adminLink" class="nav-link text-start mb-2 d-none btn-outline-danger" data-bs-toggle="pill" data-bs-target="#panel-admin" type="button"><i class="fa-lock me-2"></i>Master Admin Engine</button>
+          <button id="adminLink" class="nav-link text-start mb-2 d-none btn-outline-danger" data-bs-toggle="pill" data-bs-target="#panel-admin" type="button"><i class="fa-lock me-2"></i>Master Admin Hub</button>
         </div>
       </nav>
 
@@ -101,7 +97,7 @@
           
           <div class="tab-pane fade show active" id="panel-home">
             <div class="row g-3 mb-4" id="notificationsArea"></div>
-            <h2 class="fw-bold mb-4">Account Status Tracking</h2>
+            <h2 class="fw-bold mb-4">Account Workspace</h2>
             <div class="row g-3 mb-4">
               <div class="col-sm-6 col-xl-3">
                 <div class="card card-metric shadow-sm border-0 p-3 bg-white">
@@ -135,21 +131,21 @@
                       <option value="regular">Regular Savings Deposit</option>
                       <option value="loan">Loan Installment Repayment</option>
                       <option value="fine">Penalty Assessment / Fine</option>
-                      <option id="optInitial" value="initial">Initial Capital Configuration Setup Asset</option>
+                      <option id="optInitial" value="initial">Initial System Asset Setup Deposit</option>
                     </select>
                   </div>
                   <div class="col-md-3">
                     <label class="form-label">Valuation Amount (NPR)</label>
                     <input type="number" id="pay_amt" class="form-control" required>
                   </div>
-                  <div class="col-12"><button type="submit" class="btn btn-primary px-4">Transmit Validation Request</button></div>
+                  <div class="col-12"><button type="submit" class="btn btn-primary px-4">Submit Deposit</button></div>
                 </div>
               </form>
             </div>
             
             <div class="card border-0 shadow-sm p-4">
               <h5 class="fw-bold mb-3">My Processing Records</h5>
-              <div class="table-responsive"><table class="table align-middle" id="userPaymentsTable"><thead><tr><th>Payment ID</th><th>Period Block</th><th>Amount</th><th>Category</th><th>Verification State</th></tr></thead><tbody></tbody></table></div>
+              <div class="table-responsive"><table class="table align-middle" id="userPaymentsTable"><thead><tr><th>ID</th><th>Period Block</th><th>Amount</th><th>Category</th><th>Status</th></tr></thead><tbody></tbody></table></div>
             </div>
           </div>
 
@@ -159,15 +155,15 @@
               <form onsubmit="executeLoanApplication(event)">
                 <div class="row g-3">
                   <div class="col-md-4"><label class="form-label">Target Funds Request</label><input type="number" id="loan_amt" class="form-control" required></div>
-                  <div class="col-md-4"><label class="form-label">Maturity Horizon Window (Months)</label><input type="number" id="loan_period" class="form-control" required></div>
+                  <div class="col-md-4"><label class="form-label">Repayment Window (Months)</label><input type="number" id="loan_period" class="form-control" required></div>
                   <div class="col-md-4"><label class="form-label">Business Purpose Context</label><input type="text" id="loan_reason" class="form-control" required></div>
-                  <div class="col-12"><button type="submit" class="btn btn-warning px-4 text-dark fw-bold">Submit Request</button></div>
+                  <div class="col-12"><button type="submit" class="btn btn-warning px-4 text-dark fw-bold">Submit Application</button></div>
                 </div>
               </form>
             </div>
             <div class="card border-0 shadow-sm p-4">
               <h5 class="fw-bold mb-3">Loan Records History</h5>
-              <div class="table-responsive"><table class="table" id="userLoansTable"><thead><tr><th>Tracking ID</th><th>Principal</th><th>Term Duration</th><th>Reason Statement</th><th>Status Context</th><th>Management Notes</th></tr></thead><tbody></tbody></table></div>
+              <div class="table-responsive"><table class="table" id="userLoansTable"><thead><tr><th>Tracking ID</th><th>Principal</th><th>Term</th><th>Reason</th><th>Status</th><th>Management Notes</th></tr></thead><tbody></tbody></table></div>
             </div>
           </div>
 
@@ -179,8 +175,8 @@
                   <form id="profileEditForm" onsubmit="executeProfileUpdate(event)">
                     <div class="mb-3"><label class="form-label">Full Name</label><input type="text" id="prof_name" class="form-control" required></div>
                     <div class="mb-3"><label class="form-label">Email Interface</label><input type="email" id="prof_email" class="form-control" required></div>
-                    <div class="mb-3"><label class="form-label">Mobile Verification Number</label><input type="text" id="prof_phone" class="form-control" required></div>
-                    <button type="submit" id="profileSaveBtn" class="btn btn-primary">Save Local Profiles</button>
+                    <div class="mb-3"><label class="form-label">Mobile Number</label><input type="text" id="prof_phone" class="form-control" required></div>
+                    <button type="submit" id="profileSaveBtn" class="btn btn-primary">Save Changes</button>
                   </form>
                 </div>
               </div>
@@ -188,20 +184,19 @@
                 <div class="card border-0 shadow-sm p-4">
                   <h4 class="fw-bold mb-3">Update Access Password</h4>
                   <form onsubmit="executePasswordModification(event)">
-                    <div class="mb-3"><label class="form-label">New Password String</label><input type="password" id="prof_pwd" class="form-control" required></div>
-                    <button type="submit" class="btn btn-dark">Commit Password Swap</button>
+                    <div class="mb-3"><label class="form-label">New Password</label><input type="password" id="prof_pwd" class="form-control" required></div>
+                    <button type="submit" class="btn btn-dark">Update Password</button>
                   </form>
                 </div>
               </div>
             </div>
           </div>
 
-          <!-- Strict Admin View Components Template Area -->
           <div class="tab-pane fade" id="panel-admin">
             <h2 class="fw-bold mb-4 text-danger"><i class="fa-shield-halved me-2"></i>System Master Administration Hub</h2>
             
             <div class="card border-0 shadow-sm p-4 mb-4">
-              <h5 class="fw-bold text-dark"><i class="fa-sliders me-2"></i>Global Rules Parameter Overrides</h5>
+              <h5 class="fw-bold text-dark"><i class="fa-sliders me-2"></i>Global Settings Overrides</h5>
               <div class="row g-3 align-items-end">
                 <div class="col-md-4"><label class="form-label">Base Setup Required Deposit Evaluation (NPR)</label><input type="number" id="adm_init_cfg" class="form-control"></div>
                 <div class="col-md-2"><button class="btn btn-success w-100" onclick="executeAdminSettingOverride()">Update Settings</button></div>
@@ -231,7 +226,7 @@
               <h5 class="fw-bold mb-3">System Directory Identity Access Matrix Management</h5>
               <div class="table-responsive">
                 <table class="table align-middle" id="admUsersMasterTable">
-                  <thead><tr><th>Username</th><th>Legal Name</th><th>Contact Phone</th><th>Initial Asset State</th><th>Modifications Permissions Status</th><th>Administrative Core Functions Utility Actions</th></tr></thead>
+                  <thead><tr><th>Username</th><th>Legal Name</th><th>Contact Phone</th><th>Initial Asset State</th><th>Modifications Permissions Status</th><th>Utility Actions</th></tr></thead>
                   <tbody></tbody>
                 </table>
               </div>
@@ -256,13 +251,13 @@
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
   <script>
-    // PASTE YOUR GOOGLE APPS SCRIPT DEPLOYMENT WEB APP URL HERE:
-    const API_URL = "https://script.google.com/macros/s/AKfycbw3Q2i8UNDXx_IcLo3vNMtsXUED_rK--HSJWTOijNqkfveC704WmVHYohsNRIwL_hLcGA/exec";
+    // CRITICAL: PASTE YOUR DEPLOYED GOOGLE APPS SCRIPT APP WEB URL HERE BELOW
+    const API_URL = "https://script.google.com/macros/s/AKfycbwO-dRmZ-ODdbZpH-hNte0UVApCI0fIO5ipj1cxNResqcESFhCL4JPInVEnczvo4LK25w/exec";
 
     let SESSION = null;
     let CACHED_DATA = null;
 
-    // Standard POST Request wrapper handler for Google Apps Script Web App Engine execution
+    // Secure Pipeline Data Pipeline Execution Interface Adapter Bridge
     async function remoteCall(payload) {
       if (SESSION) {
         payload.sessionUser = SESSION.username;
@@ -273,7 +268,8 @@
         const response = await fetch(API_URL, {
           method: "POST",
           mode: "cors",
-          headers: { "Content-Type": "text/plain;charset=utf-8" },
+          redirect: "follow", // CRITICAL: Forces browser framework engine to map Google 302 endpoint hops
+          headers: { "Content-Type": "text/plain;charset=utf-8" }, // CRITICAL: Avoids triggering standard preflight OPTIONS checks
           body: JSON.stringify(payload)
         });
         const resParsed = await response.json();
@@ -311,7 +307,7 @@
         SESSION = res;
         document.getElementById('loginContext').classList.add('d-none');
         document.getElementById('appDashboard').classList.remove('d-none');
-        document.getElementById('sessionLabel').innerText = `Authorized Node: ${res.fullName} (${res.role.toUpperCase()})`;
+        document.getElementById('sessionLabel').innerText = `Authorized Session: ${res.fullName} (${res.role.toUpperCase()})`;
         if(res.role === 'admin') document.getElementById('adminLink').classList.remove('d-none');
         refreshSystemWorkspace();
       } else if (res) {
@@ -345,7 +341,7 @@
     }
 
     function renderDashboardView() {
-      document.getElementById('statInitialState').innerText = SESSION.initialPaid === 'yes' ? 'Settled Complete' : 'Pending Initial Registration Payment';
+      document.getElementById('statInitialState').innerText = SESSION.initialPaid === 'yes' ? 'Settled Complete' : 'Pending Initial Setup Deposit';
       if(SESSION.initialPaid === 'yes') {
         document.getElementById('optInitial').classList.add('d-none');
       } else {
@@ -357,13 +353,13 @@
         document.getElementById('prof_email').disabled = true;
         document.getElementById('prof_phone').disabled = true;
         document.getElementById('profileSaveBtn').disabled = true;
-        document.getElementById('profileSaveBtn').innerText = "Locked by Admin";
+        document.getElementById('profileSaveBtn').innerText = "Profile Locked";
       } else {
         document.getElementById('prof_name').disabled = false;
         document.getElementById('prof_email').disabled = false;
         document.getElementById('prof_phone').disabled = false;
         document.getElementById('profileSaveBtn').disabled = false;
-        document.getElementById('profileSaveBtn').innerText = "Save Local Profiles";
+        document.getElementById('profileSaveBtn').innerText = "Save Changes";
       }
 
       const pBody = document.querySelector('#userPaymentsTable tbody');
@@ -451,7 +447,7 @@
         type: document.getElementById('pay_type').value
       });
       if(res) {
-        alert('Deposit application verification sequence log appended.');
+        alert('Deposit application submitted successfully.');
         document.getElementById('paymentSubmissionForm').reset();
         refreshSystemWorkspace();
       }
@@ -467,7 +463,7 @@
         reason: document.getElementById('loan_reason').value
       });
       if(res) {
-        alert('Capital assistance application processing dispatched.');
+        alert('Loan request submitted successfully.');
         refreshSystemWorkspace();
       }
     }
@@ -483,7 +479,7 @@
       });
       if(res) {
         if(res.success === false) alert(res.msg);
-        else alert('Profile data altered updated successfully.');
+        else alert('Profile updated successfully.');
         refreshSystemWorkspace();
       }
     }
@@ -491,10 +487,9 @@
     async function executePasswordModification(e) {
       e.preventDefault();
       const res = await remoteCall({ action: "changeUserPassword", username: SESSION.username, newPwd: document.getElementById('prof_pwd').value });
-      if(res) alert('Security authentication access keys shifted.');
+      if(res) alert('Password updated successfully.');
     }
 
-    // Administrative Authorization Endpoint Interfaces
     async function executeAdminPaymentAction(pId, targetAction) {
       const res = await remoteCall({ action: "processPaymentAction", pId: pId, paymentAction: targetAction });
       if(res) refreshSystemWorkspace();
@@ -507,18 +502,21 @@
 
     async function executeAdminLockProfileToggle(username, targetState) {
       const res = await remoteCall({ action: "adminLockProfile", username: username, lockState: targetState });
-      if(res) refreshSystemWorkspace();
+      if(res) {
+        if(username === SESSION.username) SESSION.profileLocked = targetState;
+        refreshSystemWorkspace();
+      }
     }
 
     async function executeAdminUserPasswordReset(username, defaultPhone) {
-      if(confirm(`Reset user credentials tracking values for ${username}?`)) {
+      if(confirm(`Reset credentials for ${username}?`)) {
         const res = await remoteCall({ action: "adminResetPassword", username: username, phoneDefault: defaultPhone });
         if(res) alert('Password Reset successful.');
       }
     }
 
     async function executeAdminLoanAction(lId, targetAction) {
-      const remark = prompt("Provide decision context administrative summary tracking logs details:");
+      const remark = prompt("Provide execution decision remark notes:");
       if(remark !== null) {
         const res = await remoteCall({ action: "processLoanAction", lId: lId, loanAction: targetAction, remark: remark });
         if(res) refreshSystemWorkspace();
@@ -527,7 +525,7 @@
 
     async function executeAdminSettingOverride() {
       const res = await remoteCall({ action: "updateInitialDepositConfig", newAmt: document.getElementById('adm_init_cfg').value });
-      if(res) { alert('Base configuration parameter metrics altered.'); refreshSystemWorkspace(); }
+      if(res) { alert('Base configuration rules updated.'); refreshSystemWorkspace(); }
     }
 
     function applySystemDataFilters() {
