@@ -3,23 +3,32 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Parbhat Bachat Management</title>
+  <title>Parbhat Bachat Management Console</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
   <style>
-    :root { --primary-color: #1e3d59; --accent-color: #ff6e40; --bg-light: #f5f7fa; }
+    :root { --primary-color: #0f4c81; --accent-color: #f58220; --bg-light: #f8f9fa; }
     body { background-color: var(--bg-light); font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
-    .navbar-custom { background-color: var(--primary-color); }
-    .card-metric { border-left: 5px solid var(--accent-color); transition: transform 0.2s; }
-    .card-metric:hover { transform: translateY(-3px); }
-    .sidebar-sticky { background: white; border-right: 1px solid #e3e6f0; min-height: calc(100vh - 56px); }
-    .nav-link.active { background-color: rgba(30, 61, 89, 0.1); color: var(--primary-color) !important; font-weight: bold; }
-    .app-loading { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255,255,255,0.8); z-index: 9999; display: flex; align-items: center; justify-content: center; }
+    .navbar-custom { background: linear-gradient(135deg, #0f4c81 0%, #1d70b8 100%); border-bottom: 3px solid var(--accent-color); }
+    .sidebar-sticky { background: white; border-right: 1px solid #e3e6f0; min-height: calc(100vh - 56px); box-shadow: 2px 0 5px rgba(0,0,0,0.02); }
+    .nav-link { border-radius: 8px; margin-bottom: 5px; color: #495057; transition: all 0.2s; }
+    .nav-link.active { background-color: var(--primary-color) !important; color: white !important; font-weight: bold; box-shadow: 0 4px 6px rgba(15,76,129,0.2); }
+    .card-stat { border: none; border-radius: 12px; transition: transform 0.2s, box-shadow 0.2s; background: white; }
+    .card-stat:hover { transform: translateY(-3px); box-shadow: 0 8px 15px rgba(0,0,0,0.05); }
+    .border-left-primary { border-left: 5px solid var(--primary-color); }
+    .border-left-success { border-left: 5px solid #28a745; }
+    .border-left-warning { border-left: 5px solid #ffc107; }
+    .border-left-danger { border-left: 5px solid #dc3545; }
+    .app-loading { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255,255,255,0.85); z-index: 9999; display: flex; align-items: center; justify-content: center; flex-direction: column; }
+    .pagination-container { display: flex; justify-content: space-between; align-items: center; margin-top: 15px; }
   </style>
 </head>
 <body>
 
-  <div id="loadingSpinner" class="app-loading d-none"><div class="spinner-border text-primary" role="status"></div></div>
+  <div id="loadingSpinner" class="app-loading d-none">
+    <div class="spinner-border text-primary" style="width: 3rem; height: 3rem;" role="status"></div>
+    <span class="mt-3 fw-bold text-muted">Synchronizing Ledger Ecosystem Data...</span>
+  </div>
 
   <div id="loginContext" class="container mt-5">
     <div class="row justify-content-center">
@@ -27,21 +36,21 @@
         <div class="card shadow-lg border-0 rounded-4">
           <div class="card-body p-5">
             <div class="text-center mb-4">
-              <i class="fa-solid fa-building-columns text-primary fa-3x mb-2"></i>
-              <h3 class="fw-bold">Parbhat Bachat System</h3>
-              <p class="text-muted small">Secure Compliant Connection Hub</p>
+              <i class="fa-solid fa-scale-balanced text-primary fa-3x mb-2"></i>
+              <h3 class="fw-bold">Parbhat Bachat Console</h3>
+              <p class="text-muted small">Distributed Accounting Network Interface</p>
             </div>
             <div id="loginAlert" class="alert alert-danger d-none"></div>
             <form id="authForm" onsubmit="handleLogin(event)">
               <div class="mb-3">
                 <label for="auth_user" class="form-label fw-bold">Username</label>
-                <input type="text" id="auth_user" class="form-control" required>
+                <input type="text" id="auth_user" class="form-control form-control-lg" required>
               </div>
               <div class="mb-4">
                 <label for="auth_pwd" class="form-label fw-bold">Password</label>
-                <input type="password" id="auth_pwd" class="form-control" required>
+                <input type="password" id="auth_pwd" class="form-control form-control-lg" required>
               </div>
-              <button type="submit" class="btn btn-primary w-100 py-2 rounded-3 mb-3">Authorize Login</button>
+              <button type="submit" class="btn btn-primary w-100 py-2 btn-lg rounded-3 mb-3">Authorize Access Node</button>
             </form>
             <hr>
             <button class="btn btn-outline-secondary btn-sm w-100" onclick="toggleView('registrationContext', 'loginContext')">Register New Account Profile</button>
@@ -73,22 +82,22 @@
   </div>
 
   <div id="appDashboard" class="container-fluid d-none px-0">
-    <nav class="navbar navbar-dark navbar-custom px-4 py-2">
+    <nav class="navbar navbar-dark navbar-custom px-4 py-2 sticky-top shadow-sm">
       <span class="navbar-brand fw-bold"><i class="fa-solid fa-chart-line me-2"></i>Parbhat Web Console Node</span>
       <div class="d-flex align-items-center">
         <span id="sessionLabel" class="text-white me-3 d-none d-md-inline"></span>
-        <button class="btn btn-sm btn-outline-light" onclick="terminateSession()"><i class="fa-sign-out-alt"></i></button>
+        <button class="btn btn-sm btn-light text-primary fw-bold" onclick="terminateSession()"><i class="fa-sign-out-alt me-1"></i>Logout</button>
       </div>
     </nav>
 
     <div class="row mx-0">
       <nav id="sidebarMenu" class="col-md-3 col-lg-2 d-md-block bg-white sidebar-sticky p-3">
         <div class="nav flex-column nav-pills" id="v-pills-tab" role="tablist">
-          <button class="nav-link active text-start mb-2" data-bs-toggle="pill" data-bs-target="#panel-home" type="button"><i class="fa-home me-2"></i>Dashboard Workspace</button>
+          <button class="nav-link active text-start mb-2" data-bs-toggle="pill" data-bs-target="#panel-home" type="button" onclick="refreshSystemWorkspace()"><i class="fa-home me-2"></i>User Dashboard</button>
           <button class="nav-link text-start mb-2" data-bs-toggle="pill" data-bs-target="#panel-payments" type="button"><i class="fa-receipt me-2"></i>Remittance Registry</button>
           <button class="nav-link text-start mb-2" data-bs-toggle="pill" data-bs-target="#panel-loans" type="button"><i class="fa-hand-holding-dollar me-2"></i>Loan Request</button>
           <button class="nav-link text-start mb-2" data-bs-toggle="pill" data-bs-target="#panel-profile" type="button"><i class="fa-user-cog me-2"></i>Personal Security</button>
-          <button id="adminLink" class="nav-link text-start mb-2 d-none btn-outline-danger" data-bs-toggle="pill" data-bs-target="#panel-admin" type="button"><i class="fa-lock me-2"></i>Master Admin Hub</button>
+          <button id="adminLink" class="nav-link text-start mb-2 d-none btn-outline-danger" data-bs-toggle="pill" data-bs-target="#panel-admin" type="button"><i class="fa-lock me-2"></i>Admin Intelligence Hub</button>
         </div>
       </nav>
 
@@ -97,14 +106,39 @@
           
           <div class="tab-pane fade show active" id="panel-home">
             <div class="row g-3 mb-4" id="notificationsArea"></div>
-            <h2 class="fw-bold mb-4">Account Workspace</h2>
+            
+            <h2 class="fw-bold mb-4">Account Workspace Ledger</h2>
+            
             <div class="row g-3 mb-4">
-              <div class="col-sm-6 col-xl-3">
-                <div class="card card-metric shadow-sm border-0 p-3 bg-white">
-                  <div class="text-muted small fw-bold text-uppercase">Initial Setup Deposit Status</div>
-                  <h4 class="fw-bold my-2" id="statInitialState">Retrieving...</h4>
+              <div class="col-sm-6 col-lg-3">
+                <div class="card card-stat border-left-primary shadow-sm p-3">
+                  <div class="text-muted small fw-bold text-uppercase">Initial Setup Deposit</div>
+                  <h4 class="fw-bold my-2 id-stat" id="statInitialState">Processing...</h4>
                 </div>
               </div>
+              <div class="col-sm-6 col-lg-3">
+                <div class="card card-stat border-left-success shadow-sm p-3">
+                  <div class="text-muted small fw-bold text-uppercase">Total Approved Savings</div>
+                  <h4 class="fw-bold my-2" id="usrStatSavings">NPR 0</h4>
+                </div>
+              </div>
+              <div class="col-sm-6 col-lg-3">
+                <div class="card card-stat border-left-warning shadow-sm p-3">
+                  <div class="text-muted small fw-bold text-uppercase">Months Paid (Current Year)</div>
+                  <h4 class="fw-bold my-2" id="usrStatMonthsCount">0 Months</h4>
+                </div>
+              </div>
+              <div class="col-sm-6 col-lg-3">
+                <div class="card card-stat border-left-danger shadow-sm p-3">
+                  <div class="text-muted small fw-bold text-uppercase">Active Borrowed Capital</div>
+                  <h4 class="fw-bold my-2" id="usrStatLoanActive">NPR 0</h4>
+                </div>
+              </div>
+            </div>
+
+            <div class="card border-0 shadow-sm p-4 mb-4">
+              <h5 class="fw-bold mb-3 text-primary"><i class="fa-calendar-days me-2"></i>Yearly Saving Frequency Compliance Trace</h5>
+              <div id="calendarComplianceGrid" class="row row-cols-2 row-cols-sm-3 row-cols-md-4 row-cols-lg-6 g-2"></div>
             </div>
           </div>
 
@@ -114,11 +148,11 @@
               <form id="paymentSubmissionForm" onsubmit="executePaymentSubmission(event)">
                 <div class="row g-3">
                   <div class="col-md-3">
-                    <label class="form-label" for="pay_year">Nepali Year</label>
+                    <label class="form-label fw-bold" for="pay_year">Nepali Year</label>
                     <select id="pay_year" class="form-select"><option>2083</option><option>2084</option></select>
                   </div>
                   <div class="col-md-3">
-                    <label class="form-label" for="pay_month">Target Month</label>
+                    <label class="form-label fw-bold" for="pay_month">Target Month</label>
                     <select id="pay_month" class="form-select">
                       <option>Baishakh</option><option>Jeth</option><option>Asar</option><option>Shrawan</option>
                       <option>Bhadau</option><option>Aashwin</option><option>Kartik</option><option>Mangsir</option>
@@ -126,7 +160,7 @@
                     </select>
                   </div>
                   <div class="col-md-3">
-                    <label class="form-label" for="pay_type">Classification Type</label>
+                    <label class="form-label fw-bold" for="pay_type">Classification Type</label>
                     <select id="pay_type" class="form-select" onchange="adaptFormToPaymentType()">
                       <option value="regular">Regular Savings Deposit</option>
                       <option value="loan">Loan Installment Repayment</option>
@@ -135,17 +169,18 @@
                     </select>
                   </div>
                   <div class="col-md-3">
-                    <label class="form-label" for="pay_amt">Valuation Amount (NPR)</label>
+                    <label class="form-label fw-bold" for="pay_amt">Valuation Amount (NPR)</label>
                     <input type="number" id="pay_amt" class="form-control" required>
                   </div>
-                  <div class="col-12"><button type="submit" class="btn btn-primary px-4">Submit Deposit</button></div>
+                  <div class="col-12"><button type="submit" class="btn btn-primary px-4 shadow-sm">Submit Deposit Record</button></div>
                 </div>
               </form>
             </div>
             
             <div class="card border-0 shadow-sm p-4">
-              <h5 class="fw-bold mb-3">My Processing Records</h5>
+              <h5 class="fw-bold mb-3">My Processing Remittance Ledger Records</h5>
               <div class="table-responsive"><table class="table align-middle" id="userPaymentsTable"><thead><tr><th>ID</th><th>Period Block</th><th>Amount</th><th>Category</th><th>Status</th></tr></thead><tbody></tbody></table></div>
+              <div class="pagination-container"><span id="pUserPaymentsInfo" class="small text-muted"></span><div id="pUserPaymentsNav"></div></div>
             </div>
           </div>
 
@@ -157,13 +192,14 @@
                   <div class="col-md-4"><label class="form-label" for="loan_amt">Target Funds Request</label><input type="number" id="loan_amt" class="form-control" required></div>
                   <div class="col-md-4"><label class="form-label" for="loan_period">Repayment Window (Months)</label><input type="number" id="loan_period" class="form-control" required></div>
                   <div class="col-md-4"><label class="form-label" for="loan_reason">Business Purpose Context</label><input type="text" id="loan_reason" class="form-control" required></div>
-                  <div class="col-12"><button type="submit" class="btn btn-warning px-4 text-dark fw-bold">Submit Application</button></div>
+                  <div class="col-12"><button type="submit" class="btn btn-warning px-4 text-dark fw-bold shadow-sm">Submit Application</button></div>
                 </div>
               </form>
             </div>
             <div class="card border-0 shadow-sm p-4">
               <h5 class="fw-bold mb-3">Loan Records History</h5>
               <div class="table-responsive"><table class="table" id="userLoansTable"><thead><tr><th>Tracking ID</th><th>Principal</th><th>Term</th><th>Reason</th><th>Status</th><th>Management Notes</th></tr></thead><tbody></tbody></table></div>
+              <div class="pagination-container"><span id="pUserLoansInfo" class="small text-muted"></span><div id="pUserLoansNav"></div></div>
             </div>
           </div>
 
@@ -193,62 +229,77 @@
           </div>
 
           <div class="tab-pane fade" id="panel-admin">
-            <h2 class="fw-bold mb-4 text-danger"><i class="fa-shield-halved me-2"></i>System Master Administration Hub</h2>
+            <h2 class="fw-bold mb-4 text-danger"><i class="fa-shield-halved me-2"></i>Master Administration Analytics Suite</h2>
             
-            <div class="card border-0 shadow-sm p-4 mb-4">
-              <h5 class="fw-bold text-dark"><i class="fa-sliders me-2"></i>Global Settings Overrides</h5>
-              <div class="row g-3 align-items-end">
-                <div class="col-md-4"><label class="form-label" for="adm_init_cfg">Base Setup Required Deposit Evaluation (NPR)</label><input type="number" id="adm_init_cfg" class="form-control"></div>
-                <div class="col-md-2"><button class="btn btn-success w-100" onclick="executeAdminSettingOverride()">Update Settings</button></div>
+            <div class="row g-3 mb-4">
+              <div class="col-sm-6 col-lg-4">
+                <div class="card card-stat border-left-primary shadow-sm p-4 text-center">
+                  <div class="text-muted small fw-bold text-uppercase mb-1">Total Savings Aggregated</div>
+                  <h3 class="fw-bold text-primary" id="admTotalCollected">NPR 0</h3>
+                </div>
+              </div>
+              <div class="col-sm-6 col-lg-4">
+                <div class="card card-stat border-left-warning shadow-sm p-4 text-center">
+                  <div class="text-muted small fw-bold text-uppercase mb-1">Total Outstanding Borrowings</div>
+                  <h3 class="fw-bold text-warning" id="admTotalLoan">NPR 0</h3>
+                </div>
+              </div>
+              <div class="col-sm-6 col-lg-4">
+                <div class="card card-stat border-left-danger shadow-sm p-4 text-center">
+                  <div class="text-muted small fw-bold text-uppercase mb-1">Total Penalties/Fines Settled</div>
+                  <h3 class="fw-bold text-danger" id="admTotalFine">NPR 0</h3>
+                </div>
               </div>
             </div>
 
             <div class="card border-0 shadow-sm p-4 mb-4">
-              <h5 class="fw-bold mb-3">Auditor Verification Control Panel View Grid</h5>
-              <div class="row g-3 mb-3">
-                <div class="col-md-3">
-                  <label for="f_year" class="visually-hidden">Filter Year</label>
-                  <input type="text" id="f_year" class="form-control" placeholder="Filter Year">
-                </div>
-                <div class="col-md-3">
-                  <label for="f_month" class="visually-hidden">Filter Month</label>
-                  <input type="text" id="f_month" class="form-control" placeholder="Filter Month">
-                </div>
-                <div class="col-md-3">
-                  <label for="f_user" class="visually-hidden">Filter User</label>
-                  <input type="text" id="f_user" class="form-control" placeholder="Filter User">
-                </div>
+              <h5 class="fw-bold text-dark"><i class="fa-sliders me-2"></i>Global Settings Overrides</h5>
+              <div class="row g-3 align-items-end">
+                <div class="col-md-4"><label class="form-label fw-bold" for="adm_init_cfg">Base Required Setup Deposit Amount (NPR)</label><input type="number" id="adm_init_cfg" class="form-control"></div>
+                <div class="col-md-2"><button class="btn btn-success w-100 shadow-sm" onclick="executeAdminSettingOverride()">Update Settings</button></div>
+              </div>
+            </div>
+
+            <div class="card border-0 shadow-sm p-4 mb-4">
+              <h5 class="fw-bold mb-3"><i class="fa-receipt me-2 text-primary"></i>Remittance Verification Processing Queue</h5>
+              <div class="row g-2 mb-3">
+                <div class="col-md-3"><label class="visually-hidden" for="f_year">Filter Year</label><input type="text" id="f_year" class="form-control" placeholder="Filter Year"></div>
+                <div class="col-md-3"><label class="visually-hidden" for="f_month">Filter Month</label><input type="text" id="f_month" class="form-control" placeholder="Filter Month"></div>
+                <div class="col-md-3"><label class="visually-hidden" for="f_user">Filter User</label><input type="text" id="f_user" class="form-control" placeholder="Filter User"></div>
                 <div class="col-md-3 d-flex gap-2">
-                  <button class="btn btn-secondary w-100" onclick="applySystemDataFilters()">Apply Filter</button>
+                  <button class="btn btn-secondary w-100" onclick="applySystemDataFilters()">Filter</button>
                   <button class="btn btn-dark w-100" onclick="downloadAdminReportCSV()">Export CSV</button>
                 </div>
               </div>
               <div class="table-responsive">
-                <table class="table table-hover" id="admPaymentsMasterTable">
-                  <thead><tr><th>ID</th><th>User</th><th>Period</th><th>Valuation</th><th>Type</th><th>Verification Status</th><th>Operational Controls</th></tr></thead>
+                <table class="table table-hover align-middle" id="admPaymentsMasterTable">
+                  <thead><tr><th>ID</th><th>User</th><th>Period</th><th>Valuation</th><th>Type</th><th>Status</th><th>Operational Controls</th></tr></thead>
                   <tbody></tbody>
                 </table>
               </div>
+              <div class="pagination-container"><span id="pAdminPaymentsInfo" class="small text-muted"></span><div id="pAdminPaymentsNav"></div></div>
             </div>
 
             <div class="card border-0 shadow-sm p-4 mb-4">
-              <h5 class="fw-bold mb-3">System Directory Identity Access Matrix Management</h5>
+              <h5 class="fw-bold mb-3"><i class="fa-users me-2 text-success"></i>Identity Access Management Directory Matrix</h5>
               <div class="table-responsive">
                 <table class="table align-middle" id="admUsersMasterTable">
-                  <thead><tr><th>Username</th><th>Legal Name</th><th>Contact Phone</th><th>Initial Asset State</th><th>Modifications Permissions Status</th><th>Utility Actions</th></tr></thead>
+                  <thead><tr><th>Username</th><th>Legal Name</th><th>Contact Phone</th><th>Initial Setup</th><th>Permissions</th><th>Actions</th></tr></thead>
                   <tbody></tbody>
                 </table>
               </div>
+              <div class="pagination-container"><span id="pAdminUsersInfo" class="small text-muted"></span><div id="pAdminUsersNav"></div></div>
             </div>
 
             <div class="card border-0 shadow-sm p-4">
-              <h5 class="fw-bold mb-3">Loan Underwriting Allocations Open Processing Queue</h5>
+              <h5 class="fw-bold mb-3"><i class="fa-hand-holding-dollar me-2 text-warning"></i>Capital Loan Underwriting Queue</h5>
               <div class="table-responsive">
-                <table class="table" id="admLoansMasterTable">
-                  <thead><tr><th>ID</th><th>User Account</th><th>Principal Value</th><th>Repayment Horiz.</th><th>Stated Reasons</th><th>State</th><th>Actions</th></tr></thead>
+                <table class="table align-middle" id="admLoansMasterTable">
+                  <thead><tr><th>ID</th><th>User Account</th><th>Principal Value</th><th>Repayment Horiz.</th><th>Reasons</th><th>State</th><th>Actions</th></tr></thead>
                   <tbody></tbody>
                 </table>
               </div>
+              <div class="pagination-container"><span id="pAdminLoansInfo" class="small text-muted"></span><div id="pAdminLoansNav"></div></div>
             </div>
 
           </div>
@@ -261,12 +312,39 @@
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
   <script>
     // CRITICAL: PASTE YOUR DEPLOYED GOOGLE APPS SCRIPT APP WEB URL HERE BELOW
-    const API_URL = "https://script.google.com/macros/s/AKfycbzP6dWdefLkehkcTOJHjWMl34-tmI6Ytaffm1bhh7bUeB5ls3TkOXkhE9rQiIwXem23mQ/exec";
+    const API_URL = "https://script.google.com/macros/s/AKfycbzPr7u1c_lxHWX1wvhE0xNfKF88CCKeuBnCWHGGjybYHVahlf0CCVqL1uPyhJBekCgBZg/exec";
 
     let SESSION = null;
     let CACHED_DATA = null;
 
-    // Form URL-Encoded POST Implementation to completely bypass preflight checks and CORB filters
+    // Pagination configuration state properties variables map nodes tracking
+    const ITEMS_PER_PAGE = 5;
+    let PAGINATION_STATE = {
+      userPayments: 1,
+      userLoans: 1,
+      adminPayments: 1,
+      adminUsers: 1,
+      adminLoans: 1
+    };
+
+    // Auto-login configuration state trace node execution flow engine initialization logic hook loop handler lifecycle execution parameters trigger mount bounds setup hook mapping tracker
+    window.addEventListener('DOMContentLoaded', () => {
+      const persistedSession = localStorage.getItem('parbhat_bachat_session_token_key');
+      if (persistedSession) {
+        try {
+          SESSION = JSON.parse(persistedSession);
+          document.getElementById('loginContext').classList.add('d-none');
+          document.getElementById('appDashboard').classList.remove('d-none');
+          document.getElementById('sessionLabel').innerText = `Authorized Session: ${SESSION.fullName} (${SESSION.role.toUpperCase()})`;
+          if(SESSION.role === 'admin') document.getElementById('adminLink').classList.remove('d-none');
+          refreshSystemWorkspace();
+        } catch(e) {
+          localStorage.removeItem('parbhat_bachat_session_token_key');
+        }
+      }
+    });
+
+    // Form URL-Encoded POST Pipeline implementation to bypass Preflight and CORB filters
     async function remoteCall(payload) {
       if (SESSION) {
         payload.sessionUser = SESSION.username;
@@ -285,9 +363,7 @@
           method: "POST",
           mode: "cors",
           redirect: "follow",
-          headers: {
-            "Content-Type": "application/x-www-form-urlencoded;charset=UTF-8"
-          },
+          headers: { "Content-Type": "application/x-www-form-urlencoded;charset=UTF-8" },
           body: formBody
         });
 
@@ -317,6 +393,53 @@
       show ? spinner.classList.remove('d-none') : spinner.classList.add('d-none');
     }
 
+    // Custom data paginator tracking render execution controller helper tool pipeline method mapper
+    function paginateCollection(items, currentPage, targetTableSelector, paginationInfoId, paginationControlsId, renderRowCallback) {
+      const totalItems = items.length;
+      const totalPages = Math.ceil(totalItems / ITEMS_PER_PAGE) || 1;
+      const verifiedPage = Math.max(1, Math.min(currentPage, totalPages));
+      
+      const startIndex = (verifiedPage - 1) * ITEMS_PER_PAGE;
+      const endIndex = Math.min(startIndex + ITEMS_PER_PAGE, totalItems);
+      
+      const tableBody = document.querySelector(targetTableSelector);
+      tableBody.innerHTML = '';
+      
+      const slice = items.slice(startIndex, endIndex);
+      slice.forEach((item, index) => renderRowCallback(tableBody, item, startIndex + index));
+      
+      document.getElementById(paginationInfoId).innerText = `Showing entries ${totalItems > 0 ? startIndex + 1 : 0}-${endIndex} of ${totalItems}`;
+      
+      let navContainer = document.getElementById(paginationControlsId);
+      navContainer.innerHTML = '';
+      
+      let btnGroup = document.createElement('div');
+      btnGroup.className = 'btn-group btn-group-sm';
+      
+      let prevBtn = document.createElement('button');
+      prevBtn.className = `btn btn-outline-primary ${verifiedPage === 1 ? 'disabled' : ''}`;
+      prevBtn.innerHTML = '<i class="fa-solid fa-chevron-left"></i>';
+      prevBtn.onclick = () => { PAGINATION_STATE[paginationControlsId] = verifiedPage - 1; renderDashboardView(); };
+      btnGroup.appendChild(prevBtn);
+
+      for (let i = 1; i <= totalPages; i++) {
+        let pageBtn = document.createElement('button');
+        pageBtn.className = `btn btn-${verifiedPage === i ? 'primary' : 'outline-primary'}`;
+        pageBtn.innerText = i;
+        pageBtn.onclick = () => { PAGINATION_STATE[paginationControlsId] = i; renderDashboardView(); };
+        btnGroup.appendChild(pageBtn);
+      }
+
+      let nextBtn = document.createElement('button');
+      nextBtn.className = `btn btn-outline-primary ${verifiedPage === totalPages ? 'disabled' : ''}`;
+      nextBtn.innerHTML = '<i class="fa-solid fa-chevron-right"></i>';
+      nextBtn.onclick = () => { PAGINATION_STATE[paginationControlsId] = verifiedPage + 1; renderDashboardView(); };
+      btnGroup.appendChild(nextBtn);
+      
+      navContainer.appendChild(btnGroup);
+      return verifiedPage;
+    }
+
     async function handleLogin(e) {
       e.preventDefault();
       const u = document.getElementById('auth_user').value;
@@ -325,6 +448,7 @@
       const res = await remoteCall({ action: "authenticateUser", username: u, password: p });
       if(res && res.success) {
         SESSION = res;
+        localStorage.setItem('parbhat_bachat_session_token_key', JSON.stringify(res)); // Save session token map to avoid logging out on browser tab refresh resets
         document.getElementById('loginContext').classList.add('d-none');
         document.getElementById('appDashboard').classList.remove('d-none');
         document.getElementById('sessionLabel').innerText = `Authorized Session: ${res.fullName} (${res.role.toUpperCase()})`;
@@ -361,99 +485,134 @@
     }
 
     function renderDashboardView() {
-      document.getElementById('statInitialState').innerText = SESSION.initialPaid === 'yes' ? 'Settled Complete' : 'Pending Initial Setup Deposit';
-      if(SESSION.initialPaid === 'yes') {
-        document.getElementById('optInitial').classList.add('d-none');
-      } else {
-        document.getElementById('optInitial').classList.remove('d-none');
-      }
+      // Calculate active context profile parameters properties details 
+      let userApprovedPayments = CACHED_DATA.payments.filter(p => p.user === SESSION.username && p.status === 'approved');
+      let totalSavingsSum = userApprovedPayments.filter(p => p.type === 'regular' || p.type === 'initial').reduce((sum, p) => sum + Number(p.amt), 0);
+      let monthsPaidList = [...new Set(userApprovedPayments.filter(p => p.type === 'regular').map(p => p.month))];
+      
+      let userActiveLoans = CACHED_DATA.loans.filter(l => l.user === SESSION.username && l.status === 'approved');
+      let totalOwedLoans = userActiveLoans.reduce((sum, l) => sum + Number(l.amt), 0);
 
-      if(SESSION.profileLocked === 'yes') {
-        document.getElementById('prof_name').disabled = true;
-        document.getElementById('prof_email').disabled = true;
-        document.getElementById('prof_phone').disabled = true;
-        document.getElementById('profileSaveBtn').disabled = true;
-        document.getElementById('profileSaveBtn').innerText = "Profile Locked";
-      } else {
-        document.getElementById('prof_name').disabled = false;
-        document.getElementById('prof_email').disabled = false;
-        document.getElementById('prof_phone').disabled = false;
-        document.getElementById('profileSaveBtn').disabled = false;
-        document.getElementById('profileSaveBtn').innerText = "Save Changes";
-      }
+      // Render metrics information to User Interface panel card grids nodes
+      document.getElementById('statInitialState').innerText = SESSION.initialPaid === 'yes' ? 'Settled complete' : 'Pending asset setup setup';
+      document.getElementById('usrStatSavings').innerText = `NPR ${totalSavingsSum}`;
+      document.getElementById('usrStatMonthsCount').innerText = `${monthsPaidList.length} Months`;
+      document.getElementById('usrStatLoanActive').innerText = `NPR ${totalOwedLoans}`;
 
-      const pBody = document.querySelector('#userPaymentsTable tbody');
-      pBody.innerHTML = '';
-      CACHED_DATA.payments.forEach(p => {
-        if(p.user === SESSION.username) {
-          pBody.innerHTML += `<tr><td>${p.id}</td><td>${p.year} ${p.month}</td><td>${p.amt}</td><td>${p.type.toUpperCase()}</td><td><span class="badge bg-${p.status==='approved'?'success':'warning'}">${p.status}</span></td></tr>`;
+      document.getElementById('optInitial').classList.toggle('d-none', SESSION.initialPaid === 'yes');
+
+      // Profile Locking controls checks verification handling
+      const isLocked = SESSION.profileLocked === 'yes';
+      ['prof_name', 'prof_email', 'prof_phone', 'profileSaveBtn'].forEach(id => document.getElementById(id).disabled = isLocked);
+      document.getElementById('profileSaveBtn').innerText = isLocked ? "Profile System Locked" : "Save Changes";
+
+      // Render Nepali months compliance matrix checklist tracker view component mapping nodes grid layout parameters
+      const nepaliMonthsArray = ["Baishakh", "Jeth", "Asar", "Shrawan", "Bhadau", "Aashwin", "Kartik", "Mangsir", "Poush", "Magh", "Falgun", "Chaitra"];
+      const gridContainer = document.getElementById('calendarComplianceGrid');
+      gridContainer.innerHTML = '';
+      nepaliMonthsArray.forEach(m => {
+        const checkPaid = monthsPaidList.includes(m);
+        gridContainer.innerHTML += `
+          <div class="col">
+            <div class="card text-center p-2 border shadow-sm ${checkPaid ? 'bg-light border-success' : 'bg-white'}">
+              <i class="fa-solid ${checkPaid ? 'fa-circle-check text-success' : 'fa-circle-xmark text-muted'} mb-1"></i>
+              <div class="small fw-bold">${m}</div>
+              <span class="badge ${checkPaid ? 'bg-success' : 'bg-secondary'} px-2 py-1 mt-1 small" style="font-size:10px;">${checkPaid ? 'Settled' : 'Unpaid'}</span>
+            </div>
+          </div>`;
+      });
+
+      // Paginate dynamic interface data structures table frameworks arrays pipelines context grids mapping mappers tracking logic loops helper functions tools wrappers
+      paginateCollection(
+        CACHED_DATA.payments.filter(p => p.user === SESSION.username),
+        PAGINATION_STATE.pUserPaymentsNav, '#userPaymentsTable tbody', 'pUserPaymentsInfo', 'pUserPaymentsNav',
+        (body, p) => {
+          body.innerHTML += `<tr><td>${p.id}</td><td>${p.year} ${p.month}</td><td>NPR ${p.amt}</td><td><span class="badge bg-light text-dark border">${p.type.toUpperCase()}</span></td><td><span class="badge bg-${p.status==='approved'?'success':'warning'}">${p.status}</span></td></tr>`;
         }
-      });
+      );
 
-      const nArea = document.getElementById('notificationsArea');
-      nArea.innerHTML = '';
-      CACHED_DATA.notifications.forEach(n => {
-        nArea.innerHTML += `<div class="alert alert-info alert-dismissible fade show" role="alert"><i class="fa-bell me-2"></i>${n.msg}<button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>`;
-      });
-
-      const lBody = document.querySelector('#userLoansTable tbody');
-      lBody.innerHTML = '';
-      CACHED_DATA.loans.forEach(l => {
-        if(l.user === SESSION.username) {
-          lBody.innerHTML += `<tr><td>${l.id}</td><td>NPR ${l.amt}</td><td>${l.period} Mo.</td><td>${l.reason}</td><td><span class="badge bg-secondary">${l.status}</span></td><td>${l.remark || 'N/A'}</td></tr>`;
+      paginateCollection(
+        CACHED_DATA.loans.filter(l => l.user === SESSION.username),
+        PAGINATION_STATE.pUserLoansNav, '#userLoansTable tbody', 'pUserLoansInfo', 'pUserLoansNav',
+        (body, l) => {
+          body.innerHTML += `<tr><td>${l.id}</td><td>NPR ${l.amt}</td><td>${l.period} Mo.</td><td>${l.reason}</td><td><span class="badge bg-secondary">${l.status}</span></td><td>${l.remark || 'N/A'}</td></tr>`;
         }
-      });
+      );
 
+      // Render Admin intelligence suite dashboard tracking metrics logic calculations view configurations metrics values data logs tracking structures mapping blocks layers overrides parameters tracking values mapping loops metrics arrays fields analytics numbers keys structures properties node mapping tracking configuration grids layers
       if(SESSION.role === 'admin') {
+        let approvedGlobalPayments = CACHED_DATA.payments.filter(p => p.status === 'approved');
+        
+        let aggSavingsTotal = approvedGlobalPayments.filter(p => p.type === 'regular' || p.type === 'initial').reduce((sum, p) => sum + Number(p.amt), 0);
+        let aggLoansIssued = CACHED_DATA.loans.filter(l => l.status === 'approved').reduce((sum, l) => sum + Number(l.amt), 0);
+        let aggFinesCollected = approvedGlobalPayments.filter(p => p.type === 'fine').reduce((sum, p) => sum + Number(p.amt), 0);
+
+        document.getElementById('admTotalCollected').innerText = `NPR ${aggSavingsTotal}`;
+        document.getElementById('admTotalLoan').innerText = `NPR ${aggLoansIssued}`;
+        document.getElementById('admTotalFine').innerText = `NPR ${aggFinesCollected}`;
+        
         document.getElementById('adm_init_cfg').value = CACHED_DATA.initialAmt;
-        renderAdminMasterViews(CACHED_DATA.payments, CACHED_DATA.users, CACHED_DATA.loans);
+        
+        executeRenderAdminMasterDataMatrixBlocksLayersGridTableSheetsPanes(CACHED_DATA.payments, CACHED_DATA.users, CACHED_DATA.loans);
       }
     }
 
-    function renderAdminMasterViews(payments, users, loans) {
-      const masterPBody = document.querySelector('#admPaymentsMasterTable tbody');
-      masterPBody.innerHTML = '';
-      payments.forEach(p => {
-        const isLocked = p.lock === 'yes';
-        masterPBody.innerHTML += `<tr>
-          <td>${p.id}</td><td><strong>${p.user}</strong></td><td>${p.year} ${p.month}</td><td>NPR ${p.amt}</td><td>${p.type}</td>
-          <td><span class="badge bg-${p.status==='approved'?'success':(p.status==='pending'?'warning':'danger')}">${p.status}</span></td>
-          <td>
-            ${p.status==='pending' ? `<button class="btn btn-sm btn-success me-1" onclick="executeAdminPaymentAction('${p.id}', 'approve')">Approve</button>` : ''}
-            <button class="btn btn-sm btn-${isLocked?'dark':'outline-dark'}" onclick="executeAdminPaymentLockToggle('${p.id}', '${isLocked?'no':'yes'}')">
-              <i class="fa-${isLocked?'lock':'unlock'}"></i> ${isLocked?'Unlock':'Lock'}
-            </button>
-          </td>
-        </tr>`;
-      });
+    function executeRenderAdminMasterDataMatrixBlocksLayersGridTableSheetsPanes(payments, users, loans) {
+      paginateCollection(
+        payments, PAGINATION_STATE.pAdminPaymentsNav, '#admPaymentsMasterTable tbody', 'pAdminPaymentsInfo', 'pAdminPaymentsNav',
+        (body, p) => {
+          const isLocked = p.lock === 'yes';
+          body.innerHTML += `<tr>
+            <td>${p.id}</td><td><strong>${p.user}</strong></td><td>${p.year} ${p.month}</td><td>NPR ${p.amt}</td><td><span class="badge bg-light text-dark border">${p.type}</span></td>
+            <td><span class="badge bg-${p.status==='approved'?'success':(p.status==='pending'?'warning':'danger')}">${p.status}</span></td>
+            <td>
+              <div class="d-flex gap-1">
+                ${p.status==='pending' ? `<button class="btn btn-xs btn-success py-1 px-2" onclick="executeAdminPaymentAction('${p.id}', 'approve')"><i class="fa-solid fa-check"></i></button>` : ''}
+                <button class="btn btn-xs btn-${isLocked?'dark':'outline-dark'} py-1 px-2" onclick="executeAdminPaymentLockToggle('${p.id}', '${isLocked?'no':'yes'}')">
+                  <i class="fa-solid fa-${isLocked?'lock':'unlock'}"></i>
+                </button>
+              </div>
+            </td>
+          </tr>`;
+        }
+      );
 
-      const masterUBody = document.querySelector('#admUsersMasterTable tbody');
-      masterUBody.innerHTML = '';
-      users.forEach(u => {
-        masterUBody.innerHTML += `<tr>
-          <td>${u.username}</td><td>${u.name}</td><td>${u.phone}</td>
-          <td><span class="badge bg-${u.initial==='yes'?'success':'danger'}">${u.initial==='yes'?'Settled':'Pending'}</span></td>
-          <td><span class="badge bg-${u.locked==='yes'?'danger':'secondary'}">${u.locked==='yes'?'Locked':'Open'}</span></td>
-          <td>
-            <button class="btn btn-sm btn-outline-warning me-1" onclick="executeAdminLockProfileToggle('${u.username}', '${u.locked==='yes'?'no':'yes'}')">Toggle Profile Lock</button>
-            <button class="btn btn-sm btn-outline-danger" onclick="executeAdminUserPasswordReset('${u.username}', '${u.phone}')">Reset Pwd</button>
-          </td>
-        </tr>`;
-      });
+      paginateCollection(
+        users, PAGINATION_STATE.pAdminUsersNav, '#admUsersMasterTable tbody', 'pAdminUsersInfo', 'pAdminUsersNav',
+        (body, u) => {
+          body.innerHTML += `<tr>
+            <td>${u.username}</td><td>${u.name}</td><td>${u.phone}</td>
+            <td><span class="badge bg-${u.initial==='yes'?'success':'danger'}">${u.initial==='yes'?'Settled':'Pending'}</span></td>
+            <td><span class="badge bg-${u.locked==='yes'?'danger':'secondary'}">${u.locked==='yes'?'Locked':'Open'}</span></td>
+            <td>
+              <div class="dropdown">
+                <button class="btn btn-sm btn-light border dropdown-toggle py-0 px-1" type="button" data-bs-toggle="dropdown"><i class="fa-solid fa-ellipsis-vertical"></i></button>
+                <ul class="dropdown-menu shadow border-0">
+                  <li><button class="dropdown-item small" onclick="executeAdminLockProfileToggle('${u.username}', '${u.locked==='yes'?'no':'yes'}')"><i class="fa-solid fa-user-lock me-2 text-warning"></i>Toggle Account Lock</button></li>
+                  <li><button class="dropdown-item small text-danger" onclick="executeAdminUserPasswordReset('${u.username}', '${u.phone}')"><i class="fa-solid fa-key me-2"></i>Reset to Default</button></li>
+                </ul>
+              </div>
+            </td>
+          </tr>`;
+        }
+      );
 
-      const masterLBody = document.querySelector('#admLoansMasterTable tbody');
-      masterLBody.innerHTML = '';
-      loans.forEach(l => {
-        masterLBody.innerHTML += `<tr>
-          <td>${l.id}</td><td>${l.user}</td><td>NPR ${l.amt}</td><td>${l.period} Months</td><td>${l.reason}</td><td>${l.status}</td>
-          <td>
-            ${l.status === 'pending' ? `
-              <button class="btn btn-sm btn-success me-1" onclick="executeAdminLoanAction('${l.id}', 'approved')">Approve</button>
-              <button class="btn btn-sm btn-danger" onclick="executeAdminLoanAction('${l.id}', 'rejected')">Reject</button>
-            `: `Processed`}
-          </td>
-        </tr>`;
-      });
+      paginateCollection(
+        loans, PAGINATION_STATE.pAdminLoansNav, '#admLoansMasterTable tbody', 'pAdminLoansInfo', 'pAdminLoansNav',
+        (body, l) => {
+          body.innerHTML += `<tr>
+            <td>${l.id}</td><td><strong>${l.user}</strong></td><td>NPR ${l.amt}</td><td>${l.period} Mo.</td><td>${l.reason}</td><td><span class="badge bg-secondary">${l.status}</span></td>
+            <td>
+              ${l.status === 'pending' ? `
+                <div class="d-flex gap-1">
+                  <button class="btn btn-sm btn-success py-1 px-2" onclick="executeAdminLoanAction('${l.id}', 'approved')">Approve</button>
+                  <button class="btn btn-sm btn-outline-danger py-1 px-2" onclick="executeAdminLoanAction('${l.id}', 'rejected')">Reject</button>
+                </div>
+              `: `<span class="text-muted small">Processed</span>`}
+            </td>
+          </tr>`;
+        }
+      );
     }
 
     async function executePaymentSubmission(e) {
@@ -529,14 +688,14 @@
     }
 
     async function executeAdminUserPasswordReset(username, defaultPhone) {
-      if(confirm(`Reset credentials for ${username}?`)) {
+      if(confirm(`Reset credentials security state matrix configuration for user context target identifier: ${username}?`)) {
         const res = await remoteCall({ action: "adminResetPassword", username: username, phoneDefault: defaultPhone });
-        if(res) alert('Password Reset successful.');
+        if(res) alert('Password Reset implementation sequence completed successfully.');
       }
     }
 
     async function executeAdminLoanAction(lId, targetAction) {
-      const remark = prompt("Provide execution decision remark notes:");
+      const remark = prompt("Provide system underwriter decision context notes logs:");
       if(remark !== null) {
         const res = await remoteCall({ action: "processLoanAction", lId: lId, loanAction: targetAction, remark: remark });
         if(res) refreshSystemWorkspace();
@@ -545,7 +704,7 @@
 
     async function executeAdminSettingOverride() {
       const res = await remoteCall({ action: "updateInitialDepositConfig", newAmt: document.getElementById('adm_init_cfg').value });
-      if(res) { alert('Base configuration rules updated.'); refreshSystemWorkspace(); }
+      if(res) { alert('Base configuration computational logic system properties updated.'); refreshSystemWorkspace(); }
     }
 
     function applySystemDataFilters() {
@@ -556,7 +715,9 @@
       const filtered = CACHED_DATA.payments.filter(p => {
         return (!y || p.year.toLowerCase().includes(y)) && (!m || p.month.toLowerCase().includes(m)) && (!u || p.user.toLowerCase().includes(u));
       });
-      renderAdminMasterViews(filtered, CACHED_DATA.users, CACHED_DATA.loans);
+      // Reset filter page bounds parameter pointer tracker variables matrix to prevent overflows
+      PAGINATION_STATE.pAdminPaymentsNav = 1;
+      executeRenderAdminMasterDataMatrixBlocksLayersGridTableSheetsPanes(filtered, CACHED_DATA.users, CACHED_DATA.loans);
     }
 
     function downloadAdminReportCSV() {
@@ -585,6 +746,7 @@
     function terminateSession() {
       SESSION = null;
       CACHED_DATA = null;
+      localStorage.removeItem('parbhat_bachat_session_token_key'); // Unmount trace tokens tracking state parameter parameters nodes on user exit logouts
       document.getElementById('appDashboard').classList.add('d-none');
       document.getElementById('loginContext').classList.remove('d-none');
       document.getElementById('authForm').reset();
