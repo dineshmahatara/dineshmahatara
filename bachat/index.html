@@ -29,16 +29,16 @@
             <div class="text-center mb-4">
               <i class="fa-solid fa-building-columns text-primary fa-3x mb-2"></i>
               <h3 class="fw-bold">Parbhat Bachat System</h3>
-              <p class="text-muted small">CORS-Free Dynamic Access Node</p>
+              <p class="text-muted small">Secure Compliant Connection Hub</p>
             </div>
             <div id="loginAlert" class="alert alert-danger d-none"></div>
             <form id="authForm" onsubmit="handleLogin(event)">
               <div class="mb-3">
-                <label class="form-label fw-bold">Username</label>
+                <label for="auth_user" class="form-label fw-bold">Username</label>
                 <input type="text" id="auth_user" class="form-control" required>
               </div>
               <div class="mb-4">
-                <label class="form-label fw-bold">Password</label>
+                <label for="auth_pwd" class="form-label fw-bold">Password</label>
                 <input type="password" id="auth_pwd" class="form-control" required>
               </div>
               <button type="submit" class="btn btn-primary w-100 py-2 rounded-3 mb-3">Authorize Login</button>
@@ -58,11 +58,11 @@
           <div class="card-body p-4">
             <h4 class="fw-bold mb-3"><i class="fa-user-plus me-2 text-success"></i>Profile Registration</h4>
             <form id="registerForm" onsubmit="handleSelfRegistration(event)">
-              <div class="mb-3"><label class="form-label">Username</label><input type="text" id="reg_user" class="form-control" required></div>
-              <div class="mb-3"><label class="form-label">Full Name</label><input type="text" id="reg_name" class="form-control" required></div>
-              <div class="mb-3"><label class="form-label">Email Address</label><input type="email" id="reg_email" class="form-control" required></div>
-              <div class="mb-3"><label class="form-label">Mobile Number</label><input type="tel" id="reg_phone" class="form-control" required></div>
-              <div class="text-muted small mb-3">Note: Your phone number will act as your default password.</div>
+              <div class="mb-3"><label for="reg_user" class="form-label">Username</label><input type="text" id="reg_user" class="form-control" required></div>
+              <div class="mb-3"><label class="form-label" for="reg_name">Full Name</label><input type="text" id="reg_name" class="form-control" required></div>
+              <div class="mb-3"><label class="form-label" for="reg_email">Email Address</label><input type="email" id="reg_email" class="form-control" required></div>
+              <div class="mb-3"><label class="form-label" for="reg_phone">Mobile Number</label><input type="tel" id="reg_phone" class="form-control" required></div>
+              <div class="text-muted small mb-3">Note: The phone number will act as your default password.</div>
               <button type="submit" class="btn btn-success w-100 mb-2">Submit Profile</button>
               <button type="button" class="btn btn-light w-100" onclick="toggleView('loginContext', 'registrationContext')">Return to Login</button>
             </form>
@@ -114,11 +114,11 @@
               <form id="paymentSubmissionForm" onsubmit="executePaymentSubmission(event)">
                 <div class="row g-3">
                   <div class="col-md-3">
-                    <label class="form-label">Nepali Year</label>
+                    <label class="form-label" for="pay_year">Nepali Year</label>
                     <select id="pay_year" class="form-select"><option>2083</option><option>2084</option></select>
                   </div>
                   <div class="col-md-3">
-                    <label class="form-label">Target Month</label>
+                    <label class="form-label" for="pay_month">Target Month</label>
                     <select id="pay_month" class="form-select">
                       <option>Baishakh</option><option>Jeth</option><option>Asar</option><option>Shrawan</option>
                       <option>Bhadau</option><option>Aashwin</option><option>Kartik</option><option>Mangsir</option>
@@ -126,7 +126,7 @@
                     </select>
                   </div>
                   <div class="col-md-3">
-                    <label class="form-label">Classification Type</label>
+                    <label class="form-label" for="pay_type">Classification Type</label>
                     <select id="pay_type" class="form-select" onchange="adaptFormToPaymentType()">
                       <option value="regular">Regular Savings Deposit</option>
                       <option value="loan">Loan Installment Repayment</option>
@@ -135,7 +135,7 @@
                     </select>
                   </div>
                   <div class="col-md-3">
-                    <label class="form-label">Valuation Amount (NPR)</label>
+                    <label class="form-label" for="pay_amt">Valuation Amount (NPR)</label>
                     <input type="number" id="pay_amt" class="form-control" required>
                   </div>
                   <div class="col-12"><button type="submit" class="btn btn-primary px-4">Submit Deposit</button></div>
@@ -154,9 +154,9 @@
               <h4 class="fw-bold mb-3">Request Capital Loan</h4>
               <form onsubmit="executeLoanApplication(event)">
                 <div class="row g-3">
-                  <div class="col-md-4"><label class="form-label">Target Funds Request</label><input type="number" id="loan_amt" class="form-control" required></div>
-                  <div class="col-md-4"><label class="form-label">Repayment Window (Months)</label><input type="number" id="loan_period" class="form-control" required></div>
-                  <div class="col-md-4"><label class="form-label">Business Purpose Context</label><input type="text" id="loan_reason" class="form-control" required></div>
+                  <div class="col-md-4"><label class="form-label" for="loan_amt">Target Funds Request</label><input type="number" id="loan_amt" class="form-control" required></div>
+                  <div class="col-md-4"><label class="form-label" for="loan_period">Repayment Window (Months)</label><input type="number" id="loan_period" class="form-control" required></div>
+                  <div class="col-md-4"><label class="form-label" for="loan_reason">Business Purpose Context</label><input type="text" id="loan_reason" class="form-control" required></div>
                   <div class="col-12"><button type="submit" class="btn btn-warning px-4 text-dark fw-bold">Submit Application</button></div>
                 </div>
               </form>
@@ -173,9 +173,9 @@
                 <div class="card border-0 shadow-sm p-4">
                   <h4 class="fw-bold mb-3">Profile Data Customization</h4>
                   <form id="profileEditForm" onsubmit="executeProfileUpdate(event)">
-                    <div class="mb-3"><label class="form-label">Full Name</label><input type="text" id="prof_name" class="form-control" required></div>
-                    <div class="mb-3"><label class="form-label">Email Interface</label><input type="email" id="prof_email" class="form-control" required></div>
-                    <div class="mb-3"><label class="form-label">Mobile Number</label><input type="text" id="prof_phone" class="form-control" required></div>
+                    <div class="mb-3"><label class="form-label" for="prof_name">Full Name</label><input type="text" id="prof_name" class="form-control" required></div>
+                    <div class="mb-3"><label class="form-label" for="prof_email">Email Interface</label><input type="email" id="prof_email" class="form-control" required></div>
+                    <div class="mb-3"><label class="form-label" for="prof_phone">Mobile Number</label><input type="text" id="prof_phone" class="form-control" required></div>
                     <button type="submit" id="profileSaveBtn" class="btn btn-primary">Save Changes</button>
                   </form>
                 </div>
@@ -184,7 +184,7 @@
                 <div class="card border-0 shadow-sm p-4">
                   <h4 class="fw-bold mb-3">Update Access Password</h4>
                   <form onsubmit="executePasswordModification(event)">
-                    <div class="mb-3"><label class="form-label">New Password</label><input type="password" id="prof_pwd" class="form-control" required></div>
+                    <div class="mb-3"><label class="form-label" for="prof_pwd">New Password</label><input type="password" id="prof_pwd" class="form-control" required></div>
                     <button type="submit" class="btn btn-dark">Update Password</button>
                   </form>
                 </div>
@@ -198,7 +198,7 @@
             <div class="card border-0 shadow-sm p-4 mb-4">
               <h5 class="fw-bold text-dark"><i class="fa-sliders me-2"></i>Global Settings Overrides</h5>
               <div class="row g-3 align-items-end">
-                <div class="col-md-4"><label class="form-label">Base Setup Required Deposit Evaluation (NPR)</label><input type="number" id="adm_init_cfg" class="form-control"></div>
+                <div class="col-md-4"><label class="form-label" for="adm_init_cfg">Base Setup Required Deposit Evaluation (NPR)</label><input type="number" id="adm_init_cfg" class="form-control"></div>
                 <div class="col-md-2"><button class="btn btn-success w-100" onclick="executeAdminSettingOverride()">Update Settings</button></div>
               </div>
             </div>
@@ -206,9 +206,18 @@
             <div class="card border-0 shadow-sm p-4 mb-4">
               <h5 class="fw-bold mb-3">Auditor Verification Control Panel View Grid</h5>
               <div class="row g-3 mb-3">
-                <div class="col-md-3"><input type="text" id="f_year" class="form-control" placeholder="Filter Year"></div>
-                <div class="col-md-3"><input type="text" id="f_month" class="form-control" placeholder="Filter Month"></div>
-                <div class="col-md-3"><input type="text" id="f_user" class="form-control" placeholder="Filter User"></div>
+                <div class="col-md-3">
+                  <label for="f_year" class="visually-hidden">Filter Year</label>
+                  <input type="text" id="f_year" class="form-control" placeholder="Filter Year">
+                </div>
+                <div class="col-md-3">
+                  <label for="f_month" class="visually-hidden">Filter Month</label>
+                  <input type="text" id="f_month" class="form-control" placeholder="Filter Month">
+                </div>
+                <div class="col-md-3">
+                  <label for="f_user" class="visually-hidden">Filter User</label>
+                  <input type="text" id="f_user" class="form-control" placeholder="Filter User">
+                </div>
                 <div class="col-md-3 d-flex gap-2">
                   <button class="btn btn-secondary w-100" onclick="applySystemDataFilters()">Apply Filter</button>
                   <button class="btn btn-dark w-100" onclick="downloadAdminReportCSV()">Export CSV</button>
@@ -257,46 +266,45 @@
     let SESSION = null;
     let CACHED_DATA = null;
 
-    // Secure JSONP implementation that bypasses browser CORS locks on any environment
-    function remoteCall(payload) {
+    // Form URL-Encoded POST Implementation to completely bypass preflight checks and CORB filters
+    async function remoteCall(payload) {
       if (SESSION) {
         payload.sessionUser = SESSION.username;
         payload.sessionRole = SESSION.role;
       }
       toggleSpinner(true);
 
-      return new Promise((resolve, reject) => {
-        // Generate a random unique callback name
-        const callbackName = "jsonp_callback_" + Math.round(100000 * Math.random());
-        
-        // Define it globally so Google Script can access it upon script load execution
-        window[callbackName] = function(data) {
-          delete window[callbackName];
-          document.body.removeChild(script);
-          toggleSpinner(false);
-          
-          if (data && data.success === false && data.msg && data.msg.includes("REJECTION")) {
-            alert(data.msg);
-            terminateSession();
-            resolve(null);
-          }
-          resolve(data);
-        };
+      try {
+        const formBody = Object.keys(payload)
+          .map(key => encodeURIComponent(key) + '=' + encodeURIComponent(
+            typeof payload[key] === 'object' ? JSON.stringify(payload[key]) : payload[key]
+          ))
+          .join('&');
 
-        // Create structural script element target node
-        const script = document.createElement("script");
-        script.src = API_URL + "?callback=" + callbackName + "&payload=" + encodeURIComponent(JSON.stringify(payload));
-        
-        script.onerror = function() {
-          delete window[callbackName];
-          document.body.removeChild(script);
-          toggleSpinner(false);
-          alert("Pipeline allocation failure. Check Web App URL deployment properties.");
-          resolve(null);
-        };
+        const response = await fetch(API_URL, {
+          method: "POST",
+          mode: "cors",
+          redirect: "follow",
+          headers: {
+            "Content-Type": "application/x-www-form-urlencoded;charset=UTF-8"
+          },
+          body: formBody
+        });
 
-        document.body.appendChild(script);
-      });
+        const resParsed = await response.json();
+        toggleSpinner(false);
+
+        if (resParsed.success === false && resParsed.msg && resParsed.msg.includes("REJECTION")) {
+          alert(resParsed.msg);
+          terminateSession();
+          return null;
+        }
+        return resParsed;
+      } catch (err) {
+        toggleSpinner(false);
+        alert("Network interface pipeline fault: " + err.toString());
+        return null;
+      }
     }
 
     function toggleView(showId, hideId) {
