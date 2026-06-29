@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <!-- SEO Meta Tags for Australia -->
+    <title>Dingo IT Solutions | Custom Web Development & Tech Services Melbourne</title>
+    <meta name="description" content="Dingo IT Solutions (ABN: 59 332 794 238) delivers premium web development, custom software applications, and IT consulting across Victoria and Australia. Contact Shishir Chandra Poudel today.">
+    <meta name="keywords" content="Web Development Melbourne, IT Solutions Australia, Custom Software Lalor, Business Automation Victoria, App Developers Australia, Dingo IT">
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="https://www.dingoitsolutions.com.au">
+    
+    <!-- Open Graph / Facebook SEO -->
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="Dingo IT Solutions | Custom Web Development & Tech Services">
+    <meta property="og:description" content="Premium web application architectures, IT consulting, and digital scaling tailored for Australian businesses.">
+    <meta property="og:site_name" content="Dingo IT Solutions">
+
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        dingo: {
+                            amber: '#e5a951',  // Primary color from Business_card_front.png
+                            dark: '#2d333f',   // Dark slate from Business_card_front.png
+                            slate: '#1e222b',
+                            duskBg: '#fbf7f0',
+                            duskText: '#3a3124'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Smooth color transitions for the theme changer */
+        body { transition: background-color 0.3s ease, color 0.3s ease; }
+        
+        /* Custom Dusk Theme styling overrides */
+        .theme-dusk { background-color: #fbf7f0; color: #2d333f; }
+        .theme-dusk .bg-white { background-color: #f5edd9; }
+        .theme-dusk .bg-gray-100 { background-color: #ebdcb9; }
+        .theme-dusk .text-gray-600 { color: #5a5243; }
+        .theme-dusk .text-gray-900 { color: #1f1a12; }
+    </style>
+</head>
+<body id="body-root" class="bg-gray-50 text-gray-800 font-sans antialiased">
+
+    <!-- FIXED 4 SOCIAL MEDIA LINKS SIDEBAR -->
+    <div class="fixed right-0 top-1/3 z-50 flex flex-col space-y-1 shadow-xl">
+        <a href="https://facebook.com" target="_blank" rel="noopener noreferrer" aria-label="Facebook" class="bg-[#1877F2] text-white p-3 rounded-l-xl hover:pr-6 transition-all duration-200 flex items-center justify-center w-12 hover:w-16">
+            <svg class="w-5 h-5 fill-current" viewBox="0 0 24 24"><path d="M22 12c0-5.52-4.48-10-10-10S2 6.48 2 12c0 4.84 3.44 8.87 8 9.8V15H8v-3h2V9.5C10 7.57 11.57 6 13.5 6H16v3h-2c-.55 0-1 .45-1 1v2h3v3h-3v6.95c4.56-.93 8-4.96 8-9.75z"/></svg>
+        </a>
+        <a href="https://linkedin.com" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn" class="bg-[#0A66C2] text-white p-3 rounded-l-xl hover:pr-6 transition-all duration-200 flex items-center justify-center w-12 hover:w-16">
+            <svg class="w-5 h-5 fill-current" viewBox="0 0 24 24"><path d="M19 3a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h14m-.5 15.5v-5.3a3.26 3.26 0 0 0-3.26-3.26c-.85 0-1.84.52-2.32 1.3v-1.11h-2.79v8.37h2.79v-4.93c0-.77.62-1.4 1.39-1.4a1.4 1.4 0 0 1 1.4 1.4v4.93h2.79M6.88 8.56a1.68 1.68 0 0 0 1.68-1.68c0-.93-.75-1.69-1.68-1.69a1.69 1.69 0 0 0-1.69 1.69c0 .93.76 1.68 1.69 1.68m1.39 9.94v-8.37H5.5v8.37h2.77z"/></svg>
+        </a>
+        <a href="https://wa.me/61416206568" target="_blank" rel="noopener noreferrer" aria-label="WhatsApp" class="bg-[#25D366] text-white p-3 rounded-l-xl hover:pr-6 transition-all duration-200 flex items-center justify-center w-12 hover:w-16">
+            <svg class="w-5 h-5 fill-current" viewBox="0 0 24 24"><path d="M12.04 2c-5.46 0-9.91 4.45-9.91 9.91 0 1.75.46 3.45 1.32 4.95L2.05 22l5.25-1.38c1.45.79 3.08 1.21 4.74 1.21 5.46 0 9.91-4.45 9.91-9.91 0-2.65-1.03-5.14-2.9-7.01A9.816 9.816 0 0 0 12.04 2zm.01 1.67c2.2 0 4.26.86 5.82 2.42a8.225 8.225 0 0 1 2.41 5.83c0 4.54-3.7 8.23-8.24 8.23-1.48 0-2.93-.4-4.19-1.15l-.3-.18-3.12.82.83-3.04-.2-.31a8.183 8.183 0 0 1-1.25-4.37c-.01-4.54 3.69-8.22 8.24-8.22zm-3.53 4.8c-.19-.43-.4-.44-.58-.44h-.5c-.18 0-.46.07-.7.33-.24.25-.92.9-1.05 1.84-.13.94.55 1.85.64 1.98.1.13 1.33 2.03 3.23 2.85.45.2 1.01.34 1.36.27.4-.07 1.23-.5 1.4-1 .17-.48.17-.9 1.12-1.07.05-.03.1-.03.14-.03.11 0 .26.05.47.15.2.1 1.3.64 1.53.75.23.11.38.17.44.27.06.1.06.57-.14 1.14-.2.57-1 1-1.42 1.04-.42.04-.97.05-1.57-.14-1.38-.43-2.61-1.63-3.41-2.43-.24-.24-.46-.5-.65-.77-1.12-1.54-1.14-2.73-.24-3.56z"/></svg>
+        </a>
+        <a href="https://x.com" target="_blank" rel="noopener noreferrer" aria-label="X (Twitter)" class="bg-black text-white p-3 rounded-l-xl hover:pr-6 transition-all duration-200 flex items-center justify-center w-12 hover:w-16">
+            <svg class="w-5 h-5 fill-current" viewBox="0 0 24 24"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+        </a>
+    </div>
+
+    <!-- 1. NAVBAR -->
+    <header class="bg-white dark:bg-dingo-slate shadow-sm sticky top-0 z-50 border-b border-gray-100 dark:border-gray-800 transition-colors">
+        <div class="container mx-auto px-6 py-4 flex justify-between items-center">
+            <a href="#" class="flex items-center space-x-3 group">
+                <div class="w-10 h-10 bg-dingo-dark dark:bg-dingo-amber rounded-full flex items-center justify-center text-white font-bold transition group-hover:scale-105 duration-200">
+                    <svg class="w-6 h-6 fill-white dark:fill-dingo-dark" viewBox="0 0 24 24">
+                        <path d="M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2M12,4C14.21,4 16,5.79 16,8C16,9.5 15.15,10.79 13.9,11.4L15.4,18H13.8L12.7,13H11.3L10.2,18H8.6L10.1,11.4C8.85,10.79 8,9.5 8,8C8,5.79 9.79,4 12,4Z"/>
+                    </svg>
+                </div>
+                <span class="text-xl font-black tracking-wider text-dingo-dark dark:text-white">DINGO <span class="text-dingo-amber">IT</span></span>
+            </a>
+            
+            <nav class="hidden lg:flex space-x-8 font-semibold text-gray-600 dark:text-gray-300">
+                <a href="#" class="text-dingo-amber">Home</a>
+                <a href="#services" class="hover:text-dingo-amber transition">Services</a>
+                <a href="#portfolios" class="hover:text-dingo-amber transition">Portfolios</a>
+                <a href="#growth-story" class="hover:text-dingo-amber transition">Our Growth</a>
+                <a href="#contact" class="hover:text-dingo-amber transition">Contact</a>
+            </nav>
+
+            <div class="flex items-center space-x-4">
+                <!-- THEME CHANGER -->
+                <div class="relative inline-block text-left">
+                    <select id="themeDropdown" onchange="applyTheme(this.value)" class="text-xs font-bold bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-100 rounded-xl px-3 py-2 border-none focus:ring-2 focus:ring-dingo-amber cursor-pointer appearance-none pr-8" aria-label="Select website theme">
+                        <option value="light">☀️ Light</option>
+                        <option value="dark">🌙 Dark</option>
+                        <option value="dusk">🍂 Dusk</option>
+                    </select>
+                    <div class="absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none text-gray-500">
+                        <svg class="w-3 h-3 fill-current" viewBox="0 0 20 20"><path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"/></svg>
+                    </div>
+                </div>
+                <!-- Call Firm converted to WhatsApp Link -->
+                <a href="https://wa.me/61416206568" target="_blank" rel="noopener noreferrer" class="hidden sm:inline-block bg-dingo-dark dark:bg-dingo-amber text-white dark:text-dingo-dark px-4 py-2 rounded-xl text-sm font-bold hover:opacity-90 transition shadow-sm">Call Firm</a>
+            </div>
+        </div>
+    </header>
+
+    <!-- 2. HERO SECTION -->
+    <section class="container mx-auto px-6 py-12 md:py-20 flex flex-col-reverse md:flex-row items-center gap-12">
+        <div class="md:w-1/2 space-y-6">
+            <div class="inline-flex items-center gap-2 bg-amber-100 dark:bg-amber-950 text-amber-800 dark:text-amber-300 text-xs px-3 py-1.5 rounded-xl font-bold tracking-wider uppercase">
+                <h2>ABN: 59 332 794 238</h2>
+            </div>
+            <h1 class="text-4xl md:text-5xl font-extrabold text-gray-900 dark:text-white leading-tight">
+                Innovative IT Solutions for Your Business Growth
+            </h1>
+            <p class="text-lg text-gray-600 dark:text-gray-400">
+                We deliver cutting-edge software development, IT consulting, and digital transformation strategies tailored to scale your enterprise.
+            </p>
+            <div class="flex flex-wrap gap-4">
+                <a href="#services" class="bg-dingo-amber text-white px-6 py-3.5 rounded-xl font-bold hover:bg-dingo-dark dark:hover:bg-amber-600 transition shadow-lg shadow-amber-500/10">Our Services</a>
+                <a href="#portfolios" class="border border-gray-300 dark:border-gray-700 text-gray-800 dark:text-gray-200 px-6 py-3.5 rounded-xl font-bold hover:bg-gray-100 dark:hover:bg-gray-800 transition">Explore Work</a>
+            </div>
+        </div>
+        <div class="md:w-1/2 w-full relative">
+            <div class="absolute -left-4 -top-4 w-24 h-24 bg-dingo-amber rounded-3xl opacity-10 -z-10 animate-pulse"></div>
+            <img src="https://images.unsplash.com/photo-1519389950473-47ba0277781c?auto=format&fit=crop&w=800&q=80" alt="Dingo IT Solutions Team working on Web Development Project in Australia" class="rounded-2xl shadow-2xl w-full object-cover h-80 md:h-96 border-4 border-white dark:border-gray-800 transition-colors">
+        </div>
+    </section>
+
+    <!-- 3. COMPULSORY GROWTH STORY -->
+    <section id="growth-story" class="bg-white dark:bg-dingo-slate py-16 border-t border-b border-gray-100 dark:border-gray-800 transition-colors">
+        <div class="container mx-auto px-6 text-center">
+            <p class="text-red-500 dark:text-red-400 text-xs font-bold tracking-widest uppercase mb-2">Numbers Are Talking</p>
+            <h2 class="text-3xl md:text-4xl font-extrabold text-gray-900 dark:text-white mb-4">Explore Our Growth & Success Story</h2>
+            <p class="text-gray-600 dark:text-gray-400 max-w-3xl mx-auto text-sm leading-relaxed mb-12">
+                At Dingo IT Solutions, our work speaks louder than words. With a proven track record and a commitment to excellence, we've consistently delivered quality solutions that drive real results for our clients.
+            </p>
+
+            <div class="grid grid-cols-2 lg:grid-cols-4 gap-8 max-w-5xl mx-auto items-center justify-center">
+                <!-- Stat 1 -->
+                <div class="flex items-center space-x-4 justify-center md:justify-start lg:border-r border-gray-100 dark:border-gray-800 last:border-0 p-2">
+                    <div class="text-blue-600 dark:text-blue-400">
+                        <svg class="w-10 h-10" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17.25 6.75L22.5 12l-5.25 5.25m-10.5 0L1.5 12l5.25-5.25m7.5-3l-4.5 16.5"/></svg>
+                    </div>
+                    <div class="text-left">
+                        <span class="block text-2xl md:text-3xl font-black text-gray-900 dark:text-white">30+</span>
+                        <span class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Delivered Goods</span>
+                    </div>
+                </div>
+                <!-- Stat 2 -->
+                <div class="flex items-center space-x-4 justify-center md:justify-start lg:border-r border-gray-100 dark:border-gray-800 last:border-0 p-2">
+                    <div class="text-blue-600 dark:text-blue-400">
+                        <svg class="w-10 h-10" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M18 18.72a9.094 9.094 0 003.741-.479 3 3 0 00-4.682-2.72m.94 3.198l.001.031c0 .225-.012.447-.037.666A11.944 11.944 0 0112 21c-2.17 0-4.207-.576-5.963-1.584A6.062 6.062 0 016 18.719m12 0a5.971 5.971 0 00-.941-3.197m0 0A5.995 5.995 0 0012 12.75a5.995 5.995 0 00-5.058 2.772m0 0a3 3 0 00-4.681 2.72 8.986 8.986 0 003.74.477m.94-3.197a5.971 5.971 0 00-.94 3.197M15 6.75a3 3 0 11-6 0 3 3 0 016 0zm6 3a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0zm-13.5 0a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0z"/></svg>
+                    </div>
+                    <div class="text-left">
+                        <span class="block text-2xl md:text-3xl font-black text-gray-900 dark:text-white">10+</span>
+                        <span class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">IT Consulting</span>
+                    </div>
+                </div>
+                <!-- Stat 3 -->
+                <div class="flex items-center space-x-4 justify-center md:justify-start lg:border-r border-gray-100 dark:border-gray-800 last:border-0 p-2">
+                    <div class="text-blue-600 dark:text-blue-400">
+                        <svg class="w-10 h-10" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15.59 14.37a6 6 0 01-5.84 7.38v-4.8m5.84-2.58a14.98 14.98 0 006.16-12.12A14.98 14.98 0 009.63 8.41a6 6 0 015.96 5.96zM9.63 8.41A14.98 14.98 0 003.47 20.53a14.98 14.98 0 0012.12-6.16M9.63 8.41a6 6 0 01-5.84 7.38h4.8"/></svg>
+                    </div>
+                    <div class="text-left">
+                        <span class="block text-2xl md:text-3xl font-black text-gray-900 dark:text-white">20+</span>
+                        <span class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Fully Launched</span>
+                    </div>
+                </div>
+                <!-- Stat 4 -->
+                <div class="flex items-center space-x-4 justify-center md:justify-start p-2">
+                    <div class="text-blue-600 dark:text-blue-400">
+                        <svg class="w-10 h-10" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10.125 2.25h3.75a2.25 2.25 0 012.25 2.25v.75h3a2.25 2.25 0 012.25 2.25v11.25a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V7.5A2.25 2.25 0 013.75 5.25h3v-.75A2.25 2.25 0 019.125 2.25zM9 5.25h6v-.75a.75.75 0 00-.75-.75h-4.5a.75.75 0 00-.75.75v.75zM9 11.25l2.25 2.25 4.5-4.5"/></svg>
+                    </div>
+                    <div class="text-left">
+                        <span class="block text-2xl md:text-3xl font-black text-gray-900 dark:text-white">50+</span>
+                        <span class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Project Completed</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 4. SERVICES SECTION -->
+    <section id="services" class="bg-gray-100 dark:bg-slate-900 py-16 transition-colors">
+        <div class="container mx-auto px-6">
+            <div class="text-center max-w-2xl mx-auto mb-12">
+                <h2 class="text-3xl font-bold text-gray-900 dark:text-white mb-4">What We Do</h2>
+                <p class="text-gray-600 dark:text-gray-400">We provide a wide array of professional technology services to help your business thrive in the digital era.</p>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <!-- Service 1 -->
+                <div class="bg-white dark:bg-dingo-slate p-8 rounded-2xl shadow-md border-t-4 border-dingo-amber hover:-translate-y-1 transition duration-300">
+                    <div class="w-12 h-12 bg-amber-100 dark:bg-amber-950 text-dingo-amber flex items-center justify-center rounded-xl mb-6 text-xl font-bold">W</div>
+                    <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-3">Web Development</h3>
+                    <p class="text-gray-600 dark:text-gray-400 text-sm">Custom, responsive, and high-performing websites built with modern frameworks.</p>
+                </div>
+                <!-- Service 2 -->
+                <div class="bg-white dark:bg-dingo-slate p-8 rounded-2xl shadow-md border-t-4 border-dingo-dark dark:border-white hover:-translate-y-1 transition duration-300">
+                    <div class="w-12 h-12 bg-gray-100 dark:bg-gray-800 text-dingo-dark dark:text-white flex items-center justify-center rounded-xl mb-6 text-xl font-bold">M</div>
+                    <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-3">Mobile Apps</h3>
+                    <p class="text-gray-600 dark:text-gray-400 text-sm">Native and cross-platform mobile applications crafted for optimal user experience.</p>
+                </div>
+                <!-- Service 3 -->
+                <div class="bg-white dark:bg-dingo-slate p-8 rounded-2xl shadow-md border-t-4 border-dingo-amber hover:-translate-y-1 transition duration-300">
+                    <div class="w-12 h-12 bg-amber-100 dark:bg-amber-950 text-dingo-amber flex items-center justify-center rounded-xl mb-6 text-xl font-bold">C</div>
+                    <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-3">Cloud Solutions</h3>
+                    <p class="text-gray-600 dark:text-gray-400 text-sm">Secure, scalable, and robust cloud infrastructure setup and management.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 5. PORTFOLIO LINK BOOKMARK GRID -->
+    <section id="portfolios" class="bg-white dark:bg-dingo-slate py-16 transition-colors">
+        <div class="container mx-auto px-6">
+            <div class="text-center max-w-2xl mx-auto mb-12">
+                <h2 class="text-3xl font-bold text-gray-900 dark:text-white mb-3">Our Sector Portfolio</h2>
+                <p class="text-gray-600 dark:text-gray-400 text-sm">Explore specialized application environments designed and deployed across various industries.</p>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto">
+                <!-- Portal 1 -->
+                <a href="#contact" class="group p-6 bg-gray-50 dark:bg-slate-900 rounded-2xl border border-gray-100 dark:border-gray-800 hover:border-dingo-amber dark:hover:border-dingo-amber transition duration-200 block">
+                    <div class="flex items-center space-x-4">
+                        <span class="text-3xl p-3 bg-amber-100 dark:bg-amber-950 rounded-xl">🍰</span>
+                        <div>
+                            <h3 class="font-bold text-base text-gray-900 dark:text-white group-hover:text-dingo-amber transition">Cake Company Systems</h3>
+                            <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">E-commerce, flavor configurations, and automated logistics.</p>
+                        </div>
+                    </div>
+                </a>
+                <!-- Portal 2 -->
+                <a href="#contact" class="group p-6 bg-gray-50 dark:bg-slate-900 rounded-2xl border border-gray-100 dark:border-gray-800 hover:border-dingo-amber dark:hover:border-dingo-amber transition duration-200 block">
+                    <div class="flex items-center space-x-4">
+                        <span class="text-3xl p-3 bg-slate-200 dark:bg-slate-800 rounded-xl">📚</span>
+                        <div>
+                            <h3 class="font-bold text-base text-gray-900 dark:text-white group-hover:text-dingo-amber transition">Book Store Solutions</h3>
+                            <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Inventory archiving, indexing engines, and e-reading setups.</p>
+                        </div>
+                    </div>
+                </a>
+                <!-- Portal 3 -->
+                <a href="#contact" class="group p-6 bg-gray-50 dark:bg-slate-900 rounded-2xl border border-gray-100 dark:border-gray-800 hover:border-dingo-amber dark:hover:border-dingo-amber transition duration-200 block">
+                    <div class="flex items-center space-x-4">
+                        <span class="text-3xl p-3 bg-amber-100 dark:bg-amber-950 rounded-xl">✈️</span>
+                        <div>
+                            <h3 class="font-bold text-base text-gray-900 dark:text-white group-hover:text-dingo-amber transition">Travel Store Portals</h3>
+                            <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Itinerary planners, localized maps, and tracking tools.</p>
+                        </div>
+                    </div>
+                </a>
+                <!-- Portal 4 -->
+                <a href="#contact" class="group p-6 bg-gray-50 dark:bg-slate-900 rounded-2xl border border-gray-100 dark:border-gray-800 hover:border-dingo-amber dark:hover:border-dingo-amber transition duration-200 block">
+                    <div class="flex items-center space-x-4">
+                        <span class="text-3xl p-3 bg-slate-200 dark:bg-slate-800 rounded-xl">🏨</span>
+                        <div>
+                            <h3 class="font-bold text-base text-gray-900 dark:text-white group-hover:text-dingo-amber transition">Hotel Booking Engines</h3>
+                            <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Real-time room availability charts and billing endpoints.</p>
+                        </div>
+                    </div>
+                </a>
+                <!-- Portal 5 -->
+                <a href="#contact" class="group p-6 bg-gray-50 dark:bg-slate-900 rounded-2xl border border-gray-100 dark:border-gray-800 hover:border-dingo-amber dark:hover:border-dingo-amber transition duration-200 block">
+                    <div class="flex items-center space-x-4">
+                        <span class="text-3xl p-3 bg-amber-100 dark:bg-amber-950 rounded-xl">🍽️</span>
+                        <div>
+                            <h3 class="font-bold text-base text-gray-900 dark:text-white group-hover:text-dingo-amber transition">Restaurant POS Web</h3>
+                            <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Contactless dynamic menus, ordering rows, and table tokens.</p>
+                        </div>
+                    </div>
+                </a>
+                <!-- Portal 6 -->
+                <a href="#contact" class="group p-6 bg-gray-50 dark:bg-slate-900 rounded-2xl border border-gray-100 dark:border-gray-800 hover:border-dingo-amber dark:hover:border-dingo-amber transition duration-200 block">
+                    <div class="flex items-center space-x-4">
+                        <span class="text-3xl p-3 bg-slate-200 dark:bg-slate-800 rounded-xl">🏫</span>
+                        <div>
+                            <h3 class="font-bold text-base text-gray-900 dark:text-white group-hover:text-dingo-amber transition">School Management Sites</h3>
+                            <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Student metrics, custom notifications, and curriculum hubs.</p>
+                        </div>
+                    </div>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- 6. CONTACT & ENTERPRISE INFO SECTION -->
+    <section id="contact" class="py-16 bg-gray-100 dark:bg-slate-900 transition-colors">
+        <div class="container mx-auto px-6 max-w-4xl">
+            <div class="bg-dingo-dark text-white rounded-3xl shadow-2xl overflow-hidden grid grid-cols-1 md:grid-cols-5">
+                <!-- Info pane -->
+                <div class="p-8 md:p-12 md:col-span-3 space-y-6 flex flex-col justify-between">
+                    <div>
+                        <h2 class="text-2xl font-bold mb-2">Connect Directly</h2>
+                        <p class="text-gray-400 text-sm">Let's blueprint your system requirements together.</p>
+                    </div>
+                    
+                    <div class="space-y-4">
+                        <div class="flex items-center space-x-4">
+                            <span class="text-dingo-amber text-xl">👤</span>
+                            <div>
+                                <p class="text-[10px] text-gray-400 uppercase tracking-widest">Representative</p>
+                                <p class="font-semibold text-base">Shishir chandra poudel</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center space-x-4">
+                            <span class="text-dingo-amber text-xl">📞</span>
+                            <div>
+                                <p class="text-[10px] text-gray-400 uppercase tracking-widest">Phone Line</p>
+                                <!-- Converted Phone Click to WhatsApp Route directly -->
+                                <a href="https://wa.me/61416206568" target="_blank" rel="noopener noreferrer" class="font-semibold hover:text-dingo-amber transition">+61 416206568</a>
+                            </div>
+                        </div>
+                        <div class="flex items-center space-x-4">
+                            <span class="text-dingo-amber text-xl">✉️</span>
+                            <div>
+                                <p class="text-[10px] text-gray-400 uppercase tracking-widest">Email Address</p>
+                                <a href="mailto:itsolutions.dingo@gmail.com" class="font-semibold hover:text-dingo-amber transition">itsolutions.dingo@gmail.com</a>
+                            </div>
+                        </div>
+                        <div class="flex items-center space-x-4">
+                            <span class="text-dingo-amber text-xl">📍</span>
+                            <div>
+                                <p class="text-[10px] text-gray-400 uppercase tracking-widest">Headquarters</p>
+                                <p class="font-semibold text-sm text-gray-200">74 Monash Street, Lalor VIC 3075</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="text-xs text-gray-500 border-t border-gray-800 pt-4">
+                        ABN Authentication Code: 59 332 794 238
+                    </div>
+                </div>
+
+                <!-- Project Inquiry converted to WhatsApp Contact Link -->
+                <div class="bg-dingo-amber p-8 md:p-12 md:col-span-2 flex flex-col justify-center text-center text-dingo-dark">
+                    <h3 class="text-2xl font-black mb-2">Launch Now</h3>
+                    <p class="text-xs font-semibold mb-6 opacity-80 uppercase tracking-wider">Chat on WhatsApp instantly</p>
+                    <a href="https://wa.me/61416206568?text=Hello%20Dingo%20IT%20Solutions,%20I%20would%20like%20to%20inquire%20about%20a%20project." target="_blank" rel="noopener noreferrer" class="w-full bg-dingo-dark text-white py-3.5 rounded-2xl font-bold shadow-lg hover:bg-slate-800 transition text-center block text-sm tracking-wide">
+                        Project Inquiry
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 7. FOOTER -->
+    <footer class="bg-gray-900 text-gray-400 py-12 transition-colors">
+        <div class="container mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-6">
+            <div class="text-center md:text-left">
+                <p class="font-medium">&copy; 2026 Dingo IT Solutions. All rights reserved.</p>
+                <p class="text-xs text-gray-600 mt-1">Registered Entity ABN: 59 332 794 238 | Victoria, Australia</p>
+            </div>
+            <div class="flex space-x-6 text-sm">
+                <a href="#" class="hover:text-white transition">Privacy Policy</a>
+                <a href="#" class="hover:text-white transition">Terms of Service</a>
+            </div>
+        </div>
+    </footer>
+
+    <!-- CLIENT SIDE LIGHT/DARK/DUSK TOGGLE LOGIC -->
+    <script>
+        function applyTheme(themeName) {
+            const htmlElement = document.documentElement;
+            const bodyElement = document.getElementById('body-root');
+
+            // Reset classes
+            htmlElement.classList.remove('dark');
+            bodyElement.classList.remove('theme-dusk');
+
+            if (themeName === 'dark') {
+                htmlElement.classList.add('dark');
+            } else if (themeName === 'dusk') {
+                bodyElement.classList.add('theme-dusk');
+            }
+            
+            // Persist preference locally
+            localStorage.setItem('dingo-preferred-theme', themeName);
+        }
+
+        // Initialize state on page display
+        window.addEventListener('DOMContentLoaded', () => {
+            const savedTheme = localStorage.getItem('dingo-preferred-theme') || 'light';
+            document.getElementById('themeDropdown').value = savedTheme;
+            applyTheme(savedTheme);
+        });
+    </script>
+</body>
+</html>
