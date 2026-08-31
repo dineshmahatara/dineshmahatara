@@ -1,0 +1,3697 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>220 × 100 mm Name Tag Generator</title>
+
+<!-- Excel Library -->
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+
+<style>
+
+/* =========================================================
+   GLOBAL
+========================================================= */
+
+* {
+    box-sizing: border-box;
+}
+
+html,
+body {
+    margin: 0;
+    padding: 0;
+    font-family:
+        "Segoe UI",
+        "Noto Sans Devanagari",
+        "Mangal",
+        Arial,
+        sans-serif;
+
+    background: #f1f5f9;
+    color: #172033;
+}
+
+body {
+    min-height: 100vh;
+}
+
+button,
+input,
+select {
+    font: inherit;
+}
+
+button {
+    cursor: pointer;
+}
+
+
+/* =========================================================
+   APPLICATION LAYOUT
+========================================================= */
+
+.app {
+    display: flex;
+    min-height: 100vh;
+}
+
+
+/* =========================================================
+   SIDEBAR
+========================================================= */
+
+.sidebar {
+    width: 330px;
+    min-width: 330px;
+
+    background: #111827;
+    color: white;
+
+    height: 100vh;
+    overflow-y: auto;
+
+    position: sticky;
+    top: 0;
+
+    padding-bottom: 30px;
+}
+
+.sidebar-header {
+    padding: 22px 20px;
+
+    border-bottom: 1px solid rgba(255,255,255,.1);
+}
+
+.logo {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.logo-icon {
+    width: 44px;
+    height: 44px;
+
+    border-radius: 12px;
+
+    background: linear-gradient(
+        135deg,
+        #2563eb,
+        #7c3aed
+    );
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    font-size: 22px;
+}
+
+.logo-text h1 {
+    margin: 0;
+    font-size: 17px;
+}
+
+.logo-text span {
+    display: block;
+    margin-top: 3px;
+    font-size: 11px;
+    color: #9ca3af;
+}
+
+
+/* =========================================================
+   SIDEBAR SECTIONS
+========================================================= */
+
+.sidebar-section {
+    padding: 18px 18px 0;
+}
+
+.section-title {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: .08em;
+
+    color: #9ca3af;
+
+    margin-bottom: 10px;
+    font-weight: 700;
+}
+
+.control-group {
+    margin-bottom: 13px;
+}
+
+.control-label {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    font-size: 12px;
+    color: #d1d5db;
+
+    margin-bottom: 6px;
+}
+
+.control-label span:last-child {
+    color: #93c5fd;
+    font-weight: 700;
+}
+
+.sidebar input[type="text"],
+.sidebar input[type="number"],
+.sidebar select {
+
+    width: 100%;
+
+    background: #1f2937;
+
+    color: white;
+
+    border: 1px solid #374151;
+
+    border-radius: 8px;
+
+    padding: 9px 10px;
+
+    outline: none;
+}
+
+.sidebar input:focus,
+.sidebar select:focus {
+    border-color: #60a5fa;
+    box-shadow: 0 0 0 2px rgba(96,165,250,.15);
+}
+
+.range-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.range-row input[type="range"] {
+    flex: 1;
+}
+
+.range-value {
+    width: 42px;
+    text-align: right;
+    color: #93c5fd;
+    font-size: 12px;
+}
+
+
+/* =========================================================
+   SIDEBAR BUTTONS
+========================================================= */
+
+.btn {
+    width: 100%;
+    border: 0;
+    border-radius: 8px;
+
+    padding: 10px 12px;
+
+    font-weight: 700;
+    font-size: 13px;
+
+    transition: .15s ease;
+}
+
+.btn:hover {
+    transform: translateY(-1px);
+    filter: brightness(1.05);
+}
+
+.btn-primary {
+    background: #2563eb;
+    color: white;
+}
+
+.btn-success {
+    background: #16a34a;
+    color: white;
+}
+
+.btn-danger {
+    background: #dc2626;
+    color: white;
+}
+
+.btn-secondary {
+    background: #374151;
+    color: white;
+}
+
+.btn-light {
+    background: #e5e7eb;
+    color: #111827;
+}
+
+.button-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+}
+
+.button-grid-3 {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 7px;
+}
+
+
+/* =========================================================
+   CHECKBOX / TOGGLE
+========================================================= */
+
+.check-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+
+    font-size: 12px;
+    color: #d1d5db;
+
+    margin: 9px 0;
+}
+
+.check-row input {
+    accent-color: #2563eb;
+}
+
+
+/* =========================================================
+   MAIN
+========================================================= */
+
+.main {
+    flex: 1;
+    min-width: 0;
+
+    padding: 24px;
+}
+
+.topbar {
+    background: white;
+
+    border: 1px solid #e2e8f0;
+
+    border-radius: 14px;
+
+    padding: 18px 20px;
+
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    gap: 20px;
+
+    box-shadow: 0 3px 15px rgba(15,23,42,.05);
+
+    margin-bottom: 18px;
+}
+
+.topbar h2 {
+    margin: 0;
+    font-size: 21px;
+}
+
+.topbar p {
+    margin: 5px 0 0;
+    color: #64748b;
+    font-size: 13px;
+}
+
+.top-actions {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.top-actions .btn {
+    width: auto;
+}
+
+
+/* =========================================================
+   ENTRY CARD
+========================================================= */
+
+.card {
+    background: white;
+
+    border: 1px solid #e2e8f0;
+
+    border-radius: 14px;
+
+    padding: 20px;
+
+    margin-bottom: 18px;
+
+    box-shadow: 0 3px 15px rgba(15,23,42,.05);
+}
+
+.card-title {
+    font-size: 15px;
+    font-weight: 800;
+
+    margin-bottom: 15px;
+}
+
+.form-grid {
+    display: grid;
+    grid-template-columns:
+        minmax(0, 1fr)
+        minmax(0, 1fr)
+        minmax(0, 1fr);
+
+    gap: 12px;
+}
+
+.field label {
+    display: block;
+
+    font-size: 12px;
+    font-weight: 700;
+
+    color: #475569;
+
+    margin-bottom: 6px;
+}
+
+.field input {
+    width: 100%;
+
+    border: 1px solid #cbd5e1;
+
+    border-radius: 8px;
+
+    padding: 11px 12px;
+
+    outline: none;
+}
+
+.field input:focus {
+    border-color: #2563eb;
+    box-shadow: 0 0 0 3px rgba(37,99,235,.08);
+}
+
+.entry-buttons {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+
+    gap: 10px;
+
+    margin-top: 13px;
+}
+
+
+/* =========================================================
+   TABLE
+========================================================= */
+
+.table-card {
+    overflow: hidden;
+}
+
+.table-toolbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    gap: 10px;
+
+    margin-bottom: 12px;
+}
+
+.search-box {
+    width: 280px;
+    max-width: 100%;
+
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+
+    padding: 9px 11px;
+}
+
+.table-wrap {
+    overflow-x: auto;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+th {
+    background: #f1f5f9;
+
+    color: #334155;
+
+    font-size: 12px;
+    text-align: left;
+
+    padding: 11px;
+
+    border-bottom: 1px solid #cbd5e1;
+
+    white-space: nowrap;
+}
+
+td {
+    padding: 10px 11px;
+
+    border-bottom: 1px solid #e2e8f0;
+
+    font-size: 13px;
+}
+
+tbody tr:hover {
+    background: #f8fafc;
+}
+
+.action-buttons {
+    display: flex;
+    gap: 5px;
+}
+
+.action-buttons button {
+    border: 0;
+    border-radius: 6px;
+
+    padding: 6px 9px;
+
+    font-size: 11px;
+    font-weight: 700;
+}
+
+.edit-btn {
+    background: #facc15;
+}
+
+.delete-btn {
+    background: #ef4444;
+    color: white;
+}
+
+
+/* =========================================================
+   PREVIEW AREA
+========================================================= */
+
+.preview-card {
+    overflow: hidden;
+}
+
+.preview-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    margin-bottom: 14px;
+}
+
+.preview-info {
+    font-size: 12px;
+    color: #64748b;
+}
+
+.preview-area {
+    background:
+        linear-gradient(45deg,#e2e8f0 25%,transparent 25%),
+        linear-gradient(-45deg,#e2e8f0 25%,transparent 25%),
+        linear-gradient(45deg,transparent 75%,#e2e8f0 75%),
+        linear-gradient(-45deg,transparent 75%,#e2e8f0 75%);
+
+    background-size: 20px 20px;
+    background-position: 0 0,0 10px,10px -10px,-10px 0;
+
+    border-radius: 12px;
+
+    padding: 30px;
+
+    min-height: 350px;
+
+    overflow: auto;
+}
+
+.preview-tag-wrapper {
+    margin: 0 auto 28px;
+
+    width: 880px;
+    max-width: 100%;
+
+    transform-origin: top center;
+}
+
+
+/* =========================================================
+   TAG
+========================================================= */
+
+.print-tag {
+
+    width: 220mm;
+    height: 100mm;
+
+    position: relative;
+
+    box-sizing: border-box;
+
+    background: white;
+
+    color: #111;
+
+    overflow: hidden;
+
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    text-align: center;
+
+    font-family:
+        "Noto Sans Devanagari",
+        "Mangal",
+        "Segoe UI",
+        Arial,
+        sans-serif;
+
+    isolation: isolate;
+}
+
+.tag-border {
+    position: absolute;
+
+    inset: 5mm;
+
+    border: 0.45mm solid #222;
+
+    pointer-events: none;
+
+    z-index: 1;
+}
+
+.tag-inner-border {
+    position: absolute;
+
+    inset: 7mm;
+
+    border: 0.18mm solid #999;
+
+    pointer-events: none;
+
+    z-index: 1;
+}
+
+
+/* =========================================================
+   CORNER DECORATION
+========================================================= */
+
+.corner {
+    position: absolute;
+
+    width: 18mm;
+    height: 18mm;
+
+    background: #202020;
+
+    z-index: 3;
+}
+
+.corner-tl {
+    top: 0;
+    left: 0;
+
+    clip-path: polygon(
+        0 0,
+        100% 0,
+        0 100%
+    );
+}
+
+.corner-tr {
+    top: 0;
+    right: 0;
+
+    clip-path: polygon(
+        0 0,
+        100% 0,
+        100% 100%
+    );
+}
+
+.corner-bl {
+    bottom: 0;
+    left: 0;
+
+    clip-path: polygon(
+        0 0,
+        0 100%,
+        100% 100%
+    );
+}
+
+.corner-br {
+    bottom: 0;
+    right: 0;
+
+    clip-path: polygon(
+        100% 0,
+        0 100%,
+        100% 100%
+    );
+}
+
+
+/* =========================================================
+   TAG CONTENT
+========================================================= */
+
+.tag-content {
+
+    position: relative;
+
+    z-index: 5;
+
+    width: 86%;
+
+    max-width: 195mm;
+
+    height: 76%;
+
+    display: flex;
+
+    flex-direction: column;
+
+    justify-content: center;
+
+    align-items: center;
+
+    text-align: center;
+
+    overflow: hidden;
+}
+
+.tag-name {
+
+    width: 100%;
+
+    font-size: 30pt;
+
+    font-weight: 900;
+
+    line-height: 1.12;
+
+    overflow-wrap: anywhere;
+
+    word-break: normal;
+
+    text-align: center;
+
+    max-height: 2.35em;
+
+    overflow: hidden;
+}
+
+.tag-divider {
+
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    gap: 5mm;
+
+    margin-top: 3.5mm;
+    margin-bottom: 3mm;
+
+    flex-shrink: 0;
+}
+
+.tag-divider span {
+
+    display: block;
+
+    width: 30mm;
+
+    height: .35mm;
+
+    background: #999;
+}
+
+.tag-divider b {
+
+    font-size: 7pt;
+
+    color: #888;
+}
+
+.tag-designation {
+
+    width: 100%;
+
+    font-size: 22pt;
+
+    font-weight: 800;
+
+    line-height: 1.15;
+
+    max-height: 2.4em;
+
+    overflow: hidden;
+
+    overflow-wrap: anywhere;
+
+    text-align: center;
+}
+
+.tag-office {
+
+    width: 100%;
+
+    margin-top: 3.5mm;
+
+    font-size: 20pt;
+
+    font-weight: 800;
+
+    line-height: 1.12;
+
+    max-height: 2.4em;
+
+    overflow: hidden;
+
+    overflow-wrap: anywhere;
+
+    text-align: center;
+}
+
+
+/* =========================================================
+   EMPTY STATE
+========================================================= */
+
+.empty-state {
+    padding: 50px 20px;
+
+    text-align: center;
+
+    color: #64748b;
+}
+
+.empty-state-icon {
+    font-size: 40px;
+    margin-bottom: 10px;
+}
+
+
+/* =========================================================
+   RESPONSIVE
+========================================================= */
+
+@media(max-width:1000px) {
+
+    .sidebar {
+        width: 290px;
+        min-width: 290px;
+    }
+
+    .form-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media(max-width:760px) {
+
+    .app {
+        display: block;
+    }
+
+    .sidebar {
+        position: relative;
+
+        width: 100%;
+        min-width: 0;
+
+        height: auto;
+
+        max-height: none;
+    }
+
+    .main {
+        padding: 12px;
+    }
+
+    .topbar {
+        display: block;
+    }
+
+    .top-actions {
+        margin-top: 12px;
+    }
+
+    .preview-area {
+        padding: 10px;
+    }
+}
+
+
+/* =========================================================
+   PRINT
+========================================================= */
+
+#printArea {
+    display: none;
+}
+
+
+/*
+ IMPORTANT:
+ We do NOT use window.open() for printing.
+
+ The application interface is hidden,
+ and #printArea becomes the only printed content.
+*/
+
+@media print {
+
+    @page {
+        size: 220mm 100mm;
+        margin: 0;
+    }
+
+    html,
+    body {
+
+        width: 220mm !important;
+
+        margin: 0 !important;
+        padding: 0 !important;
+
+        background: white !important;
+
+        overflow: visible !important;
+    }
+
+    body * {
+        visibility: hidden !important;
+    }
+
+    #printArea,
+    #printArea * {
+
+        visibility: visible !important;
+    }
+
+    #printArea {
+
+        display: block !important;
+
+        width: 220mm !important;
+
+        margin: 0 !important;
+        padding: 0 !important;
+
+        background: white !important;
+    }
+
+    #printArea .print-tag {
+
+        display: flex !important;
+
+        visibility: visible !important;
+
+        width: 220mm !important;
+        height: 100mm !important;
+
+        margin: 0 !important;
+        padding: 0 !important;
+
+        page-break-after: always;
+
+        break-after: page;
+
+        overflow: hidden !important;
+    }
+
+    #printArea .print-tag:last-child {
+
+        page-break-after: auto !important;
+
+        break-after: auto !important;
+    }
+
+    .tag-border,
+    .tag-inner-border,
+    .corner,
+    .tag-content,
+    .tag-name,
+    .tag-designation,
+    .tag-office,
+    .tag-divider {
+
+        visibility: visible !important;
+    }
+
+    * {
+
+        -webkit-print-color-adjust: exact !important;
+
+        print-color-adjust: exact !important;
+    }
+}
+
+</style>
+</head>
+
+
+<body>
+
+<div class="app">
+
+    <!-- =====================================================
+         SIDEBAR
+    ====================================================== -->
+
+    <aside class="sidebar">
+
+        <div class="sidebar-header">
+
+            <div class="logo">
+
+                <div class="logo-icon">
+                    🪪
+                </div>
+
+                <div class="logo-text">
+                    <h1>Name Tag Generator</h1>
+                    <span>220 × 100 mm Professional Edition</span>
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- DATA -->
+        <div class="sidebar-section">
+
+            <div class="section-title">
+                Data Management
+            </div>
+
+            <div class="control-group">
+
+                <label class="control-label">
+                    Import Excel
+                </label>
+
+                <input
+                    type="file"
+                    id="excelFile"
+                    accept=".xlsx,.xls"
+                    style="width:100%;color:#d1d5db;"
+                >
+
+            </div>
+
+            <div class="button-grid">
+
+                <button
+                    class="btn btn-success"
+                    onclick="exportExcel()"
+                >
+                    Export Excel
+                </button>
+
+                <button
+                    class="btn btn-danger"
+                    onclick="clearAllData()"
+                >
+                    Clear All
+                </button>
+
+            </div>
+
+        </div>
+
+
+        <!-- TEXT -->
+        <div class="sidebar-section">
+
+            <div class="section-title">
+                Typography
+            </div>
+
+
+            <div class="control-group">
+
+                <label class="control-label">
+                    Font Family
+                </label>
+
+                <select id="fontFamily">
+
+                    <option value="Noto Sans Devanagari">
+                        Noto Sans Devanagari
+                    </option>
+
+                    <option value="Mangal">
+                        Mangal
+                    </option>
+
+                    <option value="Mukta">
+                        Mukta
+                    </option>
+
+                    <option value="Arial">
+                        Arial
+                    </option>
+
+                    <option value="Georgia">
+                        Georgia
+                    </option>
+
+                    <option value="Times New Roman">
+                        Times New Roman
+                    </option>
+
+                    <option value="Segoe UI">
+                        Segoe UI
+                    </option>
+
+                </select>
+
+            </div>
+
+
+            <div class="control-group">
+
+                <label class="control-label">
+                    Name Size
+                    <span id="nameSizeValue">30 pt</span>
+                </label>
+
+                <div class="range-row">
+
+                    <input
+                        type="range"
+                        id="nameSize"
+                        min="16"
+                        max="45"
+                        value="30"
+                    >
+
+                    <span class="range-value">
+                        <span id="nameSizeValue2">30</span>
+                    </span>
+
+                </div>
+
+            </div>
+
+
+            <div class="control-group">
+
+                <label class="control-label">
+                    Designation Size
+                    <span id="designationSizeValue">22 pt</span>
+                </label>
+
+                <div class="range-row">
+
+                    <input
+                        type="range"
+                        id="designationSize"
+                        min="12"
+                        max="35"
+                        value="22"
+                    >
+
+                    <span class="range-value">
+                        <span id="designationSizeValue2">22</span>
+                    </span>
+
+                </div>
+
+            </div>
+
+
+            <div class="control-group">
+
+                <label class="control-label">
+                    Office Size
+                    <span id="officeSizeValue">20 pt</span>
+                </label>
+
+                <div class="range-row">
+
+                    <input
+                        type="range"
+                        id="officeSize"
+                        min="10"
+                        max="32"
+                        value="20"
+                    >
+
+                    <span class="range-value">
+                        <span id="officeSizeValue2">20</span>
+                    </span>
+
+                </div>
+
+            </div>
+
+
+            <label class="check-row">
+
+                <input
+                    type="checkbox"
+                    id="boldName"
+                    checked
+                >
+
+                Bold Name
+
+            </label>
+
+
+            <label class="check-row">
+
+                <input
+                    type="checkbox"
+                    id="boldDesignation"
+                    checked
+                >
+
+                Bold Designation
+
+            </label>
+
+
+            <label class="check-row">
+
+                <input
+                    type="checkbox"
+                    id="boldOffice"
+                    checked
+                >
+
+                Bold Office
+
+            </label>
+
+
+            <label class="check-row">
+
+                <input
+                    type="checkbox"
+                    id="autoFit"
+                    checked
+                >
+
+                Auto-fit text
+
+            </label>
+
+        </div>
+
+
+        <!-- DESIGN -->
+        <div class="sidebar-section">
+
+            <div class="section-title">
+                Tag Design
+            </div>
+
+
+            <div class="control-group">
+
+                <label class="control-label">
+                    Border Width
+                    <span id="borderValue">0.45 mm</span>
+                </label>
+
+                <div class="range-row">
+
+                    <input
+                        type="range"
+                        id="borderWidth"
+                        min="0"
+                        max="1.5"
+                        step=".05"
+                        value=".45"
+                    >
+
+                </div>
+
+            </div>
+
+
+            <div class="control-group">
+
+                <label class="control-label">
+                    Inner Border
+                </label>
+
+                <select id="innerBorder">
+
+                    <option value="double">
+                        Double Border
+                    </option>
+
+                    <option value="single">
+                        Single Border
+                    </option>
+
+                    <option value="none">
+                        No Inner Border
+                    </option>
+
+                </select>
+
+            </div>
+
+
+            <label class="check-row">
+
+                <input
+                    type="checkbox"
+                    id="cornerDecoration"
+                    checked
+                >
+
+                Corner Decoration
+
+            </label>
+
+
+            <label class="check-row">
+
+                <input
+                    type="checkbox"
+                    id="outerBorder"
+                    checked
+                >
+
+                Outer Border
+
+            </label>
+
+        </div>
+
+
+        <!-- SPACING -->
+        <div class="sidebar-section">
+
+            <div class="section-title">
+                Layout
+            </div>
+
+
+            <div class="control-group">
+
+                <label class="control-label">
+                    Content Width
+                    <span id="contentWidthValue">86%</span>
+                </label>
+
+                <div class="range-row">
+
+                    <input
+                        type="range"
+                        id="contentWidth"
+                        min="65"
+                        max="95"
+                        value="86"
+                    >
+
+                </div>
+
+            </div>
+
+
+            <div class="control-group">
+
+                <label class="control-label">
+                    Preview Scale
+                    <span id="previewScaleValue">100%</span>
+                </label>
+
+                <div class="range-row">
+
+                    <input
+                        type="range"
+                        id="previewScale"
+                        min="40"
+                        max="100"
+                        value="100"
+                    >
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- PRINT -->
+        <div class="sidebar-section">
+
+            <div class="section-title">
+                Printing
+            </div>
+
+            <button
+                class="btn btn-success"
+                onclick="printSelectedTags()"
+            >
+                🖨 Print Selected Tags
+            </button>
+
+            <div style="height:8px"></div>
+
+            <button
+                class="btn btn-secondary"
+                onclick="selectAll()"
+            >
+                Select All
+            </button>
+
+            <div style="height:8px"></div>
+
+            <button
+                class="btn btn-light"
+                onclick="deselectAll()"
+            >
+                Deselect All
+            </button>
+
+        </div>
+
+
+        <div style="
+            padding:22px 18px;
+            color:#6b7280;
+            font-size:11px;
+            line-height:1.6;
+        ">
+
+            <strong style="color:#9ca3af">
+                Printing tip
+            </strong>
+
+            <br>
+
+            For accurate physical size, use:
+
+            <br>
+
+            <strong style="color:#d1d5db">
+                220 × 100 mm
+            </strong>
+
+            custom paper size if your printer supports it.
+
+            <br><br>
+
+            In Chrome print settings use:
+
+            <br>
+
+            <strong style="color:#d1d5db">
+                Margins: None
+            </strong>
+
+            <br>
+
+            <strong style="color:#d1d5db">
+                Scale: 100%
+            </strong>
+
+        </div>
+
+    </aside>
+
+
+    <!-- =====================================================
+         MAIN
+    ====================================================== -->
+
+    <main class="main">
+
+
+        <!-- TOP BAR -->
+
+        <div class="topbar">
+
+            <div>
+
+                <h2>
+                    220 × 100 mm Name Tag Generator
+                </h2>
+
+                <p>
+                    Create professional name tags and print selected members.
+                </p>
+
+            </div>
+
+
+            <div class="top-actions">
+
+                <button
+                    class="btn btn-primary"
+                    onclick="newEntry()"
+                >
+                    + New Entry
+                </button>
+
+                <button
+                    class="btn btn-success"
+                    onclick="printSelectedTags()"
+                >
+                    🖨 Print
+                </button>
+
+            </div>
+
+        </div>
+
+
+        <!-- ENTRY FORM -->
+
+        <div class="card">
+
+            <div class="card-title">
+
+                <span id="formTitle">
+                    Add Name Tag
+                </span>
+
+            </div>
+
+
+            <div class="form-grid">
+
+
+                <div class="field">
+
+                    <label>
+                        Full Name / पूरा नाम
+                    </label>
+
+                    <input
+                        id="nameInput"
+                        type="text"
+                        placeholder="जस्तै: दिनेश महतरा क्षेत्री"
+                    >
+
+                </div>
+
+
+                <div class="field">
+
+                    <label>
+                        Designation / पद
+                    </label>
+
+                    <input
+                        id="designationInput"
+                        type="text"
+                        placeholder="जस्तै: सहसचिव"
+                    >
+
+                </div>
+
+
+                <div class="field">
+
+                    <label>
+                        Organization / Office / कार्यालय
+                    </label>
+
+                    <input
+                        id="officeInput"
+                        type="text"
+                        placeholder="जस्तै: सङ्घीय संसद सचिवालय"
+                    >
+
+                </div>
+
+
+            </div>
+
+
+            <div class="entry-buttons">
+
+                <button
+                    id="saveButton"
+                    class="btn btn-primary"
+                    onclick="saveEntry()"
+                >
+                    Save Entry
+                </button>
+
+                <button
+                    class="btn btn-secondary"
+                    onclick="cancelEdit()"
+                >
+                    Cancel
+                </button>
+
+            </div>
+
+        </div>
+
+
+        <!-- MEMBERS TABLE -->
+
+        <div class="card table-card">
+
+            <div class="table-toolbar">
+
+                <div class="card-title" style="margin:0">
+
+                    Saved Members
+
+                    <span
+                        id="memberCount"
+                        style="
+                            color:#2563eb;
+                            font-size:12px;
+                        "
+                    >
+                        0
+                    </span>
+
+                </div>
+
+
+                <input
+                    id="searchInput"
+                    class="search-box"
+                    type="text"
+                    placeholder="🔎 Search name, designation, office..."
+                >
+
+            </div>
+
+
+            <div class="table-wrap">
+
+                <table id="membersTable">
+
+                    <thead>
+
+                        <tr>
+
+                            <th style="width:45px">
+
+                                <input
+                                    type="checkbox"
+                                    id="masterCheckbox"
+                                    onchange="toggleAll(this.checked)"
+                                >
+
+                            </th>
+
+                            <th>
+                                Name
+                            </th>
+
+                            <th>
+                                Designation
+                            </th>
+
+                            <th>
+                                Organization / Office
+                            </th>
+
+                            <th style="width:140px">
+                                Actions
+                            </th>
+
+                        </tr>
+
+                    </thead>
+
+                    <tbody id="membersBody">
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </div>
+
+
+        <!-- PREVIEW -->
+
+        <div class="card preview-card">
+
+            <div class="preview-header">
+
+                <div>
+
+                    <div class="card-title" style="margin:0">
+
+                        Live Preview
+
+                    </div>
+
+                    <div class="preview-info">
+
+                        Actual tag size:
+                        <strong>
+                            220 × 100 mm
+                        </strong>
+
+                    </div>
+
+                </div>
+
+
+                <div
+                    id="previewCount"
+                    class="preview-info"
+                >
+                    0 tags
+                </div>
+
+            </div>
+
+
+            <div
+                id="previewArea"
+                class="preview-area"
+            >
+            </div>
+
+        </div>
+
+    </main>
+
+</div>
+
+
+<!-- =========================================================
+     REAL PRINT AREA
+========================================================== -->
+
+<div id="printArea"></div>
+
+
+<script>
+
+/* =========================================================
+   DATA
+========================================================= */
+
+let members = [];
+
+let editingId = null;
+
+
+/* =========================================================
+   DEFAULT SETTINGS
+========================================================= */
+
+let settings = {
+
+    fontFamily: "Noto Sans Devanagari",
+
+    nameSize: 30,
+
+    designationSize: 22,
+
+    officeSize: 20,
+
+    boldName: true,
+
+    boldDesignation: true,
+
+    boldOffice: true,
+
+    autoFit: true,
+
+    borderWidth: .45,
+
+    innerBorder: "double",
+
+    cornerDecoration: true,
+
+    outerBorder: true,
+
+    contentWidth: 86,
+
+    previewScale: 100
+};
+
+
+/* =========================================================
+   LOAD STORAGE
+========================================================= */
+
+function loadData() {
+
+    try {
+
+        const savedMembers =
+            localStorage.getItem("nameTagMembers");
+
+        const savedSettings =
+            localStorage.getItem("nameTagSettings");
+
+
+        if (savedMembers) {
+
+            members =
+                JSON.parse(savedMembers);
+
+        }
+
+
+        if (savedSettings) {
+
+            settings = {
+                ...settings,
+                ...JSON.parse(savedSettings)
+            };
+
+        }
+
+    } catch (error) {
+
+        console.error(error);
+
+    }
+
+}
+
+
+/* =========================================================
+   SAVE STORAGE
+========================================================= */
+
+function saveStorage() {
+
+    localStorage.setItem(
+        "nameTagMembers",
+        JSON.stringify(members)
+    );
+
+    localStorage.setItem(
+        "nameTagSettings",
+        JSON.stringify(settings)
+    );
+
+}
+
+
+/* =========================================================
+   ESCAPE HTML
+========================================================= */
+
+function escapeHTML(value) {
+
+    return String(value ?? "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+
+}
+
+
+/* =========================================================
+   CREATE TAG
+========================================================= */
+
+function createTag(member) {
+
+    const tag = document.createElement("div");
+
+    tag.className = "print-tag";
+
+    tag.dataset.id = member.id;
+
+
+    /* Border */
+
+    const border = document.createElement("div");
+
+    border.className = "tag-border";
+
+    border.style.borderWidth =
+        settings.outerBorder
+            ? settings.borderWidth + "mm"
+            : "0";
+
+
+    /* Inner border */
+
+    const inner = document.createElement("div");
+
+    inner.className =
+        "tag-inner-border";
+
+
+    if (settings.innerBorder === "none") {
+
+        inner.style.display = "none";
+
+    }
+
+    else if (settings.innerBorder === "single") {
+
+        inner.style.inset = "6mm";
+
+        inner.style.border =
+            ".18mm solid #aaa";
+
+    }
+
+    else {
+
+        inner.style.inset = "7mm";
+
+    }
+
+
+    /* Corners */
+
+    if (settings.cornerDecoration) {
+
+        const corners = [
+            "corner-tl",
+            "corner-tr",
+            "corner-bl",
+            "corner-br"
+        ];
+
+        corners.forEach(className => {
+
+            const corner =
+                document.createElement("div");
+
+            corner.className =
+                "corner " + className;
+
+            tag.appendChild(corner);
+
+        });
+
+    }
+
+
+    /* Content */
+
+    const content =
+        document.createElement("div");
+
+    content.className =
+        "tag-content";
+
+
+    content.style.width =
+        settings.contentWidth + "%";
+
+
+    /* Name */
+
+    const name =
+        document.createElement("div");
+
+    name.className =
+        "tag-name";
+
+    name.textContent =
+        member.name;
+
+
+    name.style.fontFamily =
+        settings.fontFamily;
+
+    name.style.fontSize =
+        settings.nameSize + "pt";
+
+    name.style.fontWeight =
+        settings.boldName
+            ? "900"
+            : "500";
+
+
+    /* Divider */
+
+    const divider =
+        document.createElement("div");
+
+    divider.className =
+        "tag-divider";
+
+    divider.innerHTML = `
+        <span></span>
+        <b>◆</b>
+        <span></span>
+    `;
+
+
+    /* Designation */
+
+    const designation =
+        document.createElement("div");
+
+    designation.className =
+        "tag-designation";
+
+    designation.textContent =
+        member.designation;
+
+
+    designation.style.fontFamily =
+        settings.fontFamily;
+
+    designation.style.fontSize =
+        settings.designationSize + "pt";
+
+    designation.style.fontWeight =
+        settings.boldDesignation
+            ? "800"
+            : "500";
+
+
+    /* Office */
+
+    const office =
+        document.createElement("div");
+
+    office.className =
+        "tag-office";
+
+    office.textContent =
+        member.office;
+
+
+    office.style.fontFamily =
+        settings.fontFamily;
+
+    office.style.fontSize =
+        settings.officeSize + "pt";
+
+    office.style.fontWeight =
+        settings.boldOffice
+            ? "800"
+            : "500";
+
+
+    content.appendChild(name);
+
+    content.appendChild(divider);
+
+    content.appendChild(designation);
+
+    content.appendChild(office);
+
+
+    tag.appendChild(border);
+
+    tag.appendChild(inner);
+
+    tag.appendChild(content);
+
+
+    return tag;
+
+}
+
+
+/* =========================================================
+   AUTO FIT
+========================================================= */
+
+function fitElement(element, minimum, maximum) {
+
+    if (!element) return;
+
+
+    let size = maximum;
+
+
+    element.style.fontSize =
+        size + "pt";
+
+
+    /*
+       We use both width and height.
+
+       This prevents:
+
+       - text disappearing
+       - text being cut
+       - long office names
+       - long Nepali names
+    */
+
+    for (let i = 0; i < 40; i++) {
+
+        const tooWide =
+            element.scrollWidth >
+            element.clientWidth + 1;
+
+
+        const tooTall =
+            element.scrollHeight >
+            element.clientHeight + 1;
+
+
+        if (!tooWide && !tooTall) {
+
+            break;
+
+        }
+
+
+        size -= .5;
+
+
+        if (size <= minimum) {
+
+            size = minimum;
+
+            break;
+
+        }
+
+
+        element.style.fontSize =
+            size + "pt";
+
+    }
+
+}
+
+
+/* =========================================================
+   AUTO FIT TAG
+========================================================= */
+
+function autoFitTag(tag) {
+
+    if (!settings.autoFit) return;
+
+
+    const name =
+        tag.querySelector(".tag-name");
+
+    const designation =
+        tag.querySelector(".tag-designation");
+
+    const office =
+        tag.querySelector(".tag-office");
+
+
+    /*
+       Name gets the largest space.
+    */
+
+    fitElement(
+        name,
+        14,
+        settings.nameSize
+    );
+
+
+    /*
+       Designation remains larger.
+    */
+
+    fitElement(
+        designation,
+        12,
+        settings.designationSize
+    );
+
+
+    /*
+       Office is also intentionally large.
+    */
+
+    fitElement(
+        office,
+        10,
+        settings.officeSize
+    );
+
+}
+
+
+/* =========================================================
+   RENDER PREVIEW
+========================================================= */
+
+function renderPreview() {
+
+    const preview =
+        document.getElementById("previewArea");
+
+
+    preview.innerHTML = "";
+
+
+    const selected =
+        members.filter(m => m.selected);
+
+
+    document.getElementById(
+        "previewCount"
+    ).textContent =
+        selected.length +
+        (selected.length === 1
+            ? " tag"
+            : " tags");
+
+
+    if (selected.length === 0) {
+
+        preview.innerHTML = `
+            <div class="empty-state">
+
+                <div class="empty-state-icon">
+                    🪪
+                </div>
+
+                <strong>
+                    No tags selected
+                </strong>
+
+                <br>
+
+                Select one or more members
+                from the table.
+
+            </div>
+        `;
+
+        return;
+
+    }
+
+
+    selected.forEach(member => {
+
+        const wrapper =
+            document.createElement("div");
+
+        wrapper.className =
+            "preview-tag-wrapper";
+
+
+        wrapper.style.transform =
+            `scale(${settings.previewScale / 100})`;
+
+
+        wrapper.style.height =
+            `${100 * settings.previewScale / 100}mm`;
+
+
+        const tag =
+            createTag(member);
+
+
+        wrapper.appendChild(tag);
+
+        preview.appendChild(wrapper);
+
+
+        /*
+           Wait until browser lays out text.
+        */
+
+        requestAnimationFrame(() => {
+
+            autoFitTag(tag);
+
+        });
+
+    });
+
+}
+
+
+/* =========================================================
+   RENDER TABLE
+========================================================= */
+
+function renderTable() {
+
+    const body =
+        document.getElementById("membersBody");
+
+    const search =
+        document.getElementById("searchInput")
+            .value
+            .trim()
+            .toLowerCase();
+
+
+    body.innerHTML = "";
+
+
+    const filtered =
+        members.filter(member => {
+
+            if (!search) return true;
+
+            return (
+                member.name.toLowerCase().includes(search) ||
+                member.designation.toLowerCase().includes(search) ||
+                member.office.toLowerCase().includes(search)
+            );
+
+        });
+
+
+    if (filtered.length === 0) {
+
+        body.innerHTML = `
+            <tr>
+                <td colspan="5">
+                    <div class="empty-state">
+
+                        No members found.
+
+                    </div>
+                </td>
+            </tr>
+        `;
+
+    }
+
+
+    filtered.forEach(member => {
+
+        const row =
+            document.createElement("tr");
+
+
+        row.dataset.id =
+            member.id;
+
+
+        row.innerHTML = `
+
+            <td>
+
+                <input
+                    type="checkbox"
+                    class="member-checkbox"
+                    ${member.selected ? "checked" : ""}
+                    onchange="toggleMember('${member.id}', this.checked)"
+                >
+
+            </td>
+
+            <td>
+                ${escapeHTML(member.name)}
+            </td>
+
+            <td>
+                ${escapeHTML(member.designation)}
+            </td>
+
+            <td>
+                ${escapeHTML(member.office)}
+            </td>
+
+            <td>
+
+                <div class="action-buttons">
+
+                    <button
+                        class="edit-btn"
+                        onclick="editMember('${member.id}')"
+                    >
+                        Edit
+                    </button>
+
+                    <button
+                        class="delete-btn"
+                        onclick="deleteMember('${member.id}')"
+                    >
+                        Delete
+                    </button>
+
+                </div>
+
+            </td>
+
+        `;
+
+
+        body.appendChild(row);
+
+    });
+
+
+    document.getElementById(
+        "memberCount"
+    ).textContent =
+        members.length;
+
+
+    updateMasterCheckbox();
+
+}
+
+
+/* =========================================================
+   ADD / UPDATE
+========================================================= */
+
+function saveEntry() {
+
+    const name =
+        document.getElementById("nameInput")
+            .value
+            .trim();
+
+    const designation =
+        document.getElementById("designationInput")
+            .value
+            .trim();
+
+    const office =
+        document.getElementById("officeInput")
+            .value
+            .trim();
+
+
+    if (!name) {
+
+        alert(
+            "Please enter the full name."
+        );
+
+        document.getElementById(
+            "nameInput"
+        ).focus();
+
+        return;
+
+    }
+
+
+    if (!designation) {
+
+        alert(
+            "Please enter designation."
+        );
+
+        return;
+
+    }
+
+
+    if (!office) {
+
+        alert(
+            "Please enter organization / office."
+        );
+
+        return;
+
+    }
+
+
+    if (editingId !== null) {
+
+        const member =
+            members.find(
+                m => m.id === editingId
+            );
+
+
+        if (member) {
+
+            member.name =
+                name;
+
+            member.designation =
+                designation;
+
+            member.office =
+                office;
+
+        }
+
+
+        editingId = null;
+
+        document.getElementById(
+            "formTitle"
+        ).textContent =
+            "Add Name Tag";
+
+
+        document.getElementById(
+            "saveButton"
+        ).textContent =
+            "Save Entry";
+
+    }
+
+    else {
+
+        members.push({
+
+            id:
+                Date.now().toString(),
+
+            name,
+
+            designation,
+
+            office,
+
+            selected: true
+
+        });
+
+    }
+
+
+    clearForm();
+
+    saveStorage();
+
+    renderAll();
+
+}
+
+
+/* =========================================================
+   EDIT
+========================================================= */
+
+function editMember(id) {
+
+    const member =
+        members.find(
+            m => m.id === id
+        );
+
+
+    if (!member) return;
+
+
+    editingId = id;
+
+
+    document.getElementById(
+        "nameInput"
+    ).value =
+        member.name;
+
+
+    document.getElementById(
+        "designationInput"
+    ).value =
+        member.designation;
+
+
+    document.getElementById(
+        "officeInput"
+    ).value =
+        member.office;
+
+
+    document.getElementById(
+        "formTitle"
+    ).textContent =
+        "Edit Name Tag";
+
+
+    document.getElementById(
+        "saveButton"
+    ).textContent =
+        "Update Entry";
+
+
+    window.scrollTo({
+        top: 0,
+        behavior: "smooth"
+    });
+
+}
+
+
+/* =========================================================
+   DELETE
+========================================================= */
+
+function deleteMember(id) {
+
+    const member =
+        members.find(
+            m => m.id === id
+        );
+
+
+    if (!member) return;
+
+
+    if (!confirm(
+        `Delete "${member.name}"?`
+    )) {
+
+        return;
+
+    }
+
+
+    members =
+        members.filter(
+            m => m.id !== id
+        );
+
+
+    saveStorage();
+
+    renderAll();
+
+}
+
+
+/* =========================================================
+   CLEAR ALL
+========================================================= */
+
+function clearAllData() {
+
+    if (members.length === 0) {
+
+        return;
+
+    }
+
+
+    if (!confirm(
+        "Are you sure you want to delete ALL saved members?"
+    )) {
+
+        return;
+
+    }
+
+
+    members = [];
+
+    editingId = null;
+
+    clearForm();
+
+    saveStorage();
+
+    renderAll();
+
+}
+
+
+/* =========================================================
+   NEW ENTRY
+========================================================= */
+
+function newEntry() {
+
+    editingId = null;
+
+    clearForm();
+
+
+    document.getElementById(
+        "formTitle"
+    ).textContent =
+        "Add Name Tag";
+
+
+    document.getElementById(
+        "saveButton"
+    ).textContent =
+        "Save Entry";
+
+
+    document.getElementById(
+        "nameInput"
+    ).focus();
+
+}
+
+
+/* =========================================================
+   CANCEL EDIT
+========================================================= */
+
+function cancelEdit() {
+
+    editingId = null;
+
+    clearForm();
+
+
+    document.getElementById(
+        "formTitle"
+    ).textContent =
+        "Add Name Tag";
+
+
+    document.getElementById(
+        "saveButton"
+    ).textContent =
+        "Save Entry";
+
+}
+
+
+/* =========================================================
+   CLEAR FORM
+========================================================= */
+
+function clearForm() {
+
+    document.getElementById(
+        "nameInput"
+    ).value = "";
+
+    document.getElementById(
+        "designationInput"
+    ).value = "";
+
+    document.getElementById(
+        "officeInput"
+    ).value = "";
+
+}
+
+
+/* =========================================================
+   MEMBER SELECTION
+========================================================= */
+
+function toggleMember(id, checked) {
+
+    const member =
+        members.find(
+            m => m.id === id
+        );
+
+
+    if (!member) return;
+
+
+    member.selected =
+        checked;
+
+
+    saveStorage();
+
+    renderPreview();
+
+    updateMasterCheckbox();
+
+}
+
+
+/* =========================================================
+   SELECT ALL
+========================================================= */
+
+function selectAll() {
+
+    members.forEach(
+        m => m.selected = true
+    );
+
+
+    saveStorage();
+
+    renderTable();
+
+    renderPreview();
+
+}
+
+
+/* =========================================================
+   DESELECT ALL
+========================================================= */
+
+function deselectAll() {
+
+    members.forEach(
+        m => m.selected = false
+    );
+
+
+    saveStorage();
+
+    renderTable();
+
+    renderPreview();
+
+}
+
+
+/* =========================================================
+   TOGGLE ALL
+========================================================= */
+
+function toggleAll(checked) {
+
+    members.forEach(
+        m => m.selected = checked
+    );
+
+
+    saveStorage();
+
+    renderTable();
+
+    renderPreview();
+
+}
+
+
+/* =========================================================
+   MASTER CHECKBOX
+========================================================= */
+
+function updateMasterCheckbox() {
+
+    const master =
+        document.getElementById(
+            "masterCheckbox"
+        );
+
+
+    if (!master) return;
+
+
+    if (members.length === 0) {
+
+        master.checked = false;
+
+        master.indeterminate = false;
+
+        return;
+
+    }
+
+
+    const selected =
+        members.filter(
+            m => m.selected
+        ).length;
+
+
+    master.checked =
+        selected === members.length;
+
+
+    master.indeterminate =
+        selected > 0 &&
+        selected < members.length;
+
+}
+
+
+/* =========================================================
+   PRINT
+========================================================= */
+
+function printSelectedTags() {
+
+    const selected =
+        members.filter(
+            m =>
+                m.selected &&
+                m.name &&
+                m.name.trim() !== ""
+        );
+
+
+    /*
+       THIS IS THE IMPORTANT FIX.
+
+       We create the actual print documents
+       inside the current document.
+
+       We do NOT use:
+
+       window.open()
+       document.write()
+       new print window
+
+       This prevents blank Chrome print previews.
+    */
+
+
+    if (selected.length === 0) {
+
+        alert(
+            "Please select at least one valid name tag to print."
+        );
+
+        return;
+
+    }
+
+
+    const printArea =
+        document.getElementById(
+            "printArea"
+        );
+
+
+    printArea.innerHTML = "";
+
+
+    selected.forEach(member => {
+
+        const tag =
+            createTag(member);
+
+        printArea.appendChild(tag);
+
+    });
+
+
+    /*
+       Give browser time to calculate
+       Nepali text dimensions.
+    */
+
+    requestAnimationFrame(() => {
+
+        requestAnimationFrame(() => {
+
+
+            const tags =
+                printArea.querySelectorAll(
+                    ".print-tag"
+                );
+
+
+            tags.forEach(tag => {
+
+                autoFitTag(tag);
+
+            });
+
+
+            /*
+               Another short delay ensures
+               fonts/layout have been calculated
+               before Chrome creates print preview.
+            */
+
+            setTimeout(() => {
+
+                window.print();
+
+            }, 250);
+
+        });
+
+    });
+
+}
+
+
+/* =========================================================
+   AFTER PRINT
+========================================================= */
+
+window.addEventListener(
+    "afterprint",
+    () => {
+
+        document.getElementById(
+            "printArea"
+        ).innerHTML = "";
+
+    }
+);
+
+
+/* =========================================================
+   EXCEL IMPORT
+========================================================= */
+
+document.getElementById(
+    "excelFile"
+).addEventListener(
+    "change",
+    handleExcelImport
+);
+
+
+function handleExcelImport(event) {
+
+    const file =
+        event.target.files[0];
+
+
+    if (!file) return;
+
+
+    if (
+        typeof XLSX ===
+        "undefined"
+    ) {
+
+        alert(
+            "Excel library could not be loaded. Please check your internet connection."
+        );
+
+        return;
+
+    }
+
+
+    const reader =
+        new FileReader();
+
+
+    reader.onload =
+        function(e) {
+
+            try {
+
+                const data =
+                    new Uint8Array(
+                        e.target.result
+                    );
+
+
+                const workbook =
+                    XLSX.read(
+                        data,
+                        {
+                            type: "array"
+                        }
+                    );
+
+
+                const firstSheet =
+                    workbook.Sheets[
+                        workbook.SheetNames[0]
+                    ];
+
+
+                const rows =
+                    XLSX.utils.sheet_to_json(
+                        firstSheet,
+                        {
+                            defval: ""
+                        }
+                    );
+
+
+                if (!rows.length) {
+
+                    alert(
+                        "The Excel file is empty."
+                    );
+
+                    return;
+
+                }
+
+
+                let imported = 0;
+
+
+                rows.forEach(row => {
+
+                    /*
+                       Supports common column names.
+                    */
+
+                    const name =
+                        String(
+                            row.Name ??
+                            row.name ??
+                            row["Full Name"] ??
+                            row["Full Name / पूरा नाम"] ??
+                            row["पूरा नाम"] ??
+                            ""
+                        ).trim();
+
+
+                    const designation =
+                        String(
+                            row.Designation ??
+                            row.designation ??
+                            row.Post ??
+                            row.Position ??
+                            row["Designation / पद"] ??
+                            row["पद"] ??
+                            ""
+                        ).trim();
+
+
+                    const office =
+                        String(
+                            row.Organization ??
+                            row.Office ??
+                            row.organization ??
+                            row.office ??
+                            row["Organization / Office"] ??
+                            row["कार्यालय"] ??
+                            ""
+                        ).trim();
+
+
+                    /*
+                       Do NOT create blank rows.
+
+                       This fixes the blank page problem.
+                    */
+
+                    if (!name) {
+
+                        return;
+
+                    }
+
+
+                    members.push({
+
+                        id:
+                            Date.now().toString()
+                            + "-"
+                            + Math.random()
+                                .toString(36)
+                                .substring(2,8),
+
+                        name,
+
+                        designation,
+
+                        office,
+
+                        selected: true
+
+                    });
+
+
+                    imported++;
+
+                });
+
+
+                saveStorage();
+
+                renderAll();
+
+
+                alert(
+                    `${imported} name tag(s) imported successfully.`
+                );
+
+
+            }
+
+            catch(error) {
+
+                console.error(error);
+
+                alert(
+                    "Unable to read the Excel file."
+                );
+
+            }
+
+        };
+
+
+    reader.readAsArrayBuffer(file);
+
+
+    event.target.value = "";
+
+}
+
+
+/* =========================================================
+   EXPORT EXCEL
+========================================================= */
+
+function exportExcel() {
+
+    if (!members.length) {
+
+        alert(
+            "There are no members to export."
+        );
+
+        return;
+
+    }
+
+
+    if (
+        typeof XLSX ===
+        "undefined"
+    ) {
+
+        alert(
+            "Excel library could not be loaded."
+        );
+
+        return;
+
+    }
+
+
+    const data =
+        members.map(
+            member => ({
+
+                "Name":
+                    member.name,
+
+                "Designation":
+                    member.designation,
+
+                "Organization / Office":
+                    member.office,
+
+                "Selected":
+                    member.selected
+                        ? "Yes"
+                        : "No"
+
+            })
+        );
+
+
+    const worksheet =
+        XLSX.utils.json_to_sheet(
+            data
+        );
+
+
+    worksheet["!cols"] = [
+
+        { wch: 35 },
+
+        { wch: 25 },
+
+        { wch: 55 },
+
+        { wch: 12 }
+
+    ];
+
+
+    const workbook =
+        XLSX.utils.book_new();
+
+
+    XLSX.utils.book_append_sheet(
+        workbook,
+        worksheet,
+        "Name Tags"
+    );
+
+
+    XLSX.writeFile(
+        workbook,
+        "Name-Tags-220x100mm.xlsx"
+    );
+
+}
+
+
+/* =========================================================
+   SETTINGS UI
+========================================================= */
+
+function updateSettingsFromUI() {
+
+    settings.fontFamily =
+        document.getElementById(
+            "fontFamily"
+        ).value;
+
+
+    settings.nameSize =
+        Number(
+            document.getElementById(
+                "nameSize"
+            ).value
+        );
+
+
+    settings.designationSize =
+        Number(
+            document.getElementById(
+                "designationSize"
+            ).value
+        );
+
+
+    settings.officeSize =
+        Number(
+            document.getElementById(
+                "officeSize"
+            ).value
+        );
+
+
+    settings.boldName =
+        document.getElementById(
+            "boldName"
+        ).checked;
+
+
+    settings.boldDesignation =
+        document.getElementById(
+            "boldDesignation"
+        ).checked;
+
+
+    settings.boldOffice =
+        document.getElementById(
+            "boldOffice"
+        ).checked;
+
+
+    settings.autoFit =
+        document.getElementById(
+            "autoFit"
+        ).checked;
+
+
+    settings.borderWidth =
+        Number(
+            document.getElementById(
+                "borderWidth"
+            ).value
+        );
+
+
+    settings.innerBorder =
+        document.getElementById(
+            "innerBorder"
+        ).value;
+
+
+    settings.cornerDecoration =
+        document.getElementById(
+            "cornerDecoration"
+        ).checked;
+
+
+    settings.outerBorder =
+        document.getElementById(
+            "outerBorder"
+        ).checked;
+
+
+    settings.contentWidth =
+        Number(
+            document.getElementById(
+                "contentWidth"
+            ).value
+        );
+
+
+    settings.previewScale =
+        Number(
+            document.getElementById(
+                "previewScale"
+            ).value
+        );
+
+
+    updateSettingLabels();
+
+    saveStorage();
+
+    renderPreview();
+
+}
+
+
+/* =========================================================
+   SETTING LABELS
+========================================================= */
+
+function updateSettingLabels() {
+
+    const name =
+        settings.nameSize;
+
+    document.getElementById(
+        "nameSizeValue"
+    ).textContent =
+        name + " pt";
+
+    document.getElementById(
+        "nameSizeValue2"
+    ).textContent =
+        name;
+
+
+    const designation =
+        settings.designationSize;
+
+    document.getElementById(
+        "designationSizeValue"
+    ).textContent =
+        designation + " pt";
+
+    document.getElementById(
+        "designationSizeValue2"
+    ).textContent =
+        designation;
+
+
+    const office =
+        settings.officeSize;
+
+    document.getElementById(
+        "officeSizeValue"
+    ).textContent =
+        office + " pt";
+
+    document.getElementById(
+        "officeSizeValue2"
+    ).textContent =
+        office;
+
+
+    document.getElementById(
+        "borderValue"
+    ).textContent =
+        settings.borderWidth + " mm";
+
+
+    document.getElementById(
+        "contentWidthValue"
+    ).textContent =
+        settings.contentWidth + "%";
+
+
+    document.getElementById(
+        "previewScaleValue"
+    ).textContent =
+        settings.previewScale + "%";
+
+}
+
+
+/* =========================================================
+   CONNECT SETTINGS
+========================================================= */
+
+const settingControls = [
+
+    "fontFamily",
+    "nameSize",
+    "designationSize",
+    "officeSize",
+    "boldName",
+    "boldDesignation",
+    "boldOffice",
+    "autoFit",
+    "borderWidth",
+    "innerBorder",
+    "cornerDecoration",
+    "outerBorder",
+    "contentWidth",
+    "previewScale"
+
+];
+
+
+settingControls.forEach(id => {
+
+    const element =
+        document.getElementById(id);
+
+
+    if (!element) return;
+
+
+    element.addEventListener(
+        "input",
+        updateSettingsFromUI
+    );
+
+
+    element.addEventListener(
+        "change",
+        updateSettingsFromUI
+    );
+
+});
+
+
+/* =========================================================
+   APPLY SAVED SETTINGS TO UI
+========================================================= */
+
+function applySettingsToUI() {
+
+    document.getElementById(
+        "fontFamily"
+    ).value =
+        settings.fontFamily;
+
+
+    document.getElementById(
+        "nameSize"
+    ).value =
+        settings.nameSize;
+
+
+    document.getElementById(
+        "designationSize"
+    ).value =
+        settings.designationSize;
+
+
+    document.getElementById(
+        "officeSize"
+    ).value =
+        settings.officeSize;
+
+
+    document.getElementById(
+        "boldName"
+    ).checked =
+        settings.boldName;
+
+
+    document.getElementById(
+        "boldDesignation"
+    ).checked =
+        settings.boldDesignation;
+
+
+    document.getElementById(
+        "boldOffice"
+    ).checked =
+        settings.boldOffice;
+
+
+    document.getElementById(
+        "autoFit"
+    ).checked =
+        settings.autoFit;
+
+
+    document.getElementById(
+        "borderWidth"
+    ).value =
+        settings.borderWidth;
+
+
+    document.getElementById(
+        "innerBorder"
+    ).value =
+        settings.innerBorder;
+
+
+    document.getElementById(
+        "cornerDecoration"
+    ).checked =
+        settings.cornerDecoration;
+
+
+    document.getElementById(
+        "outerBorder"
+    ).checked =
+        settings.outerBorder;
+
+
+    document.getElementById(
+        "contentWidth"
+    ).value =
+        settings.contentWidth;
+
+
+    document.getElementById(
+        "previewScale"
+    ).value =
+        settings.previewScale;
+
+
+    updateSettingLabels();
+
+}
+
+
+/* =========================================================
+   SEARCH
+========================================================= */
+
+document.getElementById(
+    "searchInput"
+).addEventListener(
+    "input",
+    renderTable
+);
+
+
+/* =========================================================
+   KEYBOARD SHORTCUT
+========================================================= */
+
+document.addEventListener(
+    "keydown",
+    event => {
+
+        /*
+           Ctrl + P
+        */
+
+        if (
+            event.ctrlKey &&
+            event.key.toLowerCase() === "p"
+        ) {
+
+            event.preventDefault();
+
+            printSelectedTags();
+
+        }
+
+
+        /*
+           Ctrl + Enter
+           Save entry
+        */
+
+        if (
+            event.ctrlKey &&
+            event.key === "Enter"
+        ) {
+
+            saveEntry();
+
+        }
+
+    }
+);
+
+
+/* =========================================================
+   RENDER ALL
+========================================================= */
+
+function renderAll() {
+
+    renderTable();
+
+    renderPreview();
+
+}
+
+
+/* =========================================================
+   INITIAL SAMPLE DATA
+========================================================= */
+
+function createSampleIfEmpty() {
+
+    /*
+       Uncomment this section if you want
+       example records on first launch.
+
+       Currently disabled so the application
+       starts completely empty.
+    */
+
+
+    /*
+    if (members.length === 0) {
+
+        members = [
+
+            {
+                id: "1",
+                name: "माननीय मन्त्री सोविता गौतम",
+                designation: "मन्त्री",
+                office: "कानून न्याय तथा संसदीय मामिला मन्त्रालय",
+                selected: true
+            },
+
+            {
+                id: "2",
+                name: "दिनेश महतरा क्षेत्री",
+                designation: "सहसचिव",
+                office: "सङ्घीय संसद सचिवालय",
+                selected: true
+            }
+
+        ];
+
+        saveStorage();
+
+    }
+    */
+
+}
+
+
+/* =========================================================
+   INITIALIZE
+========================================================= */
+
+loadData();
+
+createSampleIfEmpty();
+
+applySettingsToUI();
+
+renderAll();
+
+
+</script>
+
+</body>
+</html>
