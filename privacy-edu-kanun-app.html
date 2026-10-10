@@ -1,113 +1,520 @@
-
+```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
     <title>Google Play Console - Version 1.0.1 Update</title>
+
+    <style>
+        :root {
+            --primary: #1d4ed8;
+            --primary-light: #eff6ff;
+            --text: #1e293b;
+            --muted: #64748b;
+            --border: #e2e8f0;
+            --background: #f1f5f9;
+            --surface: #ffffff;
+            --success: #15803d;
+            --success-bg: #f0fdf4;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            padding: 40px 20px;
+            background: var(--background);
+            color: var(--text);
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: 15px;
+            line-height: 1.8;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 36px;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            box-shadow: 0 8px 30px rgba(15, 23, 42, 0.06);
+        }
+
+        .page-header {
+            padding-bottom: 24px;
+            margin-bottom: 30px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .eyebrow {
+            display: inline-block;
+            padding: 4px 12px;
+            margin-bottom: 12px;
+            color: var(--primary);
+            background: var(--primary-light);
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: 0.7px;
+            text-transform: uppercase;
+        }
+
+        h1 {
+            margin: 0;
+            color: #0f172a;
+            font-size: clamp(25px, 4vw, 34px);
+            line-height: 1.3;
+            letter-spacing: -0.7px;
+        }
+
+        .subtitle {
+            margin: 12px 0 0;
+            color: var(--muted);
+            font-size: 15px;
+        }
+
+        h2 {
+            margin: 0 0 20px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid var(--border);
+            color: #0f172a;
+            font-size: 22px;
+            line-height: 1.4;
+        }
+
+        h3 {
+            margin: 22px 0 10px;
+            color: #334155;
+            font-size: 16px;
+        }
+
+        p {
+            margin: 10px 0 16px;
+        }
+
+        .section {
+            margin-bottom: 32px;
+        }
+
+        .source-list {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 14px;
+        }
+
+        .source-card {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            min-width: 0;
+            padding: 16px;
+            background: #f8fafc;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            transition: border-color 0.2s, background 0.2s;
+        }
+
+        .source-card:hover {
+            background: var(--primary-light);
+            border-color: #93c5fd;
+        }
+
+        .source-icon {
+            display: flex;
+            flex-shrink: 0;
+            align-items: center;
+            justify-content: center;
+            width: 42px;
+            height: 42px;
+            color: var(--primary);
+            background: #dbeafe;
+            border-radius: 10px;
+            font-size: 18px;
+            font-weight: 700;
+        }
+
+        .source-info {
+            min-width: 0;
+        }
+
+        .source-name {
+            display: block;
+            margin-bottom: 3px;
+            color: #334155;
+            font-size: 13px;
+            font-weight: 700;
+        }
+
+        a {
+            color: var(--primary);
+            text-decoration: none;
+            overflow-wrap: anywhere;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+
+        .source-link {
+            font-size: 13px;
+            line-height: 1.5;
+        }
+
+        .release-card {
+            padding: 20px;
+            margin-bottom: 16px;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+        }
+
+        .language-label {
+            display: inline-block;
+            padding: 3px 9px;
+            margin-bottom: 8px;
+            background: #f1f5f9;
+            color: #475569;
+            border-radius: 5px;
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        .release-card p {
+            margin: 0;
+        }
+
+        .nepali {
+            font-family: "Noto Sans Devanagari", "Mangal",
+                         Arial, sans-serif;
+        }
+
+        .reviewer-card {
+            padding: 24px;
+            background: #f8fafc;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+        }
+
+        .reviewer-intro {
+            padding: 16px 18px;
+            margin-bottom: 22px;
+            background: var(--primary-light);
+            border-left: 4px solid var(--primary);
+            border-radius: 5px;
+        }
+
+        .reviewer-intro p {
+            margin: 0;
+        }
+
+        ol {
+            padding-left: 24px;
+            margin: 12px 0 20px;
+        }
+
+        ol > li {
+            padding-left: 6px;
+            margin-bottom: 18px;
+        }
+
+        ul {
+            padding-left: 22px;
+            margin-top: 10px;
+        }
+
+        ul li {
+            margin-bottom: 8px;
+        }
+
+        .inline-sources {
+            padding: 14px 16px;
+            background: #ffffff;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+        }
+
+        .inline-sources li {
+            overflow-wrap: anywhere;
+        }
+
+        .notice {
+            padding: 16px 18px;
+            margin-top: 24px;
+            background: var(--success-bg);
+            border: 1px solid #bbf7d0;
+            border-radius: 10px;
+        }
+
+        .notice strong {
+            color: var(--success);
+        }
+
+        .notice p {
+            margin: 5px 0 0;
+        }
+
+        .footer {
+            padding-top: 20px;
+            margin-top: 32px;
+            border-top: 1px solid var(--border);
+            color: var(--muted);
+            font-size: 12px;
+            text-align: center;
+        }
+
+        @media (max-width: 600px) {
+            body {
+                padding: 14px 10px;
+                font-size: 14px;
+            }
+
+            .container {
+                padding: 22px 16px;
+                border-radius: 12px;
+            }
+
+            .source-list {
+                grid-template-columns: 1fr;
+            }
+
+            h2 {
+                font-size: 19px;
+            }
+
+            .reviewer-card {
+                padding: 16px;
+            }
+
+            .release-card {
+                padding: 16px;
+            }
+        }
+
+        @media print {
+            body {
+                padding: 0;
+                background: #ffffff;
+            }
+
+            .container {
+                max-width: none;
+                padding: 15px;
+                border: none;
+                box-shadow: none;
+            }
+
+            .source-card,
+            .release-card,
+            .reviewer-card,
+            .reviewer-intro,
+            .notice {
+                break-inside: avoid;
+            }
+
+            a {
+                color: #1e293b;
+            }
+        }
+    </style>
 </head>
+
 <body>
 
+    <main class="container">
 
-    <h3>Official Government Sources</h3>
+        <header class="page-header">
+            <span class="eyebrow">Google Play Console</span>
+            <h1>App Update &amp; Compliance</h1>
+            <p class="subtitle">
+                Version 1.0.1 · Version Code 2
+            </p>
+        </header>
 
-    <p>
-        <a href="https://moest.gov.np/" target="_blank" rel="noopener noreferrer">
-            https://moest.gov.np/
-        </a>
-    </p>
+        <!-- Official Government Sources -->
+        <section class="section">
+            <h2>Official Government Sources</h2>
 
-    <p>
-        <a href="https://lawcommission.gov.np/" target="_blank" rel="noopener noreferrer">
-            https://lawcommission.gov.np/
-        </a>
-    </p>
+            <div class="source-list">
 
-    <p>
-        <a href="https://rajpatra.dop.gov.np/" target="_blank" rel="noopener noreferrer">
-            https://rajpatra.dop.gov.np/
-        </a>
-    </p>
+                <div class="source-card">
+                    <div class="source-icon">01</div>
+                    <div class="source-info">
+                        <span class="source-name">
+                            Ministry of Education, Science and Technology
+                        </span>
+                        <a class="source-link"
+                           href="https://moest.gov.np/"
+                           target="_blank"
+                           rel="noopener noreferrer">
+                            moest.gov.np
+                        </a>
+                    </div>
+                </div>
 
-    <p>
-        <a href="https://cehrd.gov.np/" target="_blank" rel="noopener noreferrer">
-            https://cehrd.gov.np/
-        </a>
-    </p>
+                <div class="source-card">
+                    <div class="source-icon">02</div>
+                    <div class="source-info">
+                        <span class="source-name">
+                            Nepal Law Commission
+                        </span>
+                        <a class="source-link"
+                           href="https://lawcommission.gov.np/"
+                           target="_blank"
+                           rel="noopener noreferrer">
+                            lawcommission.gov.np
+                        </a>
+                    </div>
+                </div>
 
-    <hr>
+                <div class="source-card">
+                    <div class="source-icon">03</div>
+                    <div class="source-info">
+                        <span class="source-name">
+                            Nepal Gazette
+                        </span>
+                        <a class="source-link"
+                           href="https://rajpatra.dop.gov.np/"
+                           target="_blank"
+                           rel="noopener noreferrer">
+                            rajpatra.dop.gov.np
+                        </a>
+                    </div>
+                </div>
 
-    <h2>3. Release Notes — Version 1.0.1</h2>
+                <div class="source-card">
+                    <div class="source-icon">04</div>
+                    <div class="source-info">
+                        <span class="source-name">
+                            Center for Education and Human Resource Development
+                        </span>
+                        <a class="source-link"
+                           href="https://cehrd.gov.np/"
+                           target="_blank"
+                           rel="noopener noreferrer">
+                            cehrd.gov.np
+                        </a>
+                    </div>
+                </div>
 
-    <h3>Nepali</h3>
-    <p lang="ne">
-        गैर-आधिकारिक स्थिति स्पष्ट गरियो। आधिकारिक सरकारी स्रोत लिंक
-        थपियो: moest.gov.np, lawcommission.gov.np, rajpatra.dop.gov.np,
-        cehrd.gov.np।
-    </p>
+            </div>
+        </section>
 
-    <h3>English</h3>
-    <p>
-        Added a clear non-official disclaimer and official government
-        source links: moest.gov.np, lawcommission.gov.np,
-        rajpatra.dop.gov.np, cehrd.gov.np.
-    </p>
+        <!-- Release Notes -->
+        <section class="section">
+            <h2>Release Notes — Version 1.0.1</h2>
 
-    <hr>
+            <div class="release-card">
+                <span class="language-label">नेपाली</span>
+                <p class="nepali" lang="ne">
+                    गैर-आधिकारिक स्थिति स्पष्ट गरियो। आधिकारिक सरकारी
+                    स्रोत लिंक थपियो: moest.gov.np, lawcommission.gov.np,
+                    rajpatra.dop.gov.np, cehrd.gov.np।
+                </p>
+            </div>
 
-    <h2>4. Optional Reply to Reviewer</h2>
+            <div class="release-card">
+                <span class="language-label">English</span>
+                <p>
+                    Added a clear non-official disclaimer and official
+                    government source links: moest.gov.np,
+                    lawcommission.gov.np, rajpatra.dop.gov.np,
+                    cehrd.gov.np.
+                </p>
+            </div>
+        </section>
 
-    <p>
-        This app is an independent, unofficial reference collection of
-        publicly available education laws of Nepal. It is not affiliated
-        with, authorized by, or representing the Government of Nepal or
-        any ministry.
-    </p>
+        <!-- Reviewer Response -->
+        <section class="section">
+            <h2>Optional Reply to Reviewer</h2>
 
-    <p>We have:</p>
+            <div class="reviewer-card">
 
-    <ol>
-        <li>
-            Added a clear, easy-to-see in-app disclaimer on the welcome
-            screen, home screen, About page, document details, and Privacy
-            Policy stating that the app does not represent a government
-            entity.
-        </li>
+                <div class="reviewer-intro">
+                    <p>
+                        This app is an independent, unofficial reference
+                        collection of publicly available education laws
+                        of Nepal. It is not affiliated with, authorized
+                        by, or representing the Government of Nepal or
+                        any ministry.
+                    </p>
+                </div>
 
-        <li>
-            Added accessible official source URLs linking to the original
-            government websites:
-            <ul>
-                <li>
-                    <a href="https://moest.gov.np/" target="_blank"
-                       rel="noopener noreferrer">https://moest.gov.np/</a>
-                </li>
-                <li>
-                    <a href="https://lawcommission.gov.np/" target="_blank"
-                       rel="noopener noreferrer">https://lawcommission.gov.np/</a>
-                </li>
-                <li>
-                    <a href="https://rajpatra.dop.gov.np/" target="_blank"
-                       rel="noopener noreferrer">https://rajpatra.dop.gov.np/</a>
-                </li>
-                <li>
-                    <a href="https://cehrd.gov.np/" target="_blank"
-                       rel="noopener noreferrer">https://cehrd.gov.np/</a>
-                </li>
-            </ul>
-        </li>
+                <p><strong>We have:</strong></p>
 
-        <li>
-            Updated the Play Store short and full descriptions with the
-            same disclaimer and source links at the top.
-        </li>
-    </ol>
+                <ol>
+                    <li>
+                        Added a clear, easy-to-see in-app disclaimer on
+                        the welcome screen, home screen, About page,
+                        document details, and Privacy Policy stating
+                        that the app does not represent a government
+                        entity.
+                    </li>
 
-    <p>
-        The app only stores public PDFs for offline reading. Official text
-        must be verified on the government websites listed above.
-    </p>
+                    <li>
+                        Added accessible official source URLs linking
+                        to the original government websites:
 
+                        <ul class="inline-sources">
+                            <li>
+                                <a href="https://moest.gov.np/"
+                                   target="_blank"
+                                   rel="noopener noreferrer">
+                                    https://moest.gov.np/
+                                </a>
+                            </li>
+                            <li>
+                                <a href="https://lawcommission.gov.np/"
+                                   target="_blank"
+                                   rel="noopener noreferrer">
+                                    https://lawcommission.gov.np/
+                                </a>
+                            </li>
+                            <li>
+                                <a href="https://rajpatra.dop.gov.np/"
+                                   target="_blank"
+                                   rel="noopener noreferrer">
+                                    https://rajpatra.dop.gov.np/
+                                </a>
+                            </li>
+                            <li>
+                                <a href="https://cehrd.gov.np/"
+                                   target="_blank"
+                                   rel="noopener noreferrer">
+                                    https://cehrd.gov.np/
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+
+                    <li>
+                        Updated the Play Store short and full
+                        descriptions with the same disclaimer and
+                        source links at the top.
+                    </li>
+                </ol>
+
+                <div class="notice">
+                    <strong>Content Verification Notice</strong>
+                    <p>
+                        The app only stores public PDFs for offline
+                        reading. Official text must be verified on
+                        the government websites listed above.
+                    </p>
+                </div>
+
+            </div>
+        </section>
+
+        <footer class="footer">
+            Independent, unofficial education law reference collection.
+            Not affiliated with the Government of Nepal.
+        </footer>
+
+    </main>
 
 </body>
 </html>
+```
